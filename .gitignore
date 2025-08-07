@@ -1,24 +1,37 @@
 # Dependencias
 node_modules/
 
+# Directorios de construcción/distribución
+dist/
+dist-ssr/
+build/
+
 # Archivos de entorno
 .env
 .env.local
+.env.*.local
+.env.production
 
 # Logs
 logs
 *.log
 npm-debug.log*
-
-# Directorios de construcción / distribución
-dist/
-build/
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
 # Archivos del sistema
 .DS_Store
 .thumbs.db
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.swp
 
 # IDE/Editor
-.vscode/
+.vscode/*
+!.vscode/extensions.json
 .idea/
-*.swp
