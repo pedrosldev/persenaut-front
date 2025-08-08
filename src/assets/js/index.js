@@ -57,29 +57,48 @@ function getFormData() {
 }
 
 function generatePrompt(theme, level, previousQuestions = []) {
-  const avoidRepetition = previousQuestions.length > 0
-    ? `\n\nPreguntas anteriores a evitar:\n${previousQuestions.slice(-3).join('\n')}`
-    : '';
+  const avoidRepetition = previousQuestions.length > 0 ?
+    `\n\nPREGUNTAS RECIENTES A EVITAR:\n${previousQuestions.slice(-3).join('\n')}\n` : '';
 
-  return `Como experto en ${theme}, genera una pregunta test única (nivel ${level}) con:
-- 1 pregunta clara
-- 4 opciones (A, B, C, D)
-- Respuesta correcta marcada
+  return `ERES UN EXAMINADOR PROFESIONAL. GENERA EXCLUSIVAMENTE PREGUNTAS TIPO TEST CON 4 OPCIONES (A-D) Y 1 RESPUESTA CORRECTA.
+
+TEMA: ${theme}
+NIVEL: ${level}
 ${avoidRepetition}
 
-Formato requerido:
-Pregunta: ¿...?
-A) Opción A
-B) Opción B
-C) Opción C
-D) Opción D
-Respuesta correcta: [LETRA]`;
+FORMATO OBLIGATORIO (COPIA ESTA ESTRUCTURA):
+
+Pregunta: [Tu pregunta aquí]
+
+A) [Opción A]
+B) [Opción B]
+C) [Opción C]
+D) [Opción D]
+
+Respuesta correcta: [Letra]
+
+REGLAS ABSOLUTAS:
+1. ¡NUNCA omitas las opciones A-D!
+2. ¡Siempre incluye "Respuesta correcta:"!
+3. ¡Solo 4 opciones exactamente!
+4. ¡No añadas explicaciones adicionales!
+5. ¡Mantén el formato línea por línea!
+
+EJEMPLO VÁLIDO:
+Pregunta: ¿Qué comando muestra el espacio en disco en Linux?
+
+A) df -h
+B) ls -l
+C) cat /proc/meminfo
+D) netstat -tuln
+
+Respuesta correcta: A`;
 }
 
 async function fetchChallenge(prompt) {
   const payload = {
     prompt,
-    model: "phi3:mini",
+    model: "mistral",
     stream: false,
     options: { temperature: 0.7, top_p: 0.9 }
   };
@@ -107,29 +126,120 @@ async function fetchChallenge(prompt) {
 
 function formatQuestion(rawText) {
   if (!rawText || rawText.trim() === '') {
-    console.log("No hay texto para formatear:", rawText);
     return "No se recibió respuesta del servidor";
   }
 
   try {
-    // Limpiar formato Markdown básico si existe
+    // Normalizar saltos de línea y limpiar formato
     let question = String(rawText)
-      .replace(/\*\*/g, '') // Elimina negritas Markdown
-      .replace(/\n/g, '<br>')
+      .replace(/\r\n/g, '\n')  // Normalizar saltos de línea
+      .replace(/\*\*/g, '')    // Eliminar negritas
+      .replace(/\*/g, '')       // Eliminar cursivas
       .trim();
 
-    // Destacar respuesta correcta si existe
-    question = question.replace(
-      /Respuesta correcta:\s*([ABCD])/gi,
-      '<div class="correct-answer">✅ Respuesta correcta: <strong>$1</strong></div>'
-    );
+    // Extraer la respuesta correcta (manejar múltiples formatos)
+    let correctAnswer = null;
+    const answerMatch = question.match(/Respuesta correcta:\s*([ABCD])/i) ||
+      question.match(/Correcta:\s*([ABCD])/i) ||
+      question.match(/La respuesta correcta es\s*([ABCD])/i);
 
-    console.log("Pregunta formateada:", question); // Debug adicional
-    return question;
+    if (answerMatch) {
+      correctAnswer = answerMatch[1].toUpperCase();
+      // Eliminar la línea de respuesta correcta para no mostrarla en la pregunta
+      question = question.replace(/Respuesta correcta:\s*([ABCD]).*/i, '').trim();
+    }
+
+    // Separar la pregunta de las opciones
+    const questionParts = question.split(/\n\s*\n/); // Dividir por doble salto de línea
+    let questionText = questionParts[0] || "Pregunta no encontrada";
+    let optionsText = questionParts.slice(1).join('\n') || "";
+
+    // Formatear la pregunta principal
+    questionText = questionText.replace(/^Pregunta:\s*/i, '').trim();
+
+    // Extraer opciones (manejar diferentes formatos)
+    const options = [];
+    const optionRegex = /^([ABCD])[\)\.]\s*(.+)$/gm;
+    let optionMatch;
+
+    while ((optionMatch = optionRegex.exec(optionsText)) !== null) {
+      options.push({
+        letter: optionMatch[1],
+        text: optionMatch[2].trim()
+      });
+    }
+
+    // Si no encontramos opciones con el formato estándar, intentamos otro enfoque
+    if (options.length === 0) {
+      const lines = optionsText.split('\n').filter(line => line.trim().length > 0);
+      lines.forEach((line, index) => {
+        if (index < 4) { // Solo las primeras 4 líneas como opciones
+          const letter = String.fromCharCode(65 + index); // A, B, C, D
+          options.push({
+            letter: letter,
+            text: line.trim().replace(/^[ABCD][\)\.]\s*/, '')
+          });
+        }
+      });
+    }
+
+    // Construir HTML
+    let html = `
+      <div class="question-title"><strong>Pregunta:</strong> ${escapeHtml(questionText)}</div>
+      <div class="question-options">
+    `;
+
+    options.forEach(option => {
+      html += `
+        <div class="question-option" data-option="${option.letter}">
+          <strong>${option.letter})</strong> ${escapeHtml(option.text)}
+        </div>
+      `;
+    });
+
+    html += `</div>`;
+
+    // Añadir sección de respuesta si existe
+    if (correctAnswer) {
+      html += `
+        <div class="answer-controls">
+          <button type="button" class="btn show-answer-btn">🔍 Mostrar respuesta</button>
+        </div>
+        <div class="answer-section" style="display:none;">
+          <div class="correct-answer">✅ <strong>Respuesta correcta: ${correctAnswer}</strong></div>
+        </div>
+      `;
+    }
+
+    return html;
+
   } catch (error) {
-    console.error("Error formateando:", error);
-    return rawText || "Error al formatear la pregunta";
+    console.error("Error formateando pregunta:", error);
+    return `<div class="question-error">${escapeHtml(rawText)}</div>`;
   }
+}
+
+// Función auxiliar para arreglar formato verdadero/falso
+function fixTrueFalseFormat(text) {
+  // Extraer la pregunta principal
+  const questionMatch = text.match(/^(.*?)(?=Verdadero|A\)|Respuesta)/i);
+  const baseQuestion = questionMatch ? questionMatch[1].trim() : 'Pregunta:';
+
+  // Determinar la respuesta correcta
+  const isCorrectTrue = text.toLowerCase().includes('verdadero') &&
+    (text.toLowerCase().includes('correcta: a') ||
+      text.toLowerCase().includes('verdadero (a)'));
+
+  // Extraer explicación si existe
+  const explanationMatch = text.match(/explicación:\s*(.*?)$/i);
+  const explanation = explanationMatch ? `\nExplicación: ${explanationMatch[1]}` : '';
+
+  return `${baseQuestion}
+
+A) Verdadero
+B) Falso
+
+Respuesta correcta: ${isCorrectTrue ? 'A' : 'B'}${explanation}`;
 }
 
 function updateHistory(theme, question) {
@@ -170,8 +280,9 @@ function showResult(rawContent) {
   console.log("Contenido del questionContent después de insertar:", questionContent.innerHTML);
   console.log("Display del result:", window.getComputedStyle(result).display);
 
-  // Agregar event listener al botón
+  // Agregar event listeners
   setTimeout(() => {
+    // Botón para nuevo reto
     const newChallengeBtn = document.getElementById("newChallenge");
     if (newChallengeBtn) {
       newChallengeBtn.addEventListener("click", (e) => {
@@ -179,9 +290,48 @@ function showResult(rawContent) {
         console.log("Generando nuevo reto..."); // Debug
         form.dispatchEvent(new Event("submit"));
       });
-    } else {
-      console.error("Botón newChallenge no encontrado");
     }
+
+    // Botón para mostrar respuesta
+    const showAnswerBtn = document.querySelector(".show-answer-btn");
+    const answerSection = document.querySelector(".answer-section");
+
+    if (showAnswerBtn && answerSection) {
+      showAnswerBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        console.log("Mostrando respuesta...");
+
+        // Mostrar la respuesta
+        answerSection.style.display = "block";
+
+        // Cambiar el botón
+        showAnswerBtn.textContent = "✅ Respuesta mostrada";
+        showAnswerBtn.disabled = true;
+        showAnswerBtn.style.opacity = "0.6";
+
+        // Destacar la opción correcta
+        const correctOption = answerSection.querySelector('.correct-answer').textContent.match(/([ABCD])/);
+        if (correctOption) {
+          const correctLetter = correctOption[1];
+          const optionElement = document.querySelector(`[data-option="${correctLetter})"]`);
+          if (optionElement) {
+            optionElement.classList.add('correct-option');
+          }
+        }
+      });
+    }
+
+    // Hacer las opciones clickeables para selección del usuario
+    const options = document.querySelectorAll('.question-option');
+    options.forEach(option => {
+      option.addEventListener('click', () => {
+        // Remover selección previa
+        options.forEach(opt => opt.classList.remove('selected'));
+        // Agregar selección actual
+        option.classList.add('selected');
+      });
+    });
+
   }, 100);
 }
 
