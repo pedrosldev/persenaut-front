@@ -19,10 +19,9 @@ form.addEventListener("submit", async function (e) {
     const prompt = generatePrompt(theme, level, previousQuestions);
 
     const responseText = await fetchChallenge(prompt);
-    const formattedQuestion = formatQuestion(responseText);
 
     updateHistory(theme, responseText);
-    showResult(formattedQuestion);
+    showResult(responseText); // Pasar texto sin formatear
 
   } catch (error) {
     showError(error);
@@ -34,10 +33,16 @@ form.addEventListener("submit", async function (e) {
 // ========== FUNCIONES AUXILIARES ========== //
 
 function setLoading(isLoading) {
+  console.log("setLoading llamado con:", isLoading);
   loading.style.display = isLoading ? "block" : "none";
-  result.style.display = "none";
+
+  if (isLoading) {
+    result.style.display = "none";
+    questionContent.innerHTML = "";
+  }
+  // NO ocultar result cuando isLoading = false, ya que showResult se encarga de eso
+
   generateBtn.disabled = isLoading;
-  questionContent.innerHTML = "";
 }
 
 function getFormData() {
@@ -92,12 +97,19 @@ async function fetchChallenge(prompt) {
 
   const data = await response.json();
   console.log("Respuesta de Ollama:", data);
+
   // Extrae el texto de respuesta según la estructura de Ollama
-  return data.response || data.message?.content || data.choices?.[0]?.message?.content || "";
+  const responseText = data.reto || data.response || data.message?.content || data.choices?.[0]?.message?.content || "";
+  console.log("Texto extraído:", responseText); // Debug adicional
+
+  return responseText;
 }
 
 function formatQuestion(rawText) {
-  if (!rawText) return "No se recibió respuesta del servidor";
+  if (!rawText || rawText.trim() === '') {
+    console.log("No hay texto para formatear:", rawText);
+    return "No se recibió respuesta del servidor";
+  }
 
   try {
     // Limpiar formato Markdown básico si existe
@@ -109,9 +121,10 @@ function formatQuestion(rawText) {
     // Destacar respuesta correcta si existe
     question = question.replace(
       /Respuesta correcta:\s*([ABCD])/gi,
-      '<div class="correct-answer">Respuesta correcta: $1</div>'
+      '<div class="correct-answer">✅ Respuesta correcta: <strong>$1</strong></div>'
     );
 
+    console.log("Pregunta formateada:", question); // Debug adicional
     return question;
   } catch (error) {
     console.error("Error formateando:", error);
@@ -125,26 +138,57 @@ function updateHistory(theme, question) {
   questionHistory.set(theme, [...history, question.substring(0, 200)]); // Almacenar fragmento
 }
 
-function showResult(content) {
+function showResult(rawContent) {
+  console.log("Mostrando resultado con contenido:", rawContent); // Debug
+
+  const formattedContent = formatQuestion(rawContent);
+  console.log("Contenido formateado final:", formattedContent);
+
+  // Asegurar que los elementos existan
+  if (!result || !questionContent) {
+    console.error("Elementos DOM no encontrados:", { result, questionContent });
+    return;
+  }
+
   result.className = "result success";
   result.style.display = "block";
 
-  questionContent.innerHTML = `
+  // Crear el HTML de forma más simple primero
+  const htmlContent = `
     <div class="question-card">
-      <div class="question-content">${formatQuestion(content)}</div>
+      <div class="question-content">${formattedContent}</div>
       <div class="question-meta">
-        <button class="btn" id="newChallenge">Generar nuevo reto</button>
+        <button type="button" class="btn" id="newChallenge">🔄 Generar nuevo reto</button>
       </div>
     </div>
   `;
 
-  document.getElementById("newChallenge")?.addEventListener("click", () => {
-    form.dispatchEvent(new Event("submit"));
-  });
+  console.log("HTML a insertar:", htmlContent);
+  questionContent.innerHTML = htmlContent;
+
+  // Verificar que se insertó correctamente
+  console.log("Contenido del questionContent después de insertar:", questionContent.innerHTML);
+  console.log("Display del result:", window.getComputedStyle(result).display);
+
+  // Agregar event listener al botón
+  setTimeout(() => {
+    const newChallengeBtn = document.getElementById("newChallenge");
+    if (newChallengeBtn) {
+      newChallengeBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        console.log("Generando nuevo reto..."); // Debug
+        form.dispatchEvent(new Event("submit"));
+      });
+    } else {
+      console.error("Botón newChallenge no encontrado");
+    }
+  }, 100);
 }
 
 function showError(error) {
   const message = error instanceof Error ? error.message : String(error);
+  console.error("Mostrando error:", message); // Debug
+
   result.className = "result error";
   result.style.display = "block";
   questionContent.innerHTML = `
@@ -152,15 +196,19 @@ function showError(error) {
       <h4>⚠️ Error</h4>
       <p>${escapeHtml(message)}</p>
       <div class="error-actions">
-        <button class="btn" onclick="window.location.reload()">Recargar</button>
-        <button class="btn" id="retryButton">Reintentar</button>
+        <button type="button" class="btn" onclick="window.location.reload()">🔄 Recargar</button>
+        <button type="button" class="btn" id="retryButton">🔁 Reintentar</button>
       </div>
     </div>
   `;
 
-  document.getElementById("retryButton")?.addEventListener("click", () => {
-    form.dispatchEvent(new Event("submit"));
-  });
+  const retryBtn = document.getElementById("retryButton");
+  if (retryBtn) {
+    retryBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      form.dispatchEvent(new Event("submit"));
+    });
+  }
 }
 
 function escapeHtml(unsafe) {
