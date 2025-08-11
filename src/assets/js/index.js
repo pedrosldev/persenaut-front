@@ -1,4 +1,6 @@
 const API_ENDPOINT = import.meta.env.VITE_API_ENDPOINT;
+const GROQ_API = import.meta.env.VITE_GROQ_API;
+
 const questionHistory = new Map(); // Para evitar repeticiones
 
 // Referencias DOM
@@ -369,3 +371,69 @@ function escapeHtml(unsafe) {
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;") || "";
 }
+
+// Test Groq API
+const testBtn = document.getElementById('testGroqBtn');
+const testResult = document.getElementById('testResult');
+
+// testBtn.addEventListener('click', async () => {
+//   testBtn.disabled = true;
+//   testResult.textContent = "Cargando...";
+
+//   try {
+//     const res = await fetch(GROQ_API, { method: 'POST' });
+//     if (!res.ok) throw new Error(`Error ${res.status}`);
+
+//     const data = await res.json();
+//     testResult.textContent = data.response || 'No hay respuesta';
+//   } catch (e) {
+//     testResult.textContent = `Error: ${e.message}`;
+//   } finally {
+//     testBtn.disabled = false;
+//   }
+// });
+async function testGroq(prompt) {
+  try {
+    const res = await fetch(GROQ_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt })
+    });
+
+    if (!res.ok) {
+      const error = await res.json();
+      throw new Error(error.error || 'Error en la API Groq');
+    }
+
+    const data = await res.json();
+    console.log("Respuesta Groq:", data.response);
+    return data.response;
+  } catch (err) {
+    console.error(err);
+    return null;
+  }
+}
+testBtn.addEventListener('click', async () => {
+  testBtn.disabled = true;
+  testResult.textContent = "Cargando...";
+
+  try {
+    // Obtener datos del form (ajusta según tus inputs)
+    const { theme, level } = getFormData();
+    // Generar prompt con esos datos
+    const prompt = generatePrompt(theme, level);
+
+    // Llamar a la función que hace fetch a la API Groq
+    const respuesta = await testGroq(prompt);
+
+    if (respuesta) {
+      testResult.textContent = respuesta;
+    } else {
+      testResult.textContent = 'No hay respuesta';
+    }
+  } catch (e) {
+    testResult.textContent = `Error: ${e.message}`;
+  } finally {
+    testBtn.disabled = false;
+  }
+});
