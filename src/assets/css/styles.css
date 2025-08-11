@@ -342,3 +342,121 @@ select:focus {
     background-color: #ffebee;
     border-radius: 4px;
 }
+
+/* Mobile styles */
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+
+    .landing {
+        padding: 30px 15px 15px 15px;
+    }
+
+    h1 {
+        font-size: 1.8em;
+        margin-bottom: 20px;
+    }
+
+    .container {
+        padding: 20px;
+        max-width: 100%;
+        box-shadow: none;
+    }
+
+    .cta-container .btn {
+        min-width: 100%;
+        margin: 10px 0;
+        padding: 14px;
+        font-size: 16px;
+    }
+
+    label {
+        font-size: 1em;
+    }
+
+    input,
+    select {
+        padding: 12px;
+        font-size: 14px;
+    }
+
+    .btn {
+        font-size: 16px;
+        padding: 12px 20px;
+        width: 100%;
+        margin-top: 15px;
+    }
+
+    .result {
+        padding: 15px;
+        margin-top: 15px;
+    }
+
+    .question-title {
+        font-size: 1.1em;
+        padding: 8px;
+    }
+
+    .question-option {
+        padding: 10px;
+        margin: 6px 0;
+        font-size: 14px;
+    }
+
+    .answer-section {
+        padding: 12px;
+    }
+
+    .correct-answer {
+        font-size: 1em;
+        padding: 10px;
+    }
+
+    .show-answer-btn {
+        font-size: 14px;
+        padding: 8px 16px;
+    }
+
+    .question-meta {
+        margin-top: 15px;
+        padding-top: 10px;
+    }
+}
+
+/* Smaller phones */
+@media (max-width: 480px) {
+    h1 {
+        font-size: 1.5em;
+    }
+
+    .cta-container .btn {
+        font-size: 14px;
+        padding: 12px;
+    }
+
+    label {
+        font-size: 0.95em;
+    }
+
+    input,
+    select {
+        padding: 10px;
+        font-size: 13px;
+    }
+
+    .btn {
+        font-size: 14px;
+        padding: 10px 16px;
+    }
+
+    .question-option {
+        font-size: 13px;
+        padding: 8px;
+    }
+
+    .show-answer-btn {
+        font-size: 13px;
+        padding: 6px 12px;
+    }
+}
