@@ -413,26 +413,86 @@ async function testGroq(prompt) {
     return null;
   }
 }
+// testBtn.addEventListener('click', async () => {
+//   testBtn.disabled = true;
+//   testResult.textContent = "Cargando...";
+
+//   try {
+//     // Obtener datos del form (ajusta según tus inputs)
+//     const { theme, level } = getFormData();
+//     // Generar prompt con esos datos
+//     const prompt = generatePrompt(theme, level);
+
+//     // Llamar a la función que hace fetch a la API Groq
+//     const respuesta = await testGroq(prompt);
+
+//     if (respuesta) {
+//       testResult.textContent = respuesta;
+//     } else {
+//       testResult.textContent = 'No hay respuesta';
+//     }
+//   } catch (e) {
+//     testResult.textContent = `Error: ${e.message}`;
+//   } finally {
+//     testBtn.disabled = false;
+//   }
+// });
+
+
 testBtn.addEventListener('click', async () => {
   testBtn.disabled = true;
-  testResult.textContent = "Cargando...";
+  testResult.style.display = 'none'; // Oculta resultado antes de la llamada
+  testResult.innerHTML = '';         // Limpia resultado anterior
 
   try {
-    // Obtener datos del form (ajusta según tus inputs)
+    // Aquí obtienes el prompt de los inputs del form, igual que con el reto normal
     const { theme, level } = getFormData();
-    // Generar prompt con esos datos
     const prompt = generatePrompt(theme, level);
 
-    // Llamar a la función que hace fetch a la API Groq
-    const respuesta = await testGroq(prompt);
+    // Llama a la API groq con ese prompt
+    const responseText = await testGroq(prompt);
 
-    if (respuesta) {
-      testResult.textContent = respuesta;
-    } else {
-      testResult.textContent = 'No hay respuesta';
+    // Usa la función que ya tienes para formatear y mostrar la pregunta igual que el reto normal
+    const html = formatQuestion(responseText);
+    testResult.innerHTML = `
+  <div class="question-card">
+    <div class="question-content">${html}</div>
+  </div>
+`;
+    testResult.style.display = 'block';
+
+    // Añade aquí la lógica para el botón mostrar respuesta y selección de opciones, igual que en showResult()
+    const showAnswerBtn = testResult.querySelector(".show-answer-btn");
+    const answerSection = testResult.querySelector(".answer-section");
+
+    if (showAnswerBtn && answerSection) {
+      showAnswerBtn.addEventListener("click", () => {
+        answerSection.style.display = "block"; // muestra la respuesta
+        showAnswerBtn.textContent = "✅ Respuesta mostrada";
+        showAnswerBtn.disabled = true;
+
+        // Opcional: resaltar opción correcta si usas data-option, busca la letra correcta
+        const correctLetterMatch = answerSection.textContent.match(/Respuesta correcta:\s*([ABCD])/i);
+        if (correctLetterMatch) {
+          const letter = correctLetterMatch[1];
+          const optionElement = testResult.querySelector(`[data-option="${letter}"]`);
+          if (optionElement) optionElement.classList.add("correct-option");
+        }
+      });
     }
+
+    // Añade selección clickeable a las opciones si las tienes marcadas con data-option
+    const options = testResult.querySelectorAll(".question-option");
+    options.forEach(option => {
+      option.addEventListener("click", () => {
+        options.forEach(opt => opt.classList.remove("selected"));
+        option.classList.add("selected");
+      });
+    });
+
   } catch (e) {
-    testResult.textContent = `Error: ${e.message}`;
+    testResult.innerHTML = `<div class="error-card">⚠️ Error: ${e.message}</div>`;
+    testResult.style.display = 'block';
   } finally {
     testBtn.disabled = false;
   }
