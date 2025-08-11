@@ -1,16 +1,16 @@
 const API_ENDPOINT = import.meta.env.VITE_API_ENDPOINT;
 const GROQ_API = import.meta.env.VITE_GROQ_API;
 
-const questionHistory = new Map(); // Para evitar repeticiones
+const questionHistory = new Map();
 
-// Referencias DOM
+
 const form = document.getElementById("retoForm");
 const loading = document.getElementById("loading");
 const result = document.getElementById("result");
 const questionContent = document.getElementById("questionContent");
 const generateBtn = document.getElementById("generateBtn");
 
-// Manejar envío del formulario
+
 form.addEventListener("submit", async function (e) {
   e.preventDefault();
   setLoading(true);
@@ -23,7 +23,7 @@ form.addEventListener("submit", async function (e) {
     const responseText = await fetchChallenge(prompt);
 
     updateHistory(theme, responseText);
-    showResult(responseText); // Pasar texto sin formatear
+    showResult(responseText);
 
   } catch (error) {
     showError(error);
@@ -32,7 +32,7 @@ form.addEventListener("submit", async function (e) {
   }
 });
 
-// ========== FUNCIONES AUXILIARES ========== //
+
 
 function setLoading(isLoading) {
   console.log("setLoading llamado con:", isLoading);
@@ -42,7 +42,7 @@ function setLoading(isLoading) {
     result.style.display = "none";
     questionContent.innerHTML = "";
   }
-  // NO ocultar result cuando isLoading = false, ya que showResult se encarga de eso
+
 
   generateBtn.disabled = isLoading;
 }
@@ -119,7 +119,7 @@ async function fetchChallenge(prompt) {
   const data = await response.json();
   console.log("Respuesta de Ollama:", data);
 
-  // Extrae el texto de respuesta según la estructura de Ollama
+
   const responseText = data.reto || data.response || data.message?.content || data.choices?.[0]?.message?.content || "";
   console.log("Texto extraído:", responseText); // Debug adicional
 
@@ -132,14 +132,14 @@ function formatQuestion(rawText) {
   }
 
   try {
-    // Normalizar saltos de línea y limpiar formato
+
     let question = String(rawText)
       .replace(/\r\n/g, '\n')  // Normalizar saltos de línea
       .replace(/\*\*/g, '')    // Eliminar negritas
       .replace(/\*/g, '')       // Eliminar cursivas
       .trim();
 
-    // Extraer la respuesta correcta (manejar múltiples formatos)
+
     let correctAnswer = null;
     const answerMatch = question.match(/Respuesta correcta:\s*([ABCD])/i) ||
       question.match(/Correcta:\s*([ABCD])/i) ||
@@ -147,19 +147,19 @@ function formatQuestion(rawText) {
 
     if (answerMatch) {
       correctAnswer = answerMatch[1].toUpperCase();
-      // Eliminar la línea de respuesta correcta para no mostrarla en la pregunta
+
       question = question.replace(/Respuesta correcta:\s*([ABCD]).*/i, '').trim();
     }
 
-    // Separar la pregunta de las opciones
+
     const questionParts = question.split(/\n\s*\n/); // Dividir por doble salto de línea
     let questionText = questionParts[0] || "Pregunta no encontrada";
     let optionsText = questionParts.slice(1).join('\n') || "";
 
-    // Formatear la pregunta principal
+
     questionText = questionText.replace(/^Pregunta:\s*/i, '').trim();
 
-    // Extraer opciones (manejar diferentes formatos)
+
     const options = [];
     const optionRegex = /^([ABCD])[\)\.]\s*(.+)$/gm;
     let optionMatch;
@@ -171,7 +171,7 @@ function formatQuestion(rawText) {
       });
     }
 
-    // Si no encontramos opciones con el formato estándar, intentamos otro enfoque
+
     if (options.length === 0) {
       const lines = optionsText.split('\n').filter(line => line.trim().length > 0);
       lines.forEach((line, index) => {
@@ -185,7 +185,7 @@ function formatQuestion(rawText) {
       });
     }
 
-    // Construir HTML
+
     let html = `
       <div class="question-title"><strong>Pregunta:</strong> ${escapeHtml(questionText)}</div>
       <div class="question-options">
@@ -201,7 +201,7 @@ function formatQuestion(rawText) {
 
     html += `</div>`;
 
-    // Añadir sección de respuesta si existe
+
     if (correctAnswer) {
       html += `
         <div class="answer-controls">
@@ -221,18 +221,18 @@ function formatQuestion(rawText) {
   }
 }
 
-// Función auxiliar para arreglar formato verdadero/falso
+
 function fixTrueFalseFormat(text) {
-  // Extraer la pregunta principal
+
   const questionMatch = text.match(/^(.*?)(?=Verdadero|A\)|Respuesta)/i);
   const baseQuestion = questionMatch ? questionMatch[1].trim() : 'Pregunta:';
 
-  // Determinar la respuesta correcta
+
   const isCorrectTrue = text.toLowerCase().includes('verdadero') &&
     (text.toLowerCase().includes('correcta: a') ||
       text.toLowerCase().includes('verdadero (a)'));
 
-  // Extraer explicación si existe
+
   const explanationMatch = text.match(/explicación:\s*(.*?)$/i);
   const explanation = explanationMatch ? `\nExplicación: ${explanationMatch[1]}` : '';
 
@@ -256,7 +256,7 @@ function showResult(rawContent) {
   const formattedContent = formatQuestion(rawContent);
   console.log("Contenido formateado final:", formattedContent);
 
-  // Asegurar que los elementos existan
+
   if (!result || !questionContent) {
     console.error("Elementos DOM no encontrados:", { result, questionContent });
     return;
@@ -265,7 +265,7 @@ function showResult(rawContent) {
   result.className = "result success";
   result.style.display = "block";
 
-  // Crear el HTML de forma más simple primero
+
   const htmlContent = `
     <div class="question-card">
       <div class="question-content">${formattedContent}</div>
@@ -278,13 +278,13 @@ function showResult(rawContent) {
   console.log("HTML a insertar:", htmlContent);
   questionContent.innerHTML = htmlContent;
 
-  // Verificar que se insertó correctamente
+
   console.log("Contenido del questionContent después de insertar:", questionContent.innerHTML);
   console.log("Display del result:", window.getComputedStyle(result).display);
 
-  // Agregar event listeners
+
   setTimeout(() => {
-    // Botón para nuevo reto
+
     const newChallengeBtn = document.getElementById("newChallenge");
     if (newChallengeBtn) {
       newChallengeBtn.addEventListener("click", (e) => {
@@ -294,7 +294,7 @@ function showResult(rawContent) {
       });
     }
 
-    // Botón para mostrar respuesta
+
     const showAnswerBtn = document.querySelector(".show-answer-btn");
     const answerSection = document.querySelector(".answer-section");
 
@@ -303,15 +303,15 @@ function showResult(rawContent) {
         e.preventDefault();
         console.log("Mostrando respuesta...");
 
-        // Mostrar la respuesta
+
         answerSection.style.display = "block";
 
-        // Cambiar el botón
+
         showAnswerBtn.textContent = "✅ Respuesta mostrada";
         showAnswerBtn.disabled = true;
         showAnswerBtn.style.opacity = "0.6";
 
-        // Destacar la opción correcta
+
         const correctOption = answerSection.querySelector('.correct-answer').textContent.match(/([ABCD])/);
         if (correctOption) {
           const correctLetter = correctOption[1];
@@ -323,13 +323,13 @@ function showResult(rawContent) {
       });
     }
 
-    // Hacer las opciones clickeables para selección del usuario
+
     const options = document.querySelectorAll('.question-option');
     options.forEach(option => {
       option.addEventListener('click', () => {
-        // Remover selección previa
+
         options.forEach(opt => opt.classList.remove('selected'));
-        // Agregar selección actual
+
         option.classList.add('selected');
       });
     });
@@ -372,26 +372,11 @@ function escapeHtml(unsafe) {
     .replace(/'/g, "&#039;") || "";
 }
 
-// Test Groq API
+
 const testBtn = document.getElementById('testGroqBtn');
 const testResult = document.getElementById('testResult');
 
-// testBtn.addEventListener('click', async () => {
-//   testBtn.disabled = true;
-//   testResult.textContent = "Cargando...";
 
-//   try {
-//     const res = await fetch(GROQ_API, { method: 'POST' });
-//     if (!res.ok) throw new Error(`Error ${res.status}`);
-
-//     const data = await res.json();
-//     testResult.textContent = data.response || 'No hay respuesta';
-//   } catch (e) {
-//     testResult.textContent = `Error: ${e.message}`;
-//   } finally {
-//     testBtn.disabled = false;
-//   }
-// });
 async function testGroq(prompt) {
   try {
     const res = await fetch(GROQ_API, {
@@ -413,46 +398,23 @@ async function testGroq(prompt) {
     return null;
   }
 }
-// testBtn.addEventListener('click', async () => {
-//   testBtn.disabled = true;
-//   testResult.textContent = "Cargando...";
 
-//   try {
-//     // Obtener datos del form (ajusta según tus inputs)
-//     const { theme, level } = getFormData();
-//     // Generar prompt con esos datos
-//     const prompt = generatePrompt(theme, level);
-
-//     // Llamar a la función que hace fetch a la API Groq
-//     const respuesta = await testGroq(prompt);
-
-//     if (respuesta) {
-//       testResult.textContent = respuesta;
-//     } else {
-//       testResult.textContent = 'No hay respuesta';
-//     }
-//   } catch (e) {
-//     testResult.textContent = `Error: ${e.message}`;
-//   } finally {
-//     testBtn.disabled = false;
-//   }
-// });
 
 
 testBtn.addEventListener('click', async () => {
   testBtn.disabled = true;
-  testResult.style.display = 'none'; // Oculta resultado antes de la llamada
-  testResult.innerHTML = '';         // Limpia resultado anterior
+  testResult.style.display = 'none';
+  testResult.innerHTML = '';
 
   try {
-    // Aquí obtienes el prompt de los inputs del form, igual que con el reto normal
+
     const { theme, level } = getFormData();
     const prompt = generatePrompt(theme, level);
 
-    // Llama a la API groq con ese prompt
+
     const responseText = await testGroq(prompt);
 
-    // Usa la función que ya tienes para formatear y mostrar la pregunta igual que el reto normal
+
     const html = formatQuestion(responseText);
     testResult.innerHTML = `
   <div class="question-card">
@@ -461,7 +423,7 @@ testBtn.addEventListener('click', async () => {
 `;
     testResult.style.display = 'block';
 
-    // Añade aquí la lógica para el botón mostrar respuesta y selección de opciones, igual que en showResult()
+
     const showAnswerBtn = testResult.querySelector(".show-answer-btn");
     const answerSection = testResult.querySelector(".answer-section");
 
@@ -471,7 +433,7 @@ testBtn.addEventListener('click', async () => {
         showAnswerBtn.textContent = "✅ Respuesta mostrada";
         showAnswerBtn.disabled = true;
 
-        // Opcional: resaltar opción correcta si usas data-option, busca la letra correcta
+
         const correctLetterMatch = answerSection.textContent.match(/Respuesta correcta:\s*([ABCD])/i);
         if (correctLetterMatch) {
           const letter = correctLetterMatch[1];
@@ -481,7 +443,7 @@ testBtn.addEventListener('click', async () => {
       });
     }
 
-    // Añade selección clickeable a las opciones si las tienes marcadas con data-option
+
     const options = testResult.querySelectorAll(".question-option");
     options.forEach(option => {
       option.addEventListener("click", () => {
