@@ -1,4 +1,5 @@
 const form = document.getElementById('loginForm');
+const API_URL_LOGIN = import.meta.env.VITE_LOGIN_API;
 
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -12,7 +13,7 @@ form.addEventListener('submit', async (e) => {
     }
 
     try {
-        const res = await fetch('http://localhost:3000/api/auth/login', {
+        const res = await fetch(API_URL_LOGIN, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password })

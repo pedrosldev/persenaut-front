@@ -1,4 +1,5 @@
 const form = document.getElementById('registerForm');
+const API_URL_REGISTER = import.meta.env.VITE_REGISTER_API;
 
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -14,7 +15,7 @@ form.addEventListener('submit', async (e) => {
     }
 
     try {
-        const res = await fetch('http://localhost:3000/api/auth/register', {
+        const res = await fetch(API_URL_REGISTER, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ name, email, password })
