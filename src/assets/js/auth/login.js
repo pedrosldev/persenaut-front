@@ -61,7 +61,7 @@ form.addEventListener('submit', async (e) => {
             alert('Login correcto');
             form.reset();
             // Aquí puedes redirigir a una página privada, por ejemplo:
-            // window.location.href = '/dashboard.html';
+            window.location.href = '/app/dashboard.html';
         } else {
             alert('Error: ' + (data.error || 'Credenciales inválidas'));
         }
