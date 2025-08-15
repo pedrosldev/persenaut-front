@@ -19,7 +19,8 @@ export class AuthService {
                 const data = await res.json();
                 return {
                     success: true,
-                    isAuthenticated: data.isAuthenticated
+                    isAuthenticated: data.isAuthenticated,
+                    user: data.user || null
                 };
             } else {
                 return {
@@ -50,6 +51,66 @@ export class AuthService {
     }
 
     // Para gestión de UI - actualiza elementos según estado de auth
+    // async updateAuthUI(config = {}) {
+    //     const {
+    //         logoutBtn,
+    //         loginBtn,
+    //         userInfo,
+    //         onAuthenticated,
+    //         onNotAuthenticated
+    //     } = config;
+
+    //     const result = await this.checkAuth();
+
+    //     if (result.isAuthenticated) {
+    //         // Usuario autenticado
+    //         if (logoutBtn) logoutBtn.style.display = 'block';
+    //         if (loginBtn) loginBtn.style.display = 'none';
+    //         if (userInfo) userInfo.style.display = 'block';
+    //         if (onAuthenticated) onAuthenticated(result);
+    //     } else {
+    //         // Usuario no autenticado
+    //         if (logoutBtn) logoutBtn.style.display = 'none';
+    //         if (loginBtn) loginBtn.style.display = 'block';
+    //         if (userInfo) userInfo.style.display = 'none';
+    //         if (onNotAuthenticated) onNotAuthenticated(result);
+    //     }
+
+    //     return result;
+    // }
+
+    // auth.js - Modifica el método checkAuth
+    async checkAuth() {
+        try {
+            const res = await fetch(this.API_URL_CHECK_AUTH, {
+                method: 'GET',
+                credentials: 'include'
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                return {
+                    success: true,
+                    isAuthenticated: data.isAuthenticated,
+                    user: data.user // Añade esta línea para pasar los datos del usuario
+                };
+            } else {
+                return {
+                    success: false,
+                    isAuthenticated: false
+                };
+            }
+        } catch (error) {
+            console.error("Error verificando autenticación:", error);
+            return {
+                success: false,
+                isAuthenticated: false,
+                error
+            };
+        }
+    }
+
+    // Y actualiza updateAuthUI para recibir los datos del usuario
     async updateAuthUI(config = {}) {
         const {
             logoutBtn,
@@ -65,7 +126,13 @@ export class AuthService {
             // Usuario autenticado
             if (logoutBtn) logoutBtn.style.display = 'block';
             if (loginBtn) loginBtn.style.display = 'none';
-            if (userInfo) userInfo.style.display = 'block';
+            if (userInfo) {
+                userInfo.style.display = 'block';
+                // Mostrar información del usuario si está disponible
+                if (result.user) {
+                    userInfo.textContent = `Bienvenido, ${result.user.name}`;
+                }
+            }
             if (onAuthenticated) onAuthenticated(result);
         } else {
             // Usuario no autenticado
