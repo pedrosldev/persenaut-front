@@ -27,7 +27,7 @@ form.addEventListener('submit', async (e) => {
             alert('Registro correcto! Ya puedes iniciar sesión.');
             form.reset();
             // Opcional: redirigir a login.html
-            // window.location.href = '/login.html';
+            window.location.href = '/auth/login.html';
         } else {
             alert('Error: ' + (data.error || 'No se pudo registrar'));
         }
