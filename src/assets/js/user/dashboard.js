@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         initializePage();
     }
 
-    // Frases motivacionales (luego las reemplazarás con datos de tu BD)
+    
     const phrases = [
         "Sin lucha no hay progreso (Frederick Douglas).",
         "Inténtalo y fracasa, pero no fracases en intentarlo (Stephen Kaggwa).",
@@ -33,7 +33,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         "Las grandes obras no son llevadas a cabo por la fuerza, sino por la perseverancia (Samuel Johnson).",
         "No importa lo lento que vayas mientras no pares (Andy Warhol).",
         "La perseverancia es fallar 19 veces y triunfar la vigésima (Julie Andrews).",
-        "Confía en el tiempo, que suele dar dulces salidas a muchas amargas dificultades. (Miguel de Cervantes)."
+        "Confía en el tiempo, que suele dar dulces salidas a muchas amargas dificultades. (Miguel de Cervantes).",
+        "La perseverancia es imposible si no nos permitimos tener esperanza (Dean Koontz).",
+        "Siempre parece imposible hasta que se hace (Nelson Mandela)",
+        "La perseverancia no es una carrera larga, son muchas carreras cortas una tras otra (Walter Elliot).",
+        "El genio se compone del 2% de talento y del 98% de perseverancia (Beethoven).",
+        "El éxito es la suma de pequeños esfuerzos repetidos día tras día (Robert Collier).",
+        "La motivación es lo que te pone en marcha. El hábito es lo que hace que sigas (Jim Ryun).",
+        "Paso a paso. No concibo ninguna otra manera de lograr las cosas (Michael Jordan)."
     ];
 
     const phraseElement = document.getElementById('motivational-phrase');
