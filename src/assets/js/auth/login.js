@@ -53,4 +53,4 @@ form.addEventListener('submit', async (e) => {
 // }
 
 // Inicializar estado al cargar la página
-document.addEventListener('DOMContentLoaded', updateAuthState);
+// document.addEventListener('DOMContentLoaded', updateAuthState);
