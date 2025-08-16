@@ -1,6 +1,17 @@
 // protected-page.js - Para páginas como dashboard que requieren autenticación
 import { authService } from '../modules/auth.js';
+const logoutBtn = document.getElementById('logoutBtn');
+logoutBtn.addEventListener('click', async () => {
+    const result = await authService.logout();
 
+    if (result.success) {
+        // alert('Sesión cerrada correctamente');
+        window.location.href = '/auth/login.html';
+        // updateAuthState();
+    } else {
+        alert(result.error);
+    }
+});
 document.addEventListener('DOMContentLoaded', async () => {
     // Verificar autenticación y redirigir si es necesario
     const isAuthenticated = await authService.requireAuth();

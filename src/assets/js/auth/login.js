@@ -2,7 +2,7 @@
 import { authService } from '../modules/auth.js';
 
 const form = document.getElementById('loginForm');
-const logoutBtn = document.getElementById('logoutBtn');
+// const logoutBtn = document.getElementById('logoutBtn');
 
 // Manejar submit del formulario
 form.addEventListener('submit', async (e) => {
@@ -19,7 +19,7 @@ form.addEventListener('submit', async (e) => {
     const result = await authService.login(email, password);
 
     if (result.success) {
-        alert('Login correcto');
+        // alert('Login correcto');
         form.reset();
         window.location.href = '/app/dashboard.html';
     } else {
@@ -28,29 +28,29 @@ form.addEventListener('submit', async (e) => {
 });
 
 // Manejar logout
-logoutBtn.addEventListener('click', async () => {
-    const result = await authService.logout();
+// logoutBtn.addEventListener('click', async () => {
+//     const result = await authService.logout();
 
-    if (result.success) {
-        alert('Sesión cerrada correctamente');
-        updateAuthState();
-    } else {
-        alert(result.error);
-    }
-});
+//     if (result.success) {
+//         alert('Sesión cerrada correctamente');
+//         updateAuthState();
+//     } else {
+//         alert(result.error);
+//     }
+// });
 
 // Función para actualizar el estado de la UI
-async function updateAuthState() {
-    await authService.updateAuthUI({
-        logoutBtn: logoutBtn,
-        onAuthenticated: (result) => {
-            console.log('Usuario autenticado');
-        },
-        onNotAuthenticated: (result) => {
-            console.log('Usuario no autenticado');
-        }
-    });
-}
+// async function updateAuthState() {
+//     await authService.updateAuthUI({
+//         logoutBtn: logoutBtn,
+//         onAuthenticated: (result) => {
+//             console.log('Usuario autenticado');
+//         },
+//         onNotAuthenticated: (result) => {
+//             console.log('Usuario no autenticado');
+//         }
+//     });
+// }
 
 // Inicializar estado al cargar la página
 document.addEventListener('DOMContentLoaded', updateAuthState);
