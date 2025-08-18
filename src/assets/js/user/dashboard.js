@@ -7,6 +7,7 @@ logoutBtn.addEventListener('click', async () => {
     if (result.success) {
         // alert('Sesión cerrada correctamente');
         window.location.href = '/auth/login.html';
+        window.location.reload(true);
         // updateAuthState();
     } else {
         alert(result.error);
