@@ -41,25 +41,59 @@
     </footer>
     
     <!-- Plantillas de contenido -->
-    <template id="dashboard-template">
-        <header class="content-header">
-            <h2>¡Tú puedes lograrlo!</h2>
-            <div class="search-bar">
-                <input type="text" placeholder="Buscar...">
+<template id="dashboard-template">
+    <header class="content-header">
+        <h2>¡Tú puedes lograrlo!</h2>
+        <div class="search-bar">
+            <input type="text" placeholder="Buscar...">
+        </div>
+    </header>
+    <div class="content">
+        <div class="cards-container">
+            <div class="card" data-target="progress">
+                <h4>Estadísticas de progreso</h4>
+                <p>Ver tu evolución y métricas</p>
             </div>
-        </header>
-        <div class="content">
-            <div class="cards-container">
-                <div class="card">Estadísticas de progreso</div>
-                <div class="card">Actividad reciente</div>
-                <div class="card">Logros desbloqueados</div>
+            <div class="card" data-target="activity">
+                <h4>Actividad reciente</h4>
+                <p>Tu historial de acciones</p>
             </div>
-            <div class="content-section">
-                <h3>Tu progreso semanal</h3>
-                <p>Has completado el 65% de tus objetivos esta semana. ¡Sigue así!</p>
+            <div class="card" data-target="achievements">
+                <h4>Logros desbloqueados</hh4>
+                    <p>Tus conquistas y metas</p>
             </div>
         </div>
-    </template>
+
+        <!-- Cambiar el nombre de la clase para evitar conflicto -->
+        <div class="dashboard-info">
+            <div class="info-section" id="progress-info">
+                <h3>Tu progreso semanal</h3>
+                <p>Has completado el 65% de tus objetivos esta semana. ¡Sigue así!</p>
+                <div class="progress-bar">
+                    <div class="progress" style="width: 65%"></div>
+                </div>
+            </div>
+
+            <div class="info-section" id="activity-info" style="display: none;">
+                <h3>Actividad reciente</h3>
+                <ul>
+                    <li>Completaste 5 tareas ayer</li>
+                    <li>Nuevo récord: 3 días consecutivos</li>
+                    <li>Logro "Consistencia" desbloqueado</li>
+                </ul>
+            </div>
+
+            <div class="info-section" id="achievements-info" style="display: none;">
+                <h3>Logros desbloqueados</h3>
+                <div class="badges">
+                    <div class="badge">🏆 Primer paso</div>
+                    <div class="badge">⭐ 3 días seguidos</div>
+                    <div class="badge">🚀 Productividad</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
     
     <template id="notes-template">
         <header class="content-header">

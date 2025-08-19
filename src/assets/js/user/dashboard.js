@@ -2,6 +2,48 @@
 import { authService } from '../modules/auth.js';
 const logoutBtn = document.getElementById('logoutBtn');
 
+// Añade esta función para manejar la interacción de las cards
+function setupDashboardInteractions() {
+    const cards = document.querySelectorAll('.card');
+    const infoSections = document.querySelectorAll('.info-section');
+
+    cards.forEach(card => {
+        card.addEventListener('click', function () {
+            const target = this.getAttribute('data-target');
+
+            // Oculta todas las secciones de info
+            infoSections.forEach(section => {
+                section.style.display = 'none';
+            });
+
+            // Muestra la sección correspondiente
+            const targetSection = document.getElementById(`${target}-info`);
+            if (targetSection) {
+                targetSection.style.display = 'block';
+
+                // Añade animación opcional
+                targetSection.style.opacity = '0';
+                setTimeout(() => {
+                    targetSection.style.opacity = '1';
+                    targetSection.style.transition = 'opacity 0.3s ease';
+                }, 50);
+            }
+
+            // Opcional: Resaltar la card seleccionada
+            cards.forEach(c => c.classList.remove('selected'));
+            this.classList.add('selected');
+        });
+    });
+
+    // Mostrar la primera sección por defecto
+    if (infoSections.length > 0) {
+        infoSections[0].style.display = 'block';
+        if (cards.length > 0) {
+            cards[0].classList.add('selected');
+        }
+    }
+}
+
 function loadContent(event) {
     event.preventDefault();
 
@@ -26,6 +68,9 @@ function loadContent(event) {
         mainContent.appendChild(content);
     } else {
         mainContent.innerHTML = '<p>Contenido no encontrado</p>';
+    }
+    if (templateId === 'dashboard-template') {
+        setTimeout(setupDashboardInteractions, 100);
     }
 }
 
