@@ -17,10 +17,10 @@
             </div>
             <nav class="nav-menu">
                 <ul>
-                    <li><a href="#" class="active"><i class="icon">📊</i> Dashboard</a></li>
-                    <li><a href="#"><i class="icon">📝</i> Mis apuntes</a></li>
-                    <li><a href="#"><i class="icon">📅</i> Programar retos</a></li>
-                    <li><a href="#"><i class="icon">⚙️</i> Configuración</a></li>
+                <li><a href="#dashboard" class="active"><i class="icon">📊</i> Dashboard</a></li>
+                <li><a href="#notes"><i class="icon">📝</i> Mis apuntes</a></li>
+                <li><a href="#challenges"><i class="icon">🎯</i> Programar retos</a></li>
+                <li><a href="#settings"><i class="icon">⚙️</i> Configuración</a></li>
                 </ul>
             </nav>
             <div class="user-section">
@@ -28,30 +28,172 @@
                 <button id="logoutBtn" class="logout-btn">Cerrar sesión</button>
             </div>
         </aside>
-
+    
         <!-- Main Content -->
         <main class="main-content">
-            <header class="content-header">
-                <h2>¡Tú puedes lograrlo!</h2>
-                <div class="search-bar">
-                    <input type="text" placeholder="Buscar...">
-                </div>
-            </header>
-            <div class="content">
-                <!-- Aquí iría el contenido principal de tu dashboard -->
-                <div class="cards-container">
-                    <div class="card">Estadísticas</div>
-                    <div class="card">Actividad reciente</div>
-                    <div class="card">Progreso</div>
-                </div>
-            </div>
+            <!-- El contenido se cargará dinámicamente aquí -->
         </main>
     </div>
-
+    
     <footer>
-        <div id="motivational-phrase" class="fade-in-out"></div>
+        <div id="motivational-phrase" class="fade-in-out">Cada pequeño paso te acerca a tu meta</div>
         <p>&copy; 2025 Persenaut. All rights reserved.</p>
     </footer>
+    
+    <!-- Plantillas de contenido -->
+<template id="dashboard-template">
+    <header class="content-header">
+        <h2>¡Tú puedes lograrlo!</h2>
+        <div class="search-bar">
+            <input type="text" placeholder="Buscar...">
+        </div>
+    </header>
+    <div class="content">
+        <div class="cards-container">
+            <div class="card" data-target="progress">
+                <h4>Estadísticas de progreso</h4>
+                <p>Ver tu evolución y métricas</p>
+            </div>
+            <div class="card" data-target="activity">
+                <h4>Actividad reciente</h4>
+                <p>Tu historial de acciones</p>
+            </div>
+            <div class="card" data-target="achievements">
+                <h4>Logros desbloqueados</hh4>
+                    <p>Tus conquistas y metas</p>
+            </div>
+        </div>
+
+        <!-- Cambiar el nombre de la clase para evitar conflicto -->
+        <div class="dashboard-info">
+            <div class="info-section" id="progress-info">
+                <h3>Tu progreso semanal</h3>
+                <p>Has completado el 65% de tus objetivos esta semana. ¡Sigue así!</p>
+                <div class="progress-bar">
+                    <div class="progress" style="width: 65%"></div>
+                </div>
+            </div>
+
+            <div class="info-section" id="activity-info" style="display: none;">
+                <h3>Actividad reciente</h3>
+                <ul>
+                    <li>Completaste 5 tareas ayer</li>
+                    <li>Nuevo récord: 3 días consecutivos</li>
+                    <li>Logro "Consistencia" desbloqueado</li>
+                </ul>
+            </div>
+
+            <div class="info-section" id="achievements-info" style="display: none;">
+                <h3>Logros desbloqueados</h3>
+                <div class="badges">
+                    <div class="badge">🏆 Primer paso</div>
+                    <div class="badge">⭐ 3 días seguidos</div>
+                    <div class="badge">🚀 Productividad</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+    
+    <template id="notes-template">
+        <header class="content-header">
+            <h2>Mis apuntes</h2>
+            <div class="search-bar">
+                <input type="text" placeholder="Buscar apuntes...">
+            </div>
+        </header>
+        <div class="content">
+            <div class="notes-grid">
+                <div class="note-card">
+                    <div class="note-title">Ideas para proyecto</div>
+                    <div class="note-content">Investigar sobre técnicas de aprendizaje acelerado y cómo aplicarlas en el
+                        desarrollo profesional.</div>
+                    <div class="note-date">12/05/2025</div>
+                </div>
+                <div class="note-card">
+                    <div class="note-title">Recursos útiles</div>
+                    <div class="note-content">Lista de libros y podcasts recomendados para mejorar la productividad y el
+                        enfoque mental.</div>
+                    <div class="note-date">10/05/2025</div>
+                </div>
+                <div class="note-card">
+                    <div class="note-title">Metas trimestrales</div>
+                    <div class="note-content">1. Completar curso de gestión del tiempo. 2. Leer 2 libros de desarrollo
+                        personal. 3. Implementar nueva rutina matutina.</div>
+                    <div class="note-date">08/05/2025</div>
+                </div>
+            </div>
+            <button class="btn btn-primary">Nuevo apunte</button>
+        </div>
+    </template>
+    
+    <template id="challenges-template">
+        <header class="content-header">
+            <h2>Programar retos</h2>
+            <div class="search-bar">
+                <input type="text" placeholder="Buscar retos...">
+            </div>
+        </header>
+        <div class="content">
+            <div class="challenge-list">
+                <div class="challenge-item">
+                    <div class="challenge-info">
+                        <h3>Reto de lectura</h3>
+                        <div class="challenge-date">Fecha límite: 25/05/2025</div>
+                    </div>
+                    <div class="challenge-status status-pending">Pendiente</div>
+                </div>
+                <div class="challenge-item">
+                    <div class="challenge-info">
+                        <h3>Ejercicio matutino</h3>
+                        <div class="challenge-date">Fecha límite: 20/05/2025</div>
+                    </div>
+                    <div class="challenge-status status-completed">Completado</div>
+                </div>
+                <div class="challenge-item">
+                    <div class="challenge-info">
+                        <h3>Aprendizaje de nuevo skill</h3>
+                        <div class="challenge-date">Fecha límite: 30/05/2025</div>
+                    </div>
+                    <div class="challenge-status status-pending">Pendiente</div>
+                </div>
+            </div>
+            <button class="btn btn-primary">Crear nuevo reto</button>
+        </div>
+    </template>
+    
+    <template id="settings-template">
+        <header class="content-header">
+            <h2>Configuración</h2>
+        </header>
+        <div class="content">
+            <div class="settings-form">
+                <div class="form-group">
+                    <label for="username">Nombre de usuario</label>
+                    <input type="text" id="username" value="Usuario Persenaut">
+                </div>
+                <div class="form-group">
+                    <label for="email">Correo electrónico</label>
+                    <input type="email" id="email" value="usuario@example.com">
+                </div>
+                <div class="form-group">
+                    <label for="notifications">Notificaciones</label>
+                    <select id="notifications">
+                        <option selected>Activadas</option>
+                        <option>Desactivadas</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="goals">Objetivos diarios</label>
+                    <input type="number" id="goals" value="5">
+                </div>
+                <div class="form-actions">
+                    <button class="btn btn-secondary">Cancelar</button>
+                    <button class="btn btn-primary">Guardar cambios</button>
+                </div>
+            </div>
+        </div>
+    </template>
 
     <script type="module" src="/src/assets/js/user/dashboard.js"></script>
 </body>

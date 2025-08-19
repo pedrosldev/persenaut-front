@@ -1,6 +1,91 @@
 // protected-page.js - Para páginas como dashboard que requieren autenticación
 import { authService } from '../modules/auth.js';
 const logoutBtn = document.getElementById('logoutBtn');
+
+// Añade esta función para manejar la interacción de las cards
+function setupDashboardInteractions() {
+    const cards = document.querySelectorAll('.card');
+    const infoSections = document.querySelectorAll('.info-section');
+
+    cards.forEach(card => {
+        card.addEventListener('click', function () {
+            const target = this.getAttribute('data-target');
+
+            // Oculta todas las secciones de info
+            infoSections.forEach(section => {
+                section.style.display = 'none';
+            });
+
+            // Muestra la sección correspondiente
+            const targetSection = document.getElementById(`${target}-info`);
+            if (targetSection) {
+                targetSection.style.display = 'block';
+
+                // Añade animación opcional
+                targetSection.style.opacity = '0';
+                setTimeout(() => {
+                    targetSection.style.opacity = '1';
+                    targetSection.style.transition = 'opacity 0.3s ease';
+                }, 50);
+            }
+
+            // Opcional: Resaltar la card seleccionada
+            cards.forEach(c => c.classList.remove('selected'));
+            this.classList.add('selected');
+        });
+    });
+
+    // Mostrar la primera sección por defecto
+    if (infoSections.length > 0) {
+        infoSections[0].style.display = 'block';
+        if (cards.length > 0) {
+            cards[0].classList.add('selected');
+        }
+    }
+}
+
+function loadContent(event) {
+    event.preventDefault();
+
+    // Remueve active de todos los enlaces
+    const navLinks = document.querySelectorAll('.nav-menu a');
+    navLinks.forEach(link => link.classList.remove('active'));
+
+    // Marca como activo el enlace clickeado
+    this.classList.add('active');
+
+    // Obtiene el ID de la plantilla a cargar
+    const templateId = this.getAttribute('href').substring(1) + '-template';
+    const template = document.getElementById(templateId);
+
+    // Limpia el contenido actual
+    const mainContent = document.querySelector('.main-content');
+    mainContent.innerHTML = '';
+
+    // Clona y añade el nuevo contenido
+    if (template) {
+        const content = template.content.cloneNode(true);
+        mainContent.appendChild(content);
+    } else {
+        mainContent.innerHTML = '<p>Contenido no encontrado</p>';
+    }
+    if (templateId === 'dashboard-template') {
+        setTimeout(setupDashboardInteractions, 100);
+    }
+}
+
+function initializeNavigation() {
+    const navLinks = document.querySelectorAll('.nav-menu a');
+
+    // Añade event listeners
+    navLinks.forEach(link => {
+        link.addEventListener('click', loadContent);
+    });
+
+    // Carga el dashboard por defecto
+    document.querySelector('.nav-menu a[href="#dashboard"]').click();
+}
+
 logoutBtn.addEventListener('click', async () => {
     const result = await authService.logout();
 
@@ -24,6 +109,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             // Puedes añadir más configuraciones aquí si necesitas
         });
 
+        initializeNavigation();
         // Inicializar el resto de la página...
         initializePage();
     }
