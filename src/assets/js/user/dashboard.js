@@ -1,6 +1,46 @@
 // protected-page.js - Para páginas como dashboard que requieren autenticación
 import { authService } from '../modules/auth.js';
 const logoutBtn = document.getElementById('logoutBtn');
+
+function loadContent(event) {
+    event.preventDefault();
+
+    // Remueve active de todos los enlaces
+    const navLinks = document.querySelectorAll('.nav-menu a');
+    navLinks.forEach(link => link.classList.remove('active'));
+
+    // Marca como activo el enlace clickeado
+    this.classList.add('active');
+
+    // Obtiene el ID de la plantilla a cargar
+    const templateId = this.getAttribute('href').substring(1) + '-template';
+    const template = document.getElementById(templateId);
+
+    // Limpia el contenido actual
+    const mainContent = document.querySelector('.main-content');
+    mainContent.innerHTML = '';
+
+    // Clona y añade el nuevo contenido
+    if (template) {
+        const content = template.content.cloneNode(true);
+        mainContent.appendChild(content);
+    } else {
+        mainContent.innerHTML = '<p>Contenido no encontrado</p>';
+    }
+}
+
+function initializeNavigation() {
+    const navLinks = document.querySelectorAll('.nav-menu a');
+
+    // Añade event listeners
+    navLinks.forEach(link => {
+        link.addEventListener('click', loadContent);
+    });
+
+    // Carga el dashboard por defecto
+    document.querySelector('.nav-menu a[href="#dashboard"]').click();
+}
+
 logoutBtn.addEventListener('click', async () => {
     const result = await authService.logout();
 
@@ -24,6 +64,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             // Puedes añadir más configuraciones aquí si necesitas
         });
 
+        initializeNavigation();
         // Inicializar el resto de la página...
         initializePage();
     }
