@@ -130,7 +130,7 @@ export class AuthService {
                 userInfo.style.display = 'block';
                 // Mostrar información del usuario si está disponible
                 if (result.user) {
-                    userInfo.textContent = `Bienvenido, ${result.user.name}`;
+                    userInfo.textContent = `Lo conseguirás, ${result.user.name}`;
                 }
             }
             if (onAuthenticated) onAuthenticated(result);
