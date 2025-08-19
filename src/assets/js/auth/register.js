@@ -5,6 +5,7 @@ form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const name = form.name.value.trim();
+    const username = form.username.value.trim();
     const email = form.email.value.trim();
     const password = form.password.value.trim();
     const confirmPassword = form.confirmPassword.value.trim();
@@ -18,7 +19,7 @@ form.addEventListener('submit', async (e) => {
         const res = await fetch(API_URL_REGISTER, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name, email, password })
+            body: JSON.stringify({ name, username, email, password })
         });
 
         const data = await res.json();

@@ -1,30 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PERSENAUT</title>
     <link rel="stylesheet" href="../src/assets/css/dashboard.css">
 </head>
+
 <body>
-   <header>
-    <div class="phrase">
-        <h1>PERSENAUT</h1>
-       
+    <div class="dashboard-container">
+        <!-- Sidebar/Nav -->
+        <aside class="sidebar">
+            <div class="logo-container">
+                <h1>PERSENAUT</h1>
+            </div>
+            <nav class="nav-menu">
+                <ul>
+                    <li><a href="#" class="active"><i class="icon">📊</i> Dashboard</a></li>
+                    <li><a href="#"><i class="icon">📝</i> Mis apuntes</a></li>
+                    <li><a href="#"><i class="icon">📅</i> Programar retos</a></li>
+                    <li><a href="#"><i class="icon">⚙️</i> Configuración</a></li>
+                </ul>
+            </nav>
+            <div class="user-section">
+                <div id="user-info"></div>
+                <button id="logoutBtn" class="logout-btn">Cerrar sesión</button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="content-header">
+                <h2>¡Tú puedes lograrlo!</h2>
+                <div class="search-bar">
+                    <input type="text" placeholder="Buscar...">
+                </div>
+            </header>
+            <div class="content">
+                <!-- Aquí iría el contenido principal de tu dashboard -->
+                <div class="cards-container">
+                    <div class="card">Estadísticas</div>
+                    <div class="card">Actividad reciente</div>
+                    <div class="card">Progreso</div>
+                </div>
+            </div>
+        </main>
     </div>
-    <div>
-        <div id="user-info"></div>
-        <button id="logoutBtn">Cerrar sesión</button>
-    </div>
-   </header>
-   <main>
- 
-   </main>
-   <footer>
-    <div id="motivational-phrase" class="fade-in-out"></div>
-    <p>&copy; 2025 Persenaut. All rights reserved.</p>
-   </footer>
-  
+
+    <footer>
+        <div id="motivational-phrase" class="fade-in-out"></div>
+        <p>&copy; 2025 Persenaut. All rights reserved.</p>
+    </footer>
+
     <script type="module" src="/src/assets/js/user/dashboard.js"></script>
 </body>
+
 </html>

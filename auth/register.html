@@ -17,6 +17,12 @@
                 <input type="text" id="name" name="name" required placeholder="Tu nombre completo" />
             </div>
             <div class="form-group">
+                <label for="username">Nombre de usuario</label>
+                <input type="text" id="username" name="username" minlength="3" maxlength="20" required placeholder="Ej: ana_2024" pattern="[a-zA-Z0-9_]{3,20}"
+                    title="Solo letras, números y guiones bajos (3-20 caracteres)" />
+                <small class="hint">Este será tu identificador único en la plataforma.</small>
+            </div>
+            <div class="form-group">
                 <label for="email">Correo electrónico</label>
                 <input type="email" id="email" name="email" required placeholder="ejemplo@correo.com" />
             </div>

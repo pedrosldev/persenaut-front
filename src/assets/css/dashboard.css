@@ -1,119 +1,189 @@
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    min-height: 100vh;
     margin: 0;
     padding: 0;
-
-
+    background-color: #f5f7fa;
+    color: #333;
 }
 
-header {
+.dashboard-container {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Sidebar Styles */
+.sidebar {
+    width: 250px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    height: 100vh;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.logo-container {
+    padding: 20px;
+    text-align: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.logo-container h1 {
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.nav-menu {
+    flex: 1;
+    padding: 20px 0;
+    margin: 5px;
+}
+
+.nav-menu ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.nav-menu li a {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding: 20px;
-    background: rgba(255, 255, 255, 0.9);
-    color: #764ba2;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    box-sizing: border-box;
-
-
-}
-
-main {
-    padding-top: 80px;
-    /* Ajusta según la altura de tu header */
-}
-
-button {
-    background-color: rgba(212, 175, 55, 0.8);
-    /* #d4af37 al 80% */
-    color: #1a1a1a;
-    /* Texto oscuro para contraste */
-    padding: 10px 20px;
-    border: 1px solid rgba(212, 175, 55, 0.5);
-    border-radius: 4px;
-    font-weight: bold;
+    padding: 12px 20px;
+    color: white;
     text-decoration: none;
     transition: all 0.3s ease;
-    cursor: pointer;
-    margin: 10px
 }
 
-button:hover {
-    background-color: rgba(212, 175, 55, 1);
-    /* Sin opacidad al hover */
+.nav-menu li a:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.nav-menu li a.active {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-left: 4px solid #d4af37;
+}
+
+.nav-menu .icon {
+    margin-right: 10px;
+    font-size: 1.2rem;
+}
+
+.user-section {
+    padding: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#user-info {
+    margin-left: 10px;
+    font-size: 1rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    /* Corta con "..." si es muy largo */
+}
+
+/* Main Content Styles */
+.main-content {
+    flex: 1;
+    margin-left: 250px;
+    /* Igual al ancho del sidebar */
+    padding: 20px;
+}
+
+.content-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #eaeaea;
+}
+
+.search-bar input {
+    padding: 8px 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    width: 250px;
+}
+
+/* Cards */
+.cards-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.card {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    height: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    color: #555;
+}
+
+/* Footer */
+footer {
+    background: rgba(255, 255, 255, 0.9);
+    color: #764ba2;
+    text-align: center;
+    padding: 15px;
+    margin-left: 250px;
+    /* Igual al ancho del sidebar */
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Button Styles */
+button,
+.logout-btn {
+    background-color: #d4af37;
+    color: #1a1a1a;
+    padding: 10px 20px;
+    margin: 10px;
+    border: none;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: xx-small;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 90%;
+}
+
+button:hover,
+.logout-btn:hover {
+    background-color: #c9a42d;
     transform: translateY(-2px);
 }
 
-#motivational-phrase {
-    font-size: 1rem;
-    color: #6b5616;
-    /* Dorado para combinar con tu diseño */
-    text-align: center;
-    margin-top: 10px;
-    opacity: 0;
-    transition: opacity 1s ease-in-out;
-}
-
-#motivational-phrase.show {
-    opacity: 1;
-}
-
-footer {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    background: rgba(255, 255, 255, 0.9);
-    color: #764ba2;
-    text-align: center;
-    padding: 15px 0;
-    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-    z-index: 1000;
-}
-
-/* Tablet (768px en adelante) */
-@media (min-width: 768px) {
-    header {
-        padding: 20px 30px;
+/* Responsive Design */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
     }
 
-    main {
-        padding: 80px 30px 30px;
-    }
-
-    button {
-        padding: 10px 20px;
-        font-size: 16px;
-    }
-
+    .main-content,
     footer {
-        padding: 15px 0;
-        font-size: 16px;
+        margin-left: 0;
     }
-}
 
-
-
-/* Móviles pequeños (max 480px) */
-@media (max-width: 480px) {
-    header {
+    .dashboard-container {
         flex-direction: column;
-        /* Apila logo y menú */
-        gap: 10px;
-        padding: 10px;
     }
 
-    button {
-        /* width: 100%; */
-        /* Botones de ancho completo */
-        margin: 5px 0;
+    .content-header {
+        flex-direction: column;
+        align-items: flex-start;
     }
 
-    footer {
-        font-size: 12px;
+    .search-bar input {
+        width: 100%;
+        margin-top: 10px;
     }
 }
