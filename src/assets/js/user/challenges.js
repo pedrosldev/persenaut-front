@@ -5,6 +5,6 @@ document.addEventListener('click', function (event) {
 
         event.preventDefault();
         alert("Crear nuevo reto");
-        // Tu lógica aquí
+  
     }
 });
