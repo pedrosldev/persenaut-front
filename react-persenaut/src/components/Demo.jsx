@@ -1,40 +1,169 @@
 import React, { useState } from 'react';
-import styles from './Demo.module.css'; // módulo CSS para este componente
+import styles from './Demo.module.css';
 
 export default function Demo() {
-  const [loading, setLoading] = useState(false);
-  const [question, setQuestion] = useState(null);
+  const API_ENDPOINT = import.meta.env.VITE_API_ENDPOINT;
+  const GROQ_API = import.meta.env.VITE_GROQ_API;
 
-  const handleSubmit = (e) => {
+  const [loading, setLoading] = useState(false);
+  const [questionData, setQuestionData] = useState(null);
+  const [questionHistory, setQuestionHistory] = useState(new Map());
+  const [showAnswer, setShowAnswer] = useState(false);
+  const [selectedOption, setSelectedOption] = useState(null);
+
+  // Genera el prompt
+  const generatePrompt = (theme, level, previousQuestions = []) => {
+    const avoidRepetition = previousQuestions.length > 0
+      ? `\n\nPREGUNTAS RECIENTES A EVITAR:\n${previousQuestions.slice(-3).join('\n')}\n`
+      : '';
+
+    return `ERES UN EXAMINADOR PROFESIONAL. GENERA PREGUNTAS TIPO TEST CON 4 OPCIONES (A-D) Y 1 RESPUESTA CORRECTA.
+
+TEMA: ${theme}
+NIVEL: ${level}
+${avoidRepetition}
+
+FORMATO OBLIGATORIO:
+
+Pregunta: [Tu pregunta aquí]
+
+A) [Opción A]
+B) [Opción B]
+C) [Opción C]
+D) [Opción D]
+
+Respuesta correcta: [Letra]`;
+  };
+
+  // Llamada a la API principal
+  const fetchChallenge = async (prompt) => {
+    const payload = { prompt, model: "mistral", stream: false, options: { temperature: 0.7, top_p: 0.9 } };
+    const res = await fetch(API_ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) throw new Error(`Error ${res.status}`);
+    const data = await res.json();
+    return data.reto || data.response || '';
+  };
+
+  // Llamada al API Groq (test)
+  const testGroq = async (prompt) => {
+    try {
+      const res = await fetch(GROQ_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt })
+      });
+
+      if (!res.ok) {
+        const error = await res.json().catch(() => ({}));
+        throw new Error(error.error || `Error ${res.status}`);
+      }
+
+      const data = await res.json();
+      console.log(data)
+      return typeof data.response === 'string' ? data.response : JSON.stringify(data.response);
+    } catch (err) {
+      console.error("Error Groq:", err);
+      return "No se pudo obtener respuesta de la API.";
+    }
+  };
+
+  // Formatea cualquier tipo de respuesta
+  const formatQuestionFlexible = (rawText) => {
+    if (!rawText || rawText.trim() === '') return { question: rawText || 'Sin respuesta', options: [], correct: null, rawText };
+
+    const lines = rawText.split('\n').map(l => l.trim()).filter(Boolean);
+    let question = lines.find(l => l.toLowerCase().startsWith('pregunta:')) || lines[0] || "Pregunta no encontrada";
+
+    const options = [];
+    let correct = null;
+
+    lines.forEach(l => {
+      const match = l.match(/^([ABCD])[).]\s*(.+)$/);
+      if (match) options.push({ letter: match[1], text: match[2] });
+      const correctMatch = l.match(/respuesta correcta:\s*([ABCD])/i);
+      if (correctMatch) correct = correctMatch[1];
+    });
+
+    return { question: question.replace(/^Pregunta:\s*/i, ''), options, correct, rawText };
+  };
+
+  // Actualiza historial
+  const updateHistory = (theme, newQuestion) => {
+    setQuestionHistory(prev => {
+      const history = prev.get(theme) || [];
+      const updated = new Map(prev);
+      updated.set(theme, [...history, newQuestion.substring(0, 200)]);
+      return updated;
+    });
+  };
+
+  // Maneja submit del formulario
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setQuestionData(null);
+    setShowAnswer(false);
+    setSelectedOption(null);
 
-    // Lógica de llamada al backend para generar la pregunta
-    // Ejemplo:
-    // fetch('/api/reto', {...})
-    //   .then(res => res.json())
-    //   .then(data => setQuestion(data.reto))
-    //   .finally(() => setLoading(false));
+    const formData = new FormData(e.target);
+    const theme = formData.get('tematica')?.trim();
+    const level = formData.get('nivel')?.trim();
+
+    if (!theme || !level) {
+      alert('Por favor completa todos los campos');
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const previousQuestions = questionHistory.get(theme) || [];
+      const prompt = generatePrompt(theme, level, previousQuestions);
+      const responseText = await fetchChallenge(prompt);
+      console.log("Respuesta cruda de la API:", responseText);
+      updateHistory(theme, responseText);
+      setQuestionData(formatQuestionFlexible(responseText));
+    } catch (err) {
+      console.error(err);
+      alert('Error generando la pregunta: ' + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Maneja test Groq
+  const handleTestGroq = async () => {
+    setLoading(true);
+    setQuestionData(null);
+    setShowAnswer(false);
+    setSelectedOption(null);
+
+    try {
+      const themeInput = document.getElementById('tematica')?.value?.trim() || '';
+      const levelInput = document.getElementById('nivel')?.value?.trim() || '';
+      const prompt = generatePrompt(themeInput || 'Test', levelInput || 'intermedio');
+
+      const responseText = await testGroq(prompt);
+      setQuestionData(formatQuestionFlexible(responseText));
+    } catch (err) {
+      console.error(err);
+      alert('Error en test Groq: ' + err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className={styles.container}>
       <h1>📝 PERSENAUT</h1>
-      <div className={styles.demoBanner}>
-        <p>
-          🔐 Esta es una versión demo. <a href="/register">Regístrate</a> para desbloquear:
-        </p>
-        <ul>
-          <li>✔️ Historial de preguntas</li>
-          <li>✔️ Guardar tus favoritas</li>
-          <li>✔️ Automatización de la frecuencia de los retos</li>
-        </ul>
-      </div>
 
       <form onSubmit={handleSubmit} className={styles.retoForm}>
         <div className={styles.formGroup}>
           <label htmlFor="tematica">Temática de la Pregunta:</label>
-          <input type="text" id="tematica" name="tematica" placeholder="ej: JavaScript, matemáticas, historia..." required />
+          <input type="text" id="tematica" name="tematica" placeholder="ej: JavaScript, matemáticas..." required />
         </div>
 
         <div className={styles.formGroup}>
@@ -47,22 +176,42 @@ export default function Demo() {
           </select>
         </div>
 
-        <button type="submit" className={styles.btn}>
-          🚀 Generar Pregunta
+        <button type="submit" className={styles.btn} disabled={loading}>
+          {loading ? 'Generando...' : '🚀 Generar Pregunta'}
+        </button>
+
+        <button type="button" className={styles.btn} onClick={handleTestGroq} disabled={loading}>
+          {loading ? 'Cargando...' : '🧪 Test Groq'}
         </button>
       </form>
 
-      {loading && (
-        <div className={styles.loading}>
-          <div className={styles.spinner}></div>
-          <p>Generando tu pregunta personalizada...</p>
-        </div>
-      )}
+      {loading && <p>Cargando pregunta...</p>}
 
-      {question && (
+      {questionData && (
         <div className={styles.result}>
           <h3>¡Tu pregunta está lista! 📝</h3>
-          <div className={styles.questionContent}>{question}</div>
+          <p className={styles.questionTitle}>{questionData.question}</p>
+          <div className={styles.questionOptions}>
+            {questionData.options.length > 0 ? questionData.options.map(opt => (
+              <div
+                key={opt.letter}
+                className={`${styles.questionOption} ${selectedOption === opt.letter ? styles.selected : ''} ${showAnswer && questionData.correct === opt.letter ? styles.correctOption : ''}`}
+                onClick={() => setSelectedOption(opt.letter)}
+              >
+                <strong>{opt.letter})</strong> {opt.text}
+              </div>
+            )) : <pre>{questionData.rawText}</pre>}
+          </div>
+
+          {questionData.correct && !showAnswer && (
+            <button className={styles.btn} onClick={() => setShowAnswer(true)}>🔍 Mostrar respuesta</button>
+          )}
+
+          {showAnswer && questionData.correct && (
+            <p className={styles.correctAnswer}>✅ Respuesta correcta: {questionData.correct}</p>
+          )}
+
+          <button className={styles.btn} onClick={handleSubmit}>🔄 Generar nuevo reto</button>
         </div>
       )}
     </div>
