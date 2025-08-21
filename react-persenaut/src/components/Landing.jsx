@@ -1,5 +1,6 @@
 import React from 'react';
 import styles from './Landing.module.css'; // Antes: './Landing.css'
+import { Link } from 'react-router-dom';
 
 export default function Landing() {
   return (
@@ -12,8 +13,9 @@ export default function Landing() {
       </header>
 
       <div className={styles['cta-container']}>
-        <a href="./demo.html" className={styles.btn}>🚀 Probar Demo Gratis</a>
-        <a href="auth/register.html" className={styles.btn}>📝 Regístrate para Guardar Tus Progresos</a>
+       <Link to="/demo" className={styles.btn}>🚀 Probar Demo Gratis</Link>
+
+        <Link to="/register" className={styles.btn}>📝 Regístrate para Guardar Tus Progresos</Link>
       </div>
 
       <footer>
