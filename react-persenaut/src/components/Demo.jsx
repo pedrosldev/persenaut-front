@@ -10,8 +10,10 @@ export default function Demo() {
   const [questionHistory, setQuestionHistory] = useState(new Map());
   const [showAnswer, setShowAnswer] = useState(false);
   const [selectedOption, setSelectedOption] = useState(null);
+  const [logs, setLogs] = useState([]);
 
-  // Genera el prompt
+  const addLog = (msg) => setLogs(prev => [...prev, msg]);
+
   const generatePrompt = (theme, level, previousQuestions = []) => {
     const avoidRepetition = previousQuestions.length > 0
       ? `\n\nPREGUNTAS RECIENTES A EVITAR:\n${previousQuestions.slice(-3).join('\n')}\n`
@@ -35,7 +37,6 @@ D) [Opción D]
 Respuesta correcta: [Letra]`;
   };
 
-  // Llamada a la API principal
   const fetchChallenge = async (prompt) => {
     const payload = { prompt, model: "mistral", stream: false, options: { temperature: 0.7, top_p: 0.9 } };
     const res = await fetch(API_ENDPOINT, {
@@ -45,10 +46,12 @@ Respuesta correcta: [Letra]`;
     });
     if (!res.ok) throw new Error(`Error ${res.status}`);
     const data = await res.json();
-    return data.reto || data.response || '';
+    const responseText = data.reto || data.response || '';
+    console.log("Respuesta cruda de Ollama:", responseText);
+    addLog("Ollama: " + responseText);
+    return responseText;
   };
 
-  // Llamada al API Groq (test)
   const testGroq = async (prompt) => {
     try {
       const res = await fetch(GROQ_API, {
@@ -63,15 +66,17 @@ Respuesta correcta: [Letra]`;
       }
 
       const data = await res.json();
-      console.log(data)
-      return typeof data.response === 'string' ? data.response : JSON.stringify(data.response);
+      const text = typeof data.response === 'string' ? data.response : JSON.stringify(data.response);
+      console.log("Respuesta Groq:", text);
+      addLog("Groq: " + text);
+      return text;
     } catch (err) {
       console.error("Error Groq:", err);
+      addLog("Groq Error: " + err.message);
       return "No se pudo obtener respuesta de la API.";
     }
   };
 
-  // Formatea cualquier tipo de respuesta
   const formatQuestionFlexible = (rawText) => {
     if (!rawText || rawText.trim() === '') return { question: rawText || 'Sin respuesta', options: [], correct: null, rawText };
 
@@ -91,7 +96,6 @@ Respuesta correcta: [Letra]`;
     return { question: question.replace(/^Pregunta:\s*/i, ''), options, correct, rawText };
   };
 
-  // Actualiza historial
   const updateHistory = (theme, newQuestion) => {
     setQuestionHistory(prev => {
       const history = prev.get(theme) || [];
@@ -101,7 +105,6 @@ Respuesta correcta: [Letra]`;
     });
   };
 
-  // Maneja submit del formulario
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -123,18 +126,17 @@ Respuesta correcta: [Letra]`;
       const previousQuestions = questionHistory.get(theme) || [];
       const prompt = generatePrompt(theme, level, previousQuestions);
       const responseText = await fetchChallenge(prompt);
-      console.log("Respuesta cruda de la API:", responseText);
       updateHistory(theme, responseText);
       setQuestionData(formatQuestionFlexible(responseText));
     } catch (err) {
       console.error(err);
       alert('Error generando la pregunta: ' + err.message);
+      addLog("Ollama Error: " + err.message);
     } finally {
       setLoading(false);
     }
   };
 
-  // Maneja test Groq
   const handleTestGroq = async () => {
     setLoading(true);
     setQuestionData(null);
@@ -151,6 +153,7 @@ Respuesta correcta: [Letra]`;
     } catch (err) {
       console.error(err);
       alert('Error en test Groq: ' + err.message);
+      addLog("Groq Error: " + err.message);
     } finally {
       setLoading(false);
     }
@@ -214,6 +217,16 @@ Respuesta correcta: [Letra]`;
           <button className={styles.btn} onClick={handleSubmit}>🔄 Generar nuevo reto</button>
         </div>
       )}
+
+      {/* Panel de logs */}
+      <div className={styles.logsPanel} style={{ marginTop: '20px' }}>
+        <h4>Logs de prueba:</h4>
+        <div style={{ maxHeight: '200px', overflowY: 'auto', background: '#f4f4f4', padding: '10px' }}>
+          {logs.map((log, i) => (
+            <pre key={i} style={{ margin: 0 }}>{log}</pre>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
