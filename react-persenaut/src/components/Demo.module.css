@@ -1,4 +1,4 @@
-/* Demo.module.css - estilos locales del componente Demo */
+/* Demo.module.css */
 
 .container {
     background: white;
@@ -11,6 +11,10 @@
 
 .demoBanner {
     margin-bottom: 30px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    border: 1px solid #e0e0e0;
 }
 
 .demoBanner ul {
@@ -23,15 +27,11 @@
     margin: 10px 0;
 }
 
-.retoForm {
-    margin-top: 20px;
-}
-
 .formGroup {
     margin-bottom: 25px;
 }
 
-label {
+.label {
     display: block;
     margin-bottom: 8px;
     color: #555;
@@ -39,27 +39,52 @@ label {
     font-size: 1.1em;
 }
 
-input,
-select {
+.input,
+.select {
     width: 100%;
     padding: 15px;
     border: 2px solid #e0e0e0;
     border-radius: 10px;
     font-size: 16px;
-    transition: all 0.3s ease;
     background: #fafafa;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
 }
 
-input:focus,
-select:focus {
+.input:focus,
+.select:focus {
     outline: none;
     border-color: #667eea;
     background: white;
     box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
+.btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 10px;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+    transition: all 0.3s ease;
+    margin-top: 20px;
+}
+
+.btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
 .loading {
-    display: none;
     text-align: center;
     margin: 20px 0;
 }
@@ -85,7 +110,6 @@ select:focus {
 }
 
 .result {
-    display: none;
     background: #f8f9fa;
     border-radius: 10px;
     padding: 20px;
@@ -98,10 +122,207 @@ select:focus {
     margin-bottom: 15px;
 }
 
+.resultError {
+    background: #fee;
+    color: #c33;
+    border-left-color: #c33;
+}
+
 .questionContent {
     background: white;
     padding: 20px;
     border-radius: 8px;
     margin-top: 10px;
     line-height: 1.6;
+}
+
+.questionTitle {
+    font-size: 1.2em;
+    margin-bottom: 15px;
+    padding: 10px;
+    background: #f8f9ff;
+    border-left: 4px solid #667eea;
+    border-radius: 5px;
+}
+
+.questionOptions {
+    margin: 20px 0;
+}
+
+.questionOption {
+    margin: 8px 0;
+    padding: 12px 15px;
+    background: #fafafa;
+    border-radius: 8px;
+    border: 2px solid #e0e0e0;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    user-select: none;
+}
+
+.questionOption:hover {
+    background: #f0f8ff;
+    border-color: #667eea;
+    transform: translateX(5px);
+}
+
+.questionOption.selected {
+    background: #e3f2fd;
+    border-color: #2196f3;
+    box-shadow: 0 2px 8px rgba(33, 150, 243, 0.3);
+}
+
+.questionOption.correct {
+    background: #e8f5e8 !important;
+    border-color: #4caf50 !important;
+    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+}
+
+.correctAnswer {
+    padding: 12px;
+    background: #e8f5e8;
+    color: #2d5a2d;
+    border-radius: 8px;
+    border: 2px solid #4caf50;
+    font-size: 1.1em;
+    text-align: center;
+    margin-top: 15px;
+}
+
+.answerControls {
+    margin-top: 15px;
+    text-align: center;
+}
+
+.showAnswerBtn {
+    background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.showAnswerBtn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 152, 0, 0.3);
+}
+
+.showAnswerBtn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.errorCard {
+    background: #fee;
+    color: #c33;
+    border: 1px solid #fcc;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+}
+
+.errorCard h4 {
+    margin-bottom: 10px;
+    color: #c33;
+}
+
+.errorActions {
+    margin-top: 15px;
+}
+
+.errorActions .btn {
+    width: auto;
+    margin: 5px;
+    padding: 10px 20px;
+    font-size: 16px;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+    .container {
+        padding: 20px;
+        max-width: 100%;
+        box-shadow: none;
+    }
+
+    .demoBanner {
+        padding: 15px;
+    }
+
+    .label {
+        font-size: 1em;
+    }
+
+    .input,
+    .select {
+        padding: 12px;
+        font-size: 14px;
+    }
+
+    .btn {
+        font-size: 16px;
+        padding: 12px 20px;
+        margin-top: 15px;
+    }
+
+    .result {
+        padding: 15px;
+        margin-top: 15px;
+    }
+
+    .questionTitle {
+        font-size: 1.1em;
+        padding: 8px;
+    }
+
+    .questionOption {
+        padding: 10px;
+        margin: 6px 0;
+        font-size: 14px;
+    }
+
+    .answerControls {
+        padding: 12px;
+    }
+
+    .correctAnswer {
+        font-size: 1em;
+        padding: 10px;
+    }
+
+    .showAnswerBtn {
+        font-size: 14px;
+        padding: 8px 16px;
+    }
+}
+
+/* Smaller phones */
+@media (max-width: 480px) {
+    .container {
+        padding: 15px;
+    }
+
+    h1 {
+        font-size: 1.5em;
+    }
+
+    .btn {
+        font-size: 14px;
+        padding: 10px 16px;
+    }
+
+    .questionOption {
+        font-size: 13px;
+        padding: 8px;
+    }
+
+    .showAnswerBtn {
+        font-size: 13px;
+        padding: 6px 12px;
+    }
 }

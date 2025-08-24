@@ -1,31 +1,28 @@
 import React, { useState } from 'react';
 import styles from './Demo.module.css';
 
-export default function Demo() {
+const Demo = () => {
+  // URLs de API por defecto para el entorno de prueba
   const API_ENDPOINT = import.meta.env.VITE_API_ENDPOINT;
   const GROQ_API = import.meta.env.VITE_GROQ_API;
 
   const [loading, setLoading] = useState(false);
-  const [questionData, setQuestionData] = useState(null);
-  const [questionHistory, setQuestionHistory] = useState(new Map());
-  const [showAnswer, setShowAnswer] = useState(false);
-  const [selectedOption, setSelectedOption] = useState(null);
-  const [logs, setLogs] = useState([]);
-
-  const addLog = (msg) => setLogs(prev => [...prev, msg]);
+  const [formData, setFormData] = useState({ tematica: '', nivel: '' });
+  const [result, setResult] = useState({ show: false, content: '', isError: false, showAnswer: false, selectedOption: null });
+  const [testResult, setTestResult] = useState({ show: false, content: '', showAnswer: false, selectedOption: null });
+  const [questionHistory] = useState(new Map());
 
   const generatePrompt = (theme, level, previousQuestions = []) => {
-    const avoidRepetition = previousQuestions.length > 0
-      ? `\n\nPREGUNTAS RECIENTES A EVITAR:\n${previousQuestions.slice(-3).join('\n')}\n`
-      : '';
+    const avoidRepetition = previousQuestions.length > 0 ?
+      `\n\nPREGUNTAS RECIENTES A EVITAR:\n${previousQuestions.slice(-3).join('\n')}\n` : '';
 
-    return `ERES UN EXAMINADOR PROFESIONAL. GENERA PREGUNTAS TIPO TEST CON 4 OPCIONES (A-D) Y 1 RESPUESTA CORRECTA.
+    return `ERES UN EXAMINADOR PROFESIONAL. GENERA EXCLUSIVAMENTE PREGUNTAS TIPO TEST CON 4 OPCIONES (A-D) Y 1 RESPUESTA CORRECTA.
 
 TEMA: ${theme}
 NIVEL: ${level}
 ${avoidRepetition}
 
-FORMATO OBLIGATORIO:
+FORMATO OBLIGATORIO (COPIA ESTA ESTRUCTURA):
 
 Pregunta: [Tu pregunta aquí]
 
@@ -34,22 +31,37 @@ B) [Opción B]
 C) [Opción C]
 D) [Opción D]
 
-Respuesta correcta: [Letra]`;
+Respuesta correcta: [Letra]
+
+REGLAS ABSOLUTAS:
+1. ¡NUNCA omitas las opciones A-D!
+2. ¡Siempre incluye "Respuesta correcta:"!
+3. ¡Solo 4 opciones exactamente!
+4. ¡No añadas explicaciones adicionales!
+5. ¡Mantén el formato línea por línea!`;
   };
 
   const fetchChallenge = async (prompt) => {
-    const payload = { prompt, model: "mistral", stream: false, options: { temperature: 0.7, top_p: 0.9 } };
-    const res = await fetch(API_ENDPOINT, {
+    const payload = {
+      prompt,
+      model: "mistral",
+      stream: false,
+      options: { temperature: 0.7, top_p: 0.9 }
+    };
+
+    const response = await fetch(API_ENDPOINT, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(payload)
     });
-    if (!res.ok) throw new Error(`Error ${res.status}`);
-    const data = await res.json();
-    const responseText = data.reto || data.response || '';
-    console.log("Respuesta cruda de Ollama:", responseText);
-    addLog("Ollama: " + responseText);
-    return responseText;
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error.message || `Error ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.reto || data.response || data.message?.content || data.choices?.[0]?.message?.content || "";
   };
 
   const testGroq = async (prompt) => {
@@ -61,77 +73,117 @@ Respuesta correcta: [Letra]`;
       });
 
       if (!res.ok) {
-        const error = await res.json().catch(() => ({}));
-        throw new Error(error.error || `Error ${res.status}`);
+        const error = await res.json();
+        throw new Error(error.error || 'Error en la API Groq');
       }
 
       const data = await res.json();
-      const text = typeof data.response === 'string' ? data.response : JSON.stringify(data.response);
-      console.log("Respuesta Groq:", text);
-      addLog("Groq: " + text);
-      return text;
+      return data.response;
     } catch (err) {
-      console.error("Error Groq:", err);
-      addLog("Groq Error: " + err.message);
-      return "No se pudo obtener respuesta de la API.";
+      console.error(err);
+      throw err;
     }
   };
 
-  const formatQuestionFlexible = (rawText) => {
-    if (!rawText || rawText.trim() === '') return { question: rawText || 'Sin respuesta', options: [], correct: null, rawText };
-
-    const lines = rawText.split('\n').map(l => l.trim()).filter(Boolean);
-    let question = lines.find(l => l.toLowerCase().startsWith('pregunta:')) || lines[0] || "Pregunta no encontrada";
-
-    const options = [];
-    let correct = null;
-
-    lines.forEach(l => {
-      const match = l.match(/^([ABCD])[).]\s*(.+)$/);
-      if (match) options.push({ letter: match[1], text: match[2] });
-      const correctMatch = l.match(/respuesta correcta:\s*([ABCD])/i);
-      if (correctMatch) correct = correctMatch[1];
-    });
-
-    return { question: question.replace(/^Pregunta:\s*/i, ''), options, correct, rawText };
-  };
-
-  const updateHistory = (theme, newQuestion) => {
-    setQuestionHistory(prev => {
-      const history = prev.get(theme) || [];
-      const updated = new Map(prev);
-      updated.set(theme, [...history, newQuestion.substring(0, 200)]);
-      return updated;
-    });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setQuestionData(null);
-    setShowAnswer(false);
-    setSelectedOption(null);
-
-    const formData = new FormData(e.target);
-    const theme = formData.get('tematica')?.trim();
-    const level = formData.get('nivel')?.trim();
-
-    if (!theme || !level) {
-      alert('Por favor completa todos los campos');
-      setLoading(false);
-      return;
+  const formatQuestion = (rawText) => {
+    if (!rawText || rawText.trim() === '') {
+      return { questionText: "No se recibió respuesta del servidor", options: [], correctAnswer: null };
     }
 
     try {
-      const previousQuestions = questionHistory.get(theme) || [];
-      const prompt = generatePrompt(theme, level, previousQuestions);
+      let question = String(rawText)
+        .replace(/\r\n/g, '\n')
+        .replace(/\*\*/g, '')
+        .replace(/\*/g, '')
+        .trim();
+
+      let correctAnswer = null;
+      const answerMatch = question.match(/Respuesta correcta:\s*([ABCD])/i) ||
+        question.match(/Correcta:\s*([ABCD])/i) ||
+        question.match(/La respuesta correcta es\s*([ABCD])/i);
+
+      if (answerMatch) {
+        correctAnswer = answerMatch[1].toUpperCase();
+        question = question.replace(/Respuesta correcta:\s*([ABCD]).*/i, '').trim();
+      }
+
+      const questionParts = question.split(/\n\s*\n/);
+      let questionText = questionParts[0] || "Pregunta no encontrada";
+      let optionsText = questionParts.slice(1).join('\n') || "";
+
+      questionText = questionText.replace(/^Pregunta:\s*/i, '').trim();
+
+      const options = [];
+      const optionRegex = /^([ABCD])[\)\.]\s*(.+)$/gm;
+      let optionMatch;
+
+      while ((optionMatch = optionRegex.exec(optionsText)) !== null) {
+        options.push({
+          letter: optionMatch[1],
+          text: optionMatch[2].trim()
+        });
+      }
+
+      if (options.length === 0) {
+        const lines = optionsText.split('\n').filter(line => line.trim().length > 0);
+        lines.forEach((line, index) => {
+          if (index < 4) {
+            const letter = String.fromCharCode(65 + index);
+            options.push({
+              letter: letter,
+              text: line.trim().replace(/^[ABCD][\)\.]\s*/, '')
+            });
+          }
+        });
+      }
+
+      return { questionText, options, correctAnswer, rawText };
+
+    } catch (error) {
+      console.error("Error formateando pregunta:", error);
+      return { questionText: rawText, options: [], correctAnswer: null };
+    }
+  };
+
+  const updateHistory = (theme, question) => {
+    if (!question) return;
+    const history = questionHistory.get(theme) || [];
+    questionHistory.set(theme, [...history, question.substring(0, 200)]);
+  };
+
+  const handleSubmit = async () => {
+    if (!formData.tematica || !formData.nivel) {
+      alert("Por favor completa todos los campos");
+      return;
+    }
+
+    setLoading(true);
+    setResult({ show: false, content: '', isError: false, showAnswer: false, selectedOption: null });
+
+    try {
+      const previousQuestions = questionHistory.get(formData.tematica) || [];
+      const prompt = generatePrompt(formData.tematica, formData.nivel, previousQuestions);
       const responseText = await fetchChallenge(prompt);
-      updateHistory(theme, responseText);
-      setQuestionData(formatQuestionFlexible(responseText));
-    } catch (err) {
-      console.error(err);
-      alert('Error generando la pregunta: ' + err.message);
-      addLog("Ollama Error: " + err.message);
+      
+      updateHistory(formData.tematica, responseText);
+      const formatted = formatQuestion(responseText);
+      
+      setResult({
+        show: true,
+        content: formatted,
+        isError: false,
+        showAnswer: false,
+        selectedOption: null
+      });
+
+    } catch (error) {
+      setResult({
+        show: true,
+        content: { error: error.message },
+        isError: true,
+        showAnswer: false,
+        selectedOption: null
+      });
     } finally {
       setLoading(false);
     }
@@ -139,39 +191,129 @@ Respuesta correcta: [Letra]`;
 
   const handleTestGroq = async () => {
     setLoading(true);
-    setQuestionData(null);
-    setShowAnswer(false);
-    setSelectedOption(null);
+    setTestResult({ show: false, content: '', showAnswer: false, selectedOption: null });
 
     try {
-      const themeInput = document.getElementById('tematica')?.value?.trim() || '';
-      const levelInput = document.getElementById('nivel')?.value?.trim() || '';
-      const prompt = generatePrompt(themeInput || 'Test', levelInput || 'intermedio');
-
+      const theme = formData.tematica || 'Test general';
+      const level = formData.nivel || 'intermedio';
+      const prompt = generatePrompt(theme, level);
+      
       const responseText = await testGroq(prompt);
-      setQuestionData(formatQuestionFlexible(responseText));
-    } catch (err) {
-      console.error(err);
-      alert('Error en test Groq: ' + err.message);
-      addLog("Groq Error: " + err.message);
+      const formatted = formatQuestion(responseText);
+      
+      setTestResult({
+        show: true,
+        content: formatted,
+        showAnswer: false,
+        selectedOption: null
+      });
+
+    } catch (error) {
+      setTestResult({
+        show: true,
+        content: { error: error.message },
+        showAnswer: false,
+        selectedOption: null
+      });
     } finally {
       setLoading(false);
     }
   };
 
+  const QuestionDisplay = ({ data, onShowAnswer, showAnswer, selectedOption, onSelectOption }) => {
+    if (data.error) {
+      return (
+        <div className={`${styles.result} ${styles.resultError}`}>
+          <h4>⚠️ Error</h4>
+          <p>{data.error}</p>
+        </div>
+      );
+    }
+
+    return (
+      <div>
+        <div className={styles.questionTitle}>
+          <strong>Pregunta:</strong> {data.questionText}
+        </div>
+        <div className={styles.questionOptions}>
+          {data.options.map(option => (
+            <div
+              key={option.letter}
+              className={`${styles.questionOption} ${
+                selectedOption === option.letter ? styles.selected : ''
+              } ${
+                showAnswer && data.correctAnswer === option.letter ? styles.correct : ''
+              }`}
+              onClick={() => onSelectOption(option.letter)}
+            >
+              <strong>{option.letter})</strong> {option.text}
+            </div>
+          ))}
+        </div>
+        
+        {data.correctAnswer && !showAnswer && (
+          <div className={styles.answerControls}>
+            <button 
+              className={styles.showAnswerBtn}
+              onClick={onShowAnswer}
+            >
+              🔍 Mostrar respuesta
+            </button>
+          </div>
+        )}
+        
+        {showAnswer && data.correctAnswer && (
+          <div className={styles.correctAnswer}>
+            ✅ <strong>Respuesta correcta: {data.correctAnswer}</strong>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
   return (
     <div className={styles.container}>
       <h1>📝 PERSENAUT</h1>
+      
+      <div className={styles.demoBanner}>
+        <p>🔐 Esta es una versión demo. <a href="auth/register.html">Regístrate</a> para desbloquear:</p>
+        <ul>
+          <li>✔️ Historial de preguntas</li>
+          <li>✔️ Guardar tus favoritas</li>
+          <li>✔️ Automatización de la frecuencia de los retos</li>
+        </ul>
+      </div>
 
-      <form onSubmit={handleSubmit} className={styles.retoForm}>
+      <div>
         <div className={styles.formGroup}>
-          <label htmlFor="tematica">Temática de la Pregunta:</label>
-          <input type="text" id="tematica" name="tematica" placeholder="ej: JavaScript, matemáticas..." required />
+          <label className={styles.label} htmlFor="tematica">Temática de la Pregunta:</label>
+          <input
+            className={styles.input}
+            type="text"
+            id="tematica"
+            name="tematica"
+            placeholder="ej: JavaScript, matemáticas, historia..."
+            value={formData.tematica}
+            onChange={handleInputChange}
+            required
+          />
         </div>
 
         <div className={styles.formGroup}>
-          <label htmlFor="nivel">Nivel de Dificultad:</label>
-          <select id="nivel" name="nivel" required>
+          <label className={styles.label} htmlFor="nivel">Nivel de Dificultad:</label>
+          <select 
+            className={styles.select}
+            id="nivel" 
+            name="nivel" 
+            value={formData.nivel}
+            onChange={handleInputChange}
+            required
+          >
             <option value="">Selecciona un nivel</option>
             <option value="principiante">🟢 Principiante</option>
             <option value="intermedio">🟡 Intermedio</option>
@@ -179,54 +321,71 @@ Respuesta correcta: [Letra]`;
           </select>
         </div>
 
-        <button type="submit" className={styles.btn} disabled={loading}>
-          {loading ? 'Generando...' : '🚀 Generar Pregunta'}
+        <button
+          type="button"
+          className={`${styles.btn} ${loading ? styles.btnDisabled : ''}`}
+          disabled={loading}
+          onClick={handleSubmit}
+        >
+          🚀 Generar Pregunta
         </button>
+      </div>
 
-        <button type="button" className={styles.btn} onClick={handleTestGroq} disabled={loading}>
-          {loading ? 'Cargando...' : '🧪 Test Groq'}
-        </button>
-      </form>
-
-      {loading && <p>Cargando pregunta...</p>}
-
-      {questionData && (
-        <div className={styles.result}>
-          <h3>¡Tu pregunta está lista! 📝</h3>
-          <p className={styles.questionTitle}>{questionData.question}</p>
-          <div className={styles.questionOptions}>
-            {questionData.options.length > 0 ? questionData.options.map(opt => (
-              <div
-                key={opt.letter}
-                className={`${styles.questionOption} ${selectedOption === opt.letter ? styles.selected : ''} ${showAnswer && questionData.correct === opt.letter ? styles.correctOption : ''}`}
-                onClick={() => setSelectedOption(opt.letter)}
-              >
-                <strong>{opt.letter})</strong> {opt.text}
-              </div>
-            )) : <pre>{questionData.rawText}</pre>}
-          </div>
-
-          {questionData.correct && !showAnswer && (
-            <button className={styles.btn} onClick={() => setShowAnswer(true)}>🔍 Mostrar respuesta</button>
-          )}
-
-          {showAnswer && questionData.correct && (
-            <p className={styles.correctAnswer}>✅ Respuesta correcta: {questionData.correct}</p>
-          )}
-
-          <button className={styles.btn} onClick={handleSubmit}>🔄 Generar nuevo reto</button>
+      {loading && (
+        <div className={styles.loading}>
+          <div className={styles.spinner}></div>
+          <p>Generando tu pregunta personalizada...</p>
         </div>
       )}
 
-      {/* Panel de logs */}
-      <div className={styles.logsPanel} style={{ marginTop: '20px' }}>
-        <h4>Logs de prueba:</h4>
-        <div style={{ maxHeight: '200px', overflowY: 'auto', background: '#f4f4f4', padding: '10px' }}>
-          {logs.map((log, i) => (
-            <pre key={i} style={{ margin: 0 }}>{log}</pre>
-          ))}
+      {result.show && (
+        <div className={`${styles.result} ${result.isError ? styles.resultError : ''}`}>
+          {result.isError ? (
+            <div>
+              <h4>⚠️ Error</h4>
+              <p>{result.content.error}</p>
+            </div>
+          ) : (
+            <div>
+              <h3>¡Tu pregunta está lista! 📝</h3>
+              <div className={styles.questionContent}>
+                <QuestionDisplay
+                  data={result.content}
+                  onShowAnswer={() => setResult(prev => ({...prev, showAnswer: true}))}
+                  showAnswer={result.showAnswer}
+                  selectedOption={result.selectedOption}
+                  onSelectOption={(option) => setResult(prev => ({...prev, selectedOption: option}))}
+                />
+              </div>
+            </div>
+          )}
         </div>
-      </div>
+      )}
+
+      <button
+        className={`${styles.btn} ${loading ? styles.btnDisabled : ''}`}
+        onClick={handleTestGroq}
+        disabled={loading}
+      >
+        Test Groq API
+      </button>
+
+      {testResult.show && (
+        <div className={styles.result}>
+          <h3>Resultado Test Groq</h3>
+          <div className={styles.questionContent}>
+            <QuestionDisplay
+              data={testResult.content}
+              onShowAnswer={() => setTestResult(prev => ({...prev, showAnswer: true}))}
+              showAnswer={testResult.showAnswer}
+              selectedOption={testResult.selectedOption}
+              onSelectOption={(option) => setTestResult(prev => ({...prev, selectedOption: option}))}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
-}
+};
+
+export default Demo;
