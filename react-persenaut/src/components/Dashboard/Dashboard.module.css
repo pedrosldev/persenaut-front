@@ -1,6 +1,7 @@
 /* src/components/Dashboard/Dashboard.module.css */
 .dashboardContainer {
     display: flex;
+    flex-direction: column;
     min-height: 100vh;
 }
 
