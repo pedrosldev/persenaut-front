@@ -1,0 +1,11 @@
+/* src/components/Dashboard/Dashboard.module.css */
+.dashboardContainer {
+    display: flex;
+    min-height: 100vh;
+}
+
+@media (max-width: 768px) {
+    .dashboardContainer {
+        flex-direction: column;
+    }
+}

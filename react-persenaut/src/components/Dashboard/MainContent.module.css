@@ -1,0 +1,12 @@
+/* src/components/Dashboard/MainContent/MainContent.module.css */
+.mainContent {
+    flex: 1;
+    margin-left: 250px;
+    padding: 20px;
+}
+
+@media (max-width: 768px) {
+    .mainContent {
+        margin-left: 0;
+    }
+}

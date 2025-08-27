@@ -3,7 +3,8 @@ import Landing from './components/Landing';
 import Demo from './components/Demo';
 import RegisterComponent from './components/Register';
 import LoginComponent from './components/Login';
-import Dashboard from './components/Dashboard';
+// import Dashboard from './components/Dashboard';
+import Dashboard from './components/Dashboard/Dashboard';
 
 function App() {
   return (
