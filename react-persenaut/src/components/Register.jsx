@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { authService } from "../services/authService";
 
 const RegisterComponent = ({
   onRegister,
-  onNavigate,
   redirectUrl = "/login",
   loginUrl = "/login",
   dashboardUrl = "/dashboard",
 }) => {
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     name: "",
     username: "",
@@ -26,12 +28,7 @@ const RegisterComponent = ({
       try {
         const result = await authService.checkAuth();
         if (result.isAuthenticated) {
-          // Si ya está autenticado, redirigir al dashboard
-          if (onNavigate) {
-            onNavigate(dashboardUrl);
-          } else {
-            window.location.href = dashboardUrl;
-          }
+          navigate(dashboardUrl); // ✅ navegación SPA
         }
       } catch (error) {
         console.error("Error checking initial auth:", error);
@@ -41,7 +38,7 @@ const RegisterComponent = ({
     };
 
     checkInitialAuth();
-  }, [onNavigate, redirectUrl]);
+  }, [navigate, dashboardUrl]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -49,8 +46,6 @@ const RegisterComponent = ({
       ...prev,
       [name]: value,
     }));
-
-    // Limpiar errores cuando el usuario empiece a escribir
     if (error) setError("");
     if (validationErrors[name]) {
       setValidationErrors((prev) => ({
@@ -63,12 +58,10 @@ const RegisterComponent = ({
   const validateForm = () => {
     const errors = {};
 
-    // Validar nombre
     if (!formData.name.trim()) {
       errors.name = "El nombre es requerido";
     }
 
-    // Validar username
     const usernamePattern = /^[a-zA-Z0-9_]{3,20}$/;
     if (!formData.username.trim()) {
       errors.username = "El nombre de usuario es requerido";
@@ -77,7 +70,6 @@ const RegisterComponent = ({
         "Solo letras, números y guiones bajos (3-20 caracteres)";
     }
 
-    // Validar email
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!formData.email.trim()) {
       errors.email = "El correo electrónico es requerido";
@@ -85,14 +77,12 @@ const RegisterComponent = ({
       errors.email = "Ingresa un correo electrónico válido";
     }
 
-    // Validar contraseña
     if (!formData.password) {
       errors.password = "La contraseña es requerida";
     } else if (formData.password.length < 6) {
       errors.password = "La contraseña debe tener al menos 6 caracteres";
     }
 
-    // Validar confirmación de contraseña
     if (!formData.confirmPassword) {
       errors.confirmPassword = "Confirma tu contraseña";
     } else if (formData.password !== formData.confirmPassword) {
@@ -103,7 +93,6 @@ const RegisterComponent = ({
   };
 
   const handleSubmit = async () => {
-    // Validar formulario
     const errors = validateForm();
     if (Object.keys(errors).length > 0) {
       setValidationErrors(errors);
@@ -113,7 +102,6 @@ const RegisterComponent = ({
     setIsLoading(true);
     setError("");
     setValidationErrors({});
-
     const { confirmPassword, ...registerData } = formData;
 
     try {
@@ -128,25 +116,14 @@ const RegisterComponent = ({
           confirmPassword: "",
         });
 
-        // Ejecutar callback onRegister si existe
         if (onRegister) {
           onRegister(result.data);
         }
 
-        // Por defecto redirigir al login después del registro
-        // Solo redirigir al dashboard si el registro incluye login automático
+        // ✅ Navegación SPA según caso
         const shouldGoToDashboard = result.data?.autoLogin === true;
         const targetUrl = shouldGoToDashboard ? dashboardUrl : redirectUrl;
-
-        if (onNavigate) {
-          onNavigate(targetUrl);
-        } else {
-          // Fallback para navegación directa (no recomendado con React Router)
-          console.warn(
-            "Consider using React Router navigate instead of window.location"
-          );
-          window.location.href = targetUrl;
-        }
+        navigate(targetUrl);
       } else {
         setError(result.error || "Error desconocido en el registro");
       }
@@ -540,15 +517,7 @@ const RegisterComponent = ({
             style={styles.link}
             onClick={(e) => {
               e.preventDefault();
-              if (onNavigate) {
-                onNavigate(loginUrl);
-              } else {
-                // Fallback para navegación directa (no recomendado con React Router)
-                console.warn(
-                  "Consider using React Router navigate instead of window.location"
-                );
-                window.location.href = loginUrl;
-              }
+              navigate(loginUrl);
             }}
           >
             Inicia sesión aquí

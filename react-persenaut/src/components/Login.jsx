@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom"; // 👈 Importar el hook
 import { authService } from "../services/authService";
 
-const LoginComponent = ({
-  onLogin,
-  onNavigate,
-  redirectUrl = "/dashboard",
-}) => {
+const LoginComponent = ({ onLogin, redirectUrl = "/dashboard" }) => {
+  const navigate = useNavigate(); // 👈 Inicializar navigate
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -20,12 +19,7 @@ const LoginComponent = ({
       try {
         const result = await authService.checkAuth();
         if (result.isAuthenticated) {
-          // Si ya está autenticado, redirigir
-          if (onNavigate) {
-            onNavigate(redirectUrl);
-          } else {
-            window.location.href = redirectUrl;
-          }
+          navigate(redirectUrl); // 👈 redirección SPA
         }
       } catch (error) {
         console.error("Error checking initial auth:", error);
@@ -35,9 +29,7 @@ const LoginComponent = ({
     };
 
     checkInitialAuth();
-  }, [onNavigate, redirectUrl]);
-
-  // Simulación del servicio de autenticación
+  }, [navigate, redirectUrl]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -45,7 +37,6 @@ const LoginComponent = ({
       ...prev,
       [name]: value,
     }));
-    // Limpiar error cuando el usuario empiece a escribir
     if (error) setError("");
   };
 
@@ -66,18 +57,11 @@ const LoginComponent = ({
       if (result.success) {
         setFormData({ email: "", password: "" });
 
-        // Ejecutar callback onLogin si existe
         if (onLogin) {
           onLogin(result.data);
         }
 
-        // Navegar al dashboard
-        if (onNavigate) {
-          onNavigate(redirectUrl);
-        } else {
-          // Fallback a navegación directa si no hay callback
-          window.location.href = redirectUrl;
-        }
+        navigate(redirectUrl); // 👈 navegar al dashboard tras login
       } else {
         setError(result.error || "Error desconocido");
       }
@@ -90,24 +74,6 @@ const LoginComponent = ({
   };
 
   const styles = {
-    // CSS Reset y Base
-    "*": {
-      margin: 0,
-      padding: 0,
-      boxSizing: "border-box",
-    },
-
-    body: {
-      fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
-      background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-      minHeight: "100vh",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      padding: "20px",
-    },
-
-    // Contenedor principal
     container: {
       background: "white",
       borderRadius: "20px",
@@ -116,8 +82,6 @@ const LoginComponent = ({
       maxWidth: "600px",
       width: "100%",
     },
-
-    // Título
     title: {
       textAlign: "center",
       color: "#333",
@@ -125,40 +89,21 @@ const LoginComponent = ({
       fontSize: "2.5em",
       fontWeight: "300",
     },
-
-    // Grupo de formulario
-    formGroup: {
-      marginBottom: "25px",
-    },
-
-    // Labels
+    formGroup: { marginBottom: "25px" },
     label: {
       display: "block",
       marginBottom: "8px",
       color: "#555",
       fontWeight: "500",
-      fontSize: "1.1em",
     },
-
-    // Inputs
     input: {
       width: "100%",
       padding: "15px",
       border: "2px solid #e0e0e0",
       borderRadius: "10px",
       fontSize: "16px",
-      transition: "all 0.3s ease",
       background: "#fafafa",
     },
-
-    inputFocus: {
-      outline: "none",
-      borderColor: "#667eea",
-      background: "white",
-      boxShadow: "0 0 0 3px rgba(102, 126, 234, 0.1)",
-    },
-
-    // Botón principal
     btn: {
       background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
       color: "white",
@@ -172,24 +117,8 @@ const LoginComponent = ({
       transition: "all 0.3s ease",
       marginTop: "20px",
     },
-
-    btnHover: {
-      transform: "translateY(-2px)",
-      boxShadow: "0 10px 20px rgba(0, 0, 0, 0.2)",
-    },
-
-    btnDisabled: {
-      opacity: 0.6,
-      cursor: "not-allowed",
-      transform: "none",
-    },
-
-    // Loading
-    loading: {
-      textAlign: "center",
-      margin: "20px 0",
-    },
-
+    btnDisabled: { opacity: 0.6, cursor: "not-allowed" },
+    loading: { textAlign: "center", margin: "20px 0" },
     spinner: {
       border: "4px solid #f3f3f3",
       borderTop: "4px solid #667eea",
@@ -199,8 +128,6 @@ const LoginComponent = ({
       animation: "spin 1s linear infinite",
       margin: "0 auto 10px",
     },
-
-    // Error
     error: {
       background: "#fee",
       color: "#c33",
@@ -210,18 +137,29 @@ const LoginComponent = ({
       borderLeft: "4px solid #c33",
       textAlign: "center",
     },
-
-    // Demo info
-    demoInfo: {
-      marginTop: "20px",
-      padding: "15px",
-      background: "#f8f9fa",
-      borderRadius: "10px",
-      fontSize: "14px",
-      color: "#666",
-      textAlign: "center",
-    },
   };
+
+  if (isCheckingAuth) {
+    return (
+      <div
+        style={{
+          fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <main style={styles.container}>
+          <div style={styles.loading}>
+            <div style={styles.spinner} />
+            <p>Verificando sesión...</p>
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -238,7 +176,7 @@ const LoginComponent = ({
       <main style={styles.container}>
         <h1 style={styles.title}>Iniciar sesión</h1>
 
-        <div onSubmit={handleSubmit}>
+        <div>
           <div style={styles.formGroup}>
             <label htmlFor="email" style={styles.label}>
               Correo electrónico
@@ -250,18 +188,8 @@ const LoginComponent = ({
               value={formData.email}
               onChange={handleInputChange}
               placeholder="ejemplo@correo.com"
-              style={{
-                ...styles.input,
-                ...(document.activeElement?.id === "email"
-                  ? styles.inputFocus
-                  : {}),
-              }}
+              style={styles.input}
               disabled={isLoading}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  document.getElementById("password").focus();
-                }
-              }}
             />
           </div>
 
@@ -276,12 +204,7 @@ const LoginComponent = ({
               value={formData.password}
               onChange={handleInputChange}
               placeholder="Tu contraseña"
-              style={{
-                ...styles.input,
-                ...(document.activeElement?.id === "password"
-                  ? styles.inputFocus
-                  : {}),
-              }}
+              style={styles.input}
               disabled={isLoading}
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
@@ -299,17 +222,6 @@ const LoginComponent = ({
               ...(isLoading ? styles.btnDisabled : {}),
             }}
             disabled={isLoading}
-            onMouseEnter={(e) => {
-              if (!isLoading) {
-                Object.assign(e.target.style, styles.btnHover);
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (!isLoading) {
-                e.target.style.transform = "none";
-                e.target.style.boxShadow = "none";
-              }
-            }}
           >
             {isLoading ? "Iniciando sesión..." : "Entrar"}
           </button>
@@ -317,76 +229,13 @@ const LoginComponent = ({
 
         {isLoading && (
           <div style={styles.loading}>
-            <div
-              style={{
-                ...styles.spinner,
-                animation: "spin 1s linear infinite",
-              }}
-            />
+            <div style={styles.spinner} />
             <p>Verificando credenciales...</p>
           </div>
         )}
 
         {error && <div style={styles.error}>{error}</div>}
-
-        <div style={styles.demoInfo}>
-          <strong>Información:</strong>
-          <br />
-          Usa tus credenciales para iniciar sesión.
-          <br />
-          Las cookies se gestionan automáticamente.
-        </div>
       </main>
-
-      <style jsx>{`
-        @keyframes spin {
-          0% {
-            transform: rotate(0deg);
-          }
-          100% {
-            transform: rotate(360deg);
-          }
-        }
-
-        @media (max-width: 768px) {
-          .container {
-            padding: 20px !important;
-            max-width: 100% !important;
-            box-shadow: none !important;
-          }
-
-          h1 {
-            font-size: 1.8em !important;
-            margin-bottom: 20px !important;
-          }
-
-          .btn {
-            font-size: 16px !important;
-            padding: 12px 20px !important;
-          }
-
-          input {
-            padding: 12px !important;
-            font-size: 14px !important;
-          }
-        }
-
-        @media (max-width: 480px) {
-          h1 {
-            font-size: 1.5em !important;
-          }
-
-          .btn {
-            font-size: 14px !important;
-            padding: 10px 16px !important;
-          }
-
-          input {
-            padding: 10px !important;
-            font-size: 13px !important;
-          }
-        }
-      `}</style>
     </div>
   );
 };
