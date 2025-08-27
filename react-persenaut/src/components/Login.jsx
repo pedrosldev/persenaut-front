@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react';
 class AuthService {
   constructor() {
     this.API_URL_LOGIN = import.meta.env.VITE_LOGIN_API;
-    this.API_URL_REGISTER = import.meta.env.VITE_REGISTER_API || `${this.API_URL_LOGIN.replace('/login', '/register')}`;
     this.API_URL_LOGOUT = import.meta.env.VITE_LOGOUT_API || `${this.API_URL_LOGIN.replace('/login', '/logout')}`;
     this.API_URL_CHECK_AUTH = import.meta.env.VITE_CHECK_AUTH_API || `${this.API_URL_LOGIN.replace('/login', '/check-auth')}`;
   }
@@ -39,12 +38,23 @@ class AuthService {
     }
   }
 
-  async register(userData) {
+  async requireAuth(redirectUrl = '/auth/login.html') {
+    const result = await this.checkAuth();
+    
+    if (!result.isAuthenticated) {
+      window.location.href = redirectUrl;
+      return false;
+    }
+    
+    return true;
+  }
+
+  async login(email, password) {
     try {
-      const res = await fetch(this.API_URL_REGISTER, {
+      const res = await fetch(this.API_URL_LOGIN, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(userData),
+        body: JSON.stringify({ email, password }),
         credentials: 'include'
       });
 
@@ -58,9 +68,28 @@ class AuthService {
       } else {
         return {
           success: false,
-          error: data.error || 'Error en el registro'
+          error: data.error || 'Credenciales inválidas'
         };
       }
+    } catch (error) {
+      return {
+        success: false,
+        error: 'Error conectando con el servidor'
+      };
+    }
+  }
+
+  async logout() {
+    try {
+      const res = await fetch(this.API_URL_LOGOUT, {
+        method: 'POST',
+        credentials: 'include'
+      });
+
+      return {
+        success: res.ok,
+        error: res.ok ? null : 'Error al cerrar sesión'
+      };
     } catch (error) {
       return {
         success: false,
@@ -73,18 +102,14 @@ class AuthService {
 // Instancia singleton
 const authService = new AuthService();
 
-const RegisterComponent = ({ onRegister, onNavigate, redirectUrl = '/login', loginUrl = '/login', dashboardUrl = '/dashboard' }) => {
+const LoginComponent = ({ onLogin, onNavigate, redirectUrl = '/app/dashboard.html' }) => {
   const [formData, setFormData] = useState({
-    name: '',
-    username: '',
     email: '',
-    password: '',
-    confirmPassword: ''
+    password: ''
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
-  const [validationErrors, setValidationErrors] = useState({});
 
   // Verificar si ya está autenticado al montar el componente
   useEffect(() => {
@@ -92,11 +117,11 @@ const RegisterComponent = ({ onRegister, onNavigate, redirectUrl = '/login', log
       try {
         const result = await authService.checkAuth();
         if (result.isAuthenticated) {
-          // Si ya está autenticado, redirigir al dashboard
+          // Si ya está autenticado, redirigir
           if (onNavigate) {
-            onNavigate(dashboardUrl);
+            onNavigate(redirectUrl);
           } else {
-            window.location.href = dashboardUrl;
+            window.location.href = redirectUrl;
           }
         }
       } catch (error) {
@@ -109,112 +134,53 @@ const RegisterComponent = ({ onRegister, onNavigate, redirectUrl = '/login', log
     checkInitialAuth();
   }, [onNavigate, redirectUrl]);
 
+  // Simulación del servicio de autenticación
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: value
     }));
-    
-    // Limpiar errores cuando el usuario empiece a escribir
+    // Limpiar error cuando el usuario empiece a escribir
     if (error) setError('');
-    if (validationErrors[name]) {
-      setValidationErrors(prev => ({
-        ...prev,
-        [name]: ''
-      }));
-    }
-  };
-
-  const validateForm = () => {
-    const errors = {};
-    
-    // Validar nombre
-    if (!formData.name.trim()) {
-      errors.name = 'El nombre es requerido';
-    }
-
-    // Validar username
-    const usernamePattern = /^[a-zA-Z0-9_]{3,20}$/;
-    if (!formData.username.trim()) {
-      errors.username = 'El nombre de usuario es requerido';
-    } else if (!usernamePattern.test(formData.username)) {
-      errors.username = 'Solo letras, números y guiones bajos (3-20 caracteres)';
-    }
-
-    // Validar email
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!formData.email.trim()) {
-      errors.email = 'El correo electrónico es requerido';
-    } else if (!emailPattern.test(formData.email)) {
-      errors.email = 'Ingresa un correo electrónico válido';
-    }
-
-    // Validar contraseña
-    if (!formData.password) {
-      errors.password = 'La contraseña es requerida';
-    } else if (formData.password.length < 6) {
-      errors.password = 'La contraseña debe tener al menos 6 caracteres';
-    }
-
-    // Validar confirmación de contraseña
-    if (!formData.confirmPassword) {
-      errors.confirmPassword = 'Confirma tu contraseña';
-    } else if (formData.password !== formData.confirmPassword) {
-      errors.confirmPassword = 'Las contraseñas no coinciden';
-    }
-
-    return errors;
   };
 
   const handleSubmit = async () => {
-    // Validar formulario
-    const errors = validateForm();
-    if (Object.keys(errors).length > 0) {
-      setValidationErrors(errors);
+    
+    const { email, password } = formData;
+    
+    if (!email.trim() || !password.trim()) {
+      setError('Por favor completa todos los campos');
       return;
     }
 
     setIsLoading(true);
     setError('');
-    setValidationErrors({});
-
-    const { confirmPassword, ...registerData } = formData;
 
     try {
-      const result = await authService.register(registerData);
+      const result = await authService.login(email.trim(), password.trim());
       
       if (result.success) {
-        setFormData({
-          name: '',
-          username: '',
-          email: '',
-          password: '',
-          confirmPassword: ''
-        });
+        setFormData({ email: '', password: '' });
         
-        // Ejecutar callback onRegister si existe
-        if (onRegister) {
-          onRegister(result.data);
+        // Ejecutar callback onLogin si existe
+        if (onLogin) {
+          onLogin(result.data);
         }
         
-        // Por defecto redirigir al login después del registro
-        // Solo redirigir al dashboard si el registro incluye login automático
-        const shouldGoToDashboard = result.data?.autoLogin === true;
-        const targetUrl = shouldGoToDashboard ? dashboardUrl : redirectUrl;
-        
+        // Navegar al dashboard
         if (onNavigate) {
-          onNavigate(targetUrl);
+          onNavigate(redirectUrl);
         } else {
-          // Fallback para navegación directa (no recomendado con React Router)
-          console.warn('Consider using React Router navigate instead of window.location');
-          window.location.href = targetUrl;
+          // Fallback a navegación directa si no hay callback
+          window.location.href = redirectUrl;
         }
       } else {
-        setError(result.error || 'Error desconocido en el registro');
+        setError(result.error || 'Error desconocido');
       }
     } catch (err) {
-      console.error('Register error:', err);
+      console.error('Login error:', err);
       setError('Error de conexión. Intenta de nuevo.');
     } finally {
       setIsLoading(false);
@@ -290,19 +256,6 @@ const RegisterComponent = ({ onRegister, onNavigate, redirectUrl = '/login', log
       boxShadow: '0 0 0 3px rgba(102, 126, 234, 0.1)'
     },
 
-    inputError: {
-      borderColor: '#e74c3c',
-      background: '#fdf2f2'
-    },
-
-    // Hint text
-    hint: {
-      fontSize: '0.85em',
-      color: '#777',
-      marginTop: '5px',
-      display: 'block'
-    },
-
     // Botón principal
     btn: {
       background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
@@ -356,16 +309,8 @@ const RegisterComponent = ({ onRegister, onNavigate, redirectUrl = '/login', log
       textAlign: 'center'
     },
 
-    // Error de validación
-    validationError: {
-      color: '#e74c3c',
-      fontSize: '0.85em',
-      marginTop: '5px',
-      display: 'block'
-    },
-
-    // Información
-    infoBox: {
+    // Demo info
+    demoInfo: {
       marginTop: '20px',
       padding: '15px',
       background: '#f8f9fa',
@@ -373,42 +318,8 @@ const RegisterComponent = ({ onRegister, onNavigate, redirectUrl = '/login', log
       fontSize: '14px',
       color: '#666',
       textAlign: 'center'
-    },
-
-    // Link
-    link: {
-      color: '#667eea',
-      textDecoration: 'none',
-      fontWeight: '500'
     }
   };
-
-  // Mostrar loading mientras verifica autenticación inicial
-  if (isCheckingAuth) {
-    return (
-      <div style={{
-        fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '20px'
-      }}>
-        <div style={styles.container}>
-          <div style={styles.loading}>
-            <div
-              style={{
-                ...styles.spinner,
-                animation: 'spin 1s linear infinite'
-              }}
-            />
-            <p>Verificando sesión...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div style={{
@@ -421,54 +332,9 @@ const RegisterComponent = ({ onRegister, onNavigate, redirectUrl = '/login', log
       padding: '20px'
     }}>
       <main style={styles.container}>
-        <h1 style={styles.title}>Crear cuenta</h1>
+        <h1 style={styles.title}>Iniciar sesión</h1>
         
-        <div>
-          <div style={styles.formGroup}>
-            <label htmlFor="name" style={styles.label}>
-              Nombre completo
-            </label>
-            <input
-              type="text"
-              id="name"
-              name="name"
-              value={formData.name}
-              onChange={handleInputChange}
-              placeholder="Tu nombre completo"
-              style={{
-                ...styles.input,
-                ...(validationErrors.name ? styles.inputError : {})
-              }}
-              disabled={isLoading}
-            />
-            {validationErrors.name && (
-              <span style={styles.validationError}>{validationErrors.name}</span>
-            )}
-          </div>
-          
-          <div style={styles.formGroup}>
-            <label htmlFor="username" style={styles.label}>
-              Nombre de usuario
-            </label>
-            <input
-              type="text"
-              id="username"
-              name="username"
-              value={formData.username}
-              onChange={handleInputChange}
-              placeholder="Ej: ana_2024"
-              style={{
-                ...styles.input,
-                ...(validationErrors.username ? styles.inputError : {})
-              }}
-              disabled={isLoading}
-            />
-            <small style={styles.hint}>Este será tu identificador único en la plataforma.</small>
-            {validationErrors.username && (
-              <span style={styles.validationError}>{validationErrors.username}</span>
-            )}
-          </div>
-          
+        <div onSubmit={handleSubmit}>
           <div style={styles.formGroup}>
             <label htmlFor="email" style={styles.label}>
               Correo electrónico
@@ -482,13 +348,15 @@ const RegisterComponent = ({ onRegister, onNavigate, redirectUrl = '/login', log
               placeholder="ejemplo@correo.com"
               style={{
                 ...styles.input,
-                ...(validationErrors.email ? styles.inputError : {})
+                ...(document.activeElement?.id === 'email' ? styles.inputFocus : {})
               }}
               disabled={isLoading}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  document.getElementById('password').focus();
+                }
+              }}
             />
-            {validationErrors.email && (
-              <span style={styles.validationError}>{validationErrors.email}</span>
-            )}
           </div>
           
           <div style={styles.formGroup}>
@@ -504,29 +372,7 @@ const RegisterComponent = ({ onRegister, onNavigate, redirectUrl = '/login', log
               placeholder="Tu contraseña"
               style={{
                 ...styles.input,
-                ...(validationErrors.password ? styles.inputError : {})
-              }}
-              disabled={isLoading}
-            />
-            {validationErrors.password && (
-              <span style={styles.validationError}>{validationErrors.password}</span>
-            )}
-          </div>
-          
-          <div style={styles.formGroup}>
-            <label htmlFor="confirmPassword" style={styles.label}>
-              Confirmar contraseña
-            </label>
-            <input
-              type="password"
-              id="confirmPassword"
-              name="confirmPassword"
-              value={formData.confirmPassword}
-              onChange={handleInputChange}
-              placeholder="Repite tu contraseña"
-              style={{
-                ...styles.input,
-                ...(validationErrors.confirmPassword ? styles.inputError : {})
+                ...(document.activeElement?.id === 'password' ? styles.inputFocus : {})
               }}
               disabled={isLoading}
               onKeyDown={(e) => {
@@ -535,9 +381,6 @@ const RegisterComponent = ({ onRegister, onNavigate, redirectUrl = '/login', log
                 }
               }}
             />
-            {validationErrors.confirmPassword && (
-              <span style={styles.validationError}>{validationErrors.confirmPassword}</span>
-            )}
           </div>
           
           <button
@@ -560,7 +403,7 @@ const RegisterComponent = ({ onRegister, onNavigate, redirectUrl = '/login', log
               }
             }}
           >
-            {isLoading ? 'Registrando...' : 'Registrar'}
+            {isLoading ? 'Iniciando sesión...' : 'Entrar'}
           </button>
         </div>
 
@@ -572,7 +415,7 @@ const RegisterComponent = ({ onRegister, onNavigate, redirectUrl = '/login', log
                 animation: 'spin 1s linear infinite'
               }}
             />
-            <p>Creando tu cuenta...</p>
+            <p>Verificando credenciales...</p>
           </div>
         )}
 
@@ -582,25 +425,10 @@ const RegisterComponent = ({ onRegister, onNavigate, redirectUrl = '/login', log
           </div>
         )}
 
-        <div style={styles.infoBox}>
-          Al registrarte, podrás iniciar sesión con tus credenciales.<br />
-          ¿Ya tienes una cuenta?{' '}
-          <a 
-            href="#" 
-            style={styles.link}
-            onClick={(e) => {
-              e.preventDefault();
-              if (onNavigate) {
-                onNavigate(loginUrl);
-              } else {
-                // Fallback para navegación directa (no recomendado con React Router)
-                console.warn('Consider using React Router navigate instead of window.location');
-                window.location.href = loginUrl;
-              }
-            }}
-          >
-            Inicia sesión aquí
-          </a>
+        <div style={styles.demoInfo}>
+          <strong>Información:</strong><br />
+          Usa tus credenciales para iniciar sesión.<br />
+          Las cookies se gestionan automáticamente.
         </div>
       </main>
 
@@ -653,4 +481,4 @@ const RegisterComponent = ({ onRegister, onNavigate, redirectUrl = '/login', log
   );
 };
 
-export default RegisterComponent;
+export default LoginComponent;

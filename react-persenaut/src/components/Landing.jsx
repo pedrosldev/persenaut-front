@@ -19,7 +19,7 @@ export default function Landing() {
       </div>
 
       <footer>
-        ¿Ya tienes cuenta? <a href="auth/login.html">Inicia sesión</a>
+        ¿Ya tienes cuenta? <Link to="/login">Inicia sesión</Link>
       </footer>
     </div>
   );
