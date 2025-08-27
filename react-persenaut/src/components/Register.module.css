@@ -1,21 +1,4 @@
-/* Reset y base */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-.wrapper {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-}
-
-/* Contenedor principal */
+/* RegisterComponent.module.css */
 .container {
     background: white;
     border-radius: 20px;
@@ -25,7 +8,6 @@
     width: 100%;
 }
 
-/* Título */
 .title {
     text-align: center;
     color: #333;
@@ -34,12 +16,10 @@
     font-weight: 300;
 }
 
-/* Grupo de formulario */
 .formGroup {
     margin-bottom: 25px;
 }
 
-/* Labels */
 .label {
     display: block;
     margin-bottom: 8px;
@@ -48,7 +28,6 @@
     font-size: 1.1em;
 }
 
-/* Inputs */
 .input {
     width: 100%;
     padding: 15px;
@@ -67,11 +46,10 @@
 }
 
 .inputError {
-    border-color: #e74c3c;
-    background: #fdf2f2;
+    border-color: #e74c3c !important;
+    background: #fdf2f2 !important;
 }
 
-/* Hint */
 .hint {
     font-size: 0.85em;
     color: #777;
@@ -79,7 +57,6 @@
     display: block;
 }
 
-/* Botón principal */
 .btn {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
@@ -99,13 +76,12 @@
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
 }
 
-.btn:disabled {
+.btnDisabled {
     opacity: 0.6;
     cursor: not-allowed;
-    transform: none;
+    transform: none !important;
 }
 
-/* Loading */
 .loading {
     text-align: center;
     margin: 20px 0;
@@ -121,17 +97,6 @@
     margin: 0 auto 10px;
 }
 
-@keyframes spin {
-    0% {
-        transform: rotate(0deg);
-    }
-
-    100% {
-        transform: rotate(360deg);
-    }
-}
-
-/* Error */
 .error {
     background: #fee;
     color: #c33;
@@ -142,7 +107,6 @@
     text-align: center;
 }
 
-/* Error de validación */
 .validationError {
     color: #e74c3c;
     font-size: 0.85em;
@@ -150,7 +114,6 @@
     display: block;
 }
 
-/* Información */
 .infoBox {
     margin-top: 20px;
     padding: 15px;
@@ -161,49 +124,75 @@
     text-align: center;
 }
 
-/* Link */
 .link {
     color: #667eea;
     text-decoration: none;
     font-weight: 500;
+    cursor: pointer;
 }
 
-/* Responsive */
+.link:hover {
+    text-decoration: underline;
+}
+
+/* Estilos globales para el layout */
+/* .pageContainer {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+} */
+
+/* Animaciones */
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Media queries */
 @media (max-width: 768px) {
     .container {
-        padding: 20px;
-        max-width: 100%;
-        box-shadow: none;
+        padding: 20px !important;
+        max-width: 100% !important;
+        box-shadow: none !important;
     }
 
     .title {
-        font-size: 1.8em;
-        margin-bottom: 20px;
+        font-size: 1.8em !important;
+        margin-bottom: 20px !important;
     }
 
     .btn {
-        font-size: 16px;
-        padding: 12px 20px;
+        font-size: 16px !important;
+        padding: 12px 20px !important;
     }
 
     .input {
-        padding: 12px;
-        font-size: 14px;
+        padding: 12px !important;
+        font-size: 14px !important;
     }
 }
 
 @media (max-width: 480px) {
     .title {
-        font-size: 1.5em;
+        font-size: 1.5em !important;
     }
 
     .btn {
-        font-size: 14px;
-        padding: 10px 16px;
+        font-size: 14px !important;
+        padding: 10px 16px !important;
     }
 
     .input {
-        padding: 10px;
-        font-size: 13px;
+        padding: 10px !important;
+        font-size: 13px !important;
     }
 }
