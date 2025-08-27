@@ -1,77 +1,78 @@
 import React, { useState, useEffect } from 'react';
+import { authService } from '../services/authService';
 
 // AuthService - Módulo para gestión de autenticación
-class AuthService {
-  constructor() {
-    this.API_URL_LOGIN = import.meta.env.VITE_LOGIN_API;
-    this.API_URL_REGISTER = import.meta.env.VITE_REGISTER_API || `${this.API_URL_LOGIN.replace('/login', '/register')}`;
-    this.API_URL_LOGOUT = import.meta.env.VITE_LOGOUT_API || `${this.API_URL_LOGIN.replace('/login', '/logout')}`;
-    this.API_URL_CHECK_AUTH = import.meta.env.VITE_CHECK_AUTH_API || `${this.API_URL_LOGIN.replace('/login', '/check-auth')}`;
-  }
+// class AuthService {
+//   constructor() {
+//     this.API_URL_LOGIN = import.meta.env.VITE_LOGIN_API;
+//     this.API_URL_REGISTER = import.meta.env.VITE_REGISTER_API || `${this.API_URL_LOGIN.replace('/login', '/register')}`;
+//     this.API_URL_LOGOUT = import.meta.env.VITE_LOGOUT_API || `${this.API_URL_LOGIN.replace('/login', '/logout')}`;
+//     this.API_URL_CHECK_AUTH = import.meta.env.VITE_CHECK_AUTH_API || `${this.API_URL_LOGIN.replace('/login', '/check-auth')}`;
+//   }
 
-  async checkAuth() {
-    try {
-      const res = await fetch(this.API_URL_CHECK_AUTH, {
-        method: 'GET',
-        credentials: 'include'
-      });
+//   async checkAuth() {
+//     try {
+//       const res = await fetch(this.API_URL_CHECK_AUTH, {
+//         method: 'GET',
+//         credentials: 'include'
+//       });
 
-      if (res.ok) {
-        const data = await res.json();
-        return {
-          success: true,
-          isAuthenticated: data.isAuthenticated,
-          user: data.user
-        };
-      } else {
-        return {
-          success: false,
-          isAuthenticated: false
-        };
-      }
-    } catch (error) {
-      console.error("Error verificando autenticación:", error);
-      return {
-        success: false,
-        isAuthenticated: false,
-        error
-      };
-    }
-  }
+//       if (res.ok) {
+//         const data = await res.json();
+//         return {
+//           success: true,
+//           isAuthenticated: data.isAuthenticated,
+//           user: data.user
+//         };
+//       } else {
+//         return {
+//           success: false,
+//           isAuthenticated: false
+//         };
+//       }
+//     } catch (error) {
+//       console.error("Error verificando autenticación:", error);
+//       return {
+//         success: false,
+//         isAuthenticated: false,
+//         error
+//       };
+//     }
+//   }
 
-  async register(userData) {
-    try {
-      const res = await fetch(this.API_URL_REGISTER, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(userData),
-        credentials: 'include'
-      });
+//   async register(userData) {
+//     try {
+//       const res = await fetch(this.API_URL_REGISTER, {
+//         method: 'POST',
+//         headers: { 'Content-Type': 'application/json' },
+//         body: JSON.stringify(userData),
+//         credentials: 'include'
+//       });
 
-      const data = await res.json();
+//       const data = await res.json();
 
-      if (res.ok) {
-        return {
-          success: true,
-          data
-        };
-      } else {
-        return {
-          success: false,
-          error: data.error || 'Error en el registro'
-        };
-      }
-    } catch (error) {
-      return {
-        success: false,
-        error: 'Error conectando con el servidor'
-      };
-    }
-  }
-}
+//       if (res.ok) {
+//         return {
+//           success: true,
+//           data
+//         };
+//       } else {
+//         return {
+//           success: false,
+//           error: data.error || 'Error en el registro'
+//         };
+//       }
+//     } catch (error) {
+//       return {
+//         success: false,
+//         error: 'Error conectando con el servidor'
+//       };
+//     }
+//   }
+// }
 
-// Instancia singleton
-const authService = new AuthService();
+// // Instancia singleton
+// const authService = new AuthService();
 
 const RegisterComponent = ({ onRegister, onNavigate, redirectUrl = '/login', loginUrl = '/login', dashboardUrl = '/dashboard' }) => {
   const [formData, setFormData] = useState({

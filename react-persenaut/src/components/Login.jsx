@@ -1,108 +1,109 @@
 import React, { useState, useEffect } from 'react';
+import { authService } from '../services/authService';
 
 // AuthService - Módulo para gestión de autenticación
-class AuthService {
-  constructor() {
-    this.API_URL_LOGIN = import.meta.env.VITE_LOGIN_API;
-    this.API_URL_LOGOUT = import.meta.env.VITE_LOGOUT_API || `${this.API_URL_LOGIN.replace('/login', '/logout')}`;
-    this.API_URL_CHECK_AUTH = import.meta.env.VITE_CHECK_AUTH_API || `${this.API_URL_LOGIN.replace('/login', '/check-auth')}`;
-  }
+// class AuthService {
+//   constructor() {
+//     this.API_URL_LOGIN = import.meta.env.VITE_LOGIN_API;
+//     this.API_URL_LOGOUT = import.meta.env.VITE_LOGOUT_API || `${this.API_URL_LOGIN.replace('/login', '/logout')}`;
+//     this.API_URL_CHECK_AUTH = import.meta.env.VITE_CHECK_AUTH_API || `${this.API_URL_LOGIN.replace('/login', '/check-auth')}`;
+//   }
 
-  async checkAuth() {
-    try {
-      const res = await fetch(this.API_URL_CHECK_AUTH, {
-        method: 'GET',
-        credentials: 'include'
-      });
+//   async checkAuth() {
+//     try {
+//       const res = await fetch(this.API_URL_CHECK_AUTH, {
+//         method: 'GET',
+//         credentials: 'include'
+//       });
 
-      if (res.ok) {
-        const data = await res.json();
-        return {
-          success: true,
-          isAuthenticated: data.isAuthenticated,
-          user: data.user
-        };
-      } else {
-        return {
-          success: false,
-          isAuthenticated: false
-        };
-      }
-    } catch (error) {
-      console.error("Error verificando autenticación:", error);
-      return {
-        success: false,
-        isAuthenticated: false,
-        error
-      };
-    }
-  }
+//       if (res.ok) {
+//         const data = await res.json();
+//         return {
+//           success: true,
+//           isAuthenticated: data.isAuthenticated,
+//           user: data.user
+//         };
+//       } else {
+//         return {
+//           success: false,
+//           isAuthenticated: false
+//         };
+//       }
+//     } catch (error) {
+//       console.error("Error verificando autenticación:", error);
+//       return {
+//         success: false,
+//         isAuthenticated: false,
+//         error
+//       };
+//     }
+//   }
 
-  async requireAuth(redirectUrl = '/auth/login.html') {
-    const result = await this.checkAuth();
+//   async requireAuth(redirectUrl = '/auth/login.html') {
+//     const result = await this.checkAuth();
     
-    if (!result.isAuthenticated) {
-      window.location.href = redirectUrl;
-      return false;
-    }
+//     if (!result.isAuthenticated) {
+//       window.location.href = redirectUrl;
+//       return false;
+//     }
     
-    return true;
-  }
+//     return true;
+//   }
 
-  async login(email, password) {
-    try {
-      const res = await fetch(this.API_URL_LOGIN, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-        credentials: 'include'
-      });
+//   async login(email, password) {
+//     try {
+//       const res = await fetch(this.API_URL_LOGIN, {
+//         method: 'POST',
+//         headers: { 'Content-Type': 'application/json' },
+//         body: JSON.stringify({ email, password }),
+//         credentials: 'include'
+//       });
 
-      const data = await res.json();
+//       const data = await res.json();
 
-      if (res.ok) {
-        return {
-          success: true,
-          data
-        };
-      } else {
-        return {
-          success: false,
-          error: data.error || 'Credenciales inválidas'
-        };
-      }
-    } catch (error) {
-      return {
-        success: false,
-        error: 'Error conectando con el servidor'
-      };
-    }
-  }
+//       if (res.ok) {
+//         return {
+//           success: true,
+//           data
+//         };
+//       } else {
+//         return {
+//           success: false,
+//           error: data.error || 'Credenciales inválidas'
+//         };
+//       }
+//     } catch (error) {
+//       return {
+//         success: false,
+//         error: 'Error conectando con el servidor'
+//       };
+//     }
+//   }
 
-  async logout() {
-    try {
-      const res = await fetch(this.API_URL_LOGOUT, {
-        method: 'POST',
-        credentials: 'include'
-      });
+//   async logout() {
+//     try {
+//       const res = await fetch(this.API_URL_LOGOUT, {
+//         method: 'POST',
+//         credentials: 'include'
+//       });
 
-      return {
-        success: res.ok,
-        error: res.ok ? null : 'Error al cerrar sesión'
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: 'Error conectando con el servidor'
-      };
-    }
-  }
-}
+//       return {
+//         success: res.ok,
+//         error: res.ok ? null : 'Error al cerrar sesión'
+//       };
+//     } catch (error) {
+//       return {
+//         success: false,
+//         error: 'Error conectando con el servidor'
+//       };
+//     }
+//   }
+// }
 
 // Instancia singleton
-const authService = new AuthService();
+// const authService = new AuthService();
 
-const LoginComponent = ({ onLogin, onNavigate, redirectUrl = '/app/dashboard.html' }) => {
+const LoginComponent = ({ onLogin, onNavigate, redirectUrl = '/dashboard' }) => {
   const [formData, setFormData] = useState({
     email: '',
     password: ''
