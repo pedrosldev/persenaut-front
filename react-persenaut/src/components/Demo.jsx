@@ -98,13 +98,16 @@ REGLAS ABSOLUTAS:
         .trim();
 
       let correctAnswer = null;
-      const answerMatch = question.match(/Respuesta correcta:\s*([ABCD])/i) ||
-        question.match(/Correcta:\s*([ABCD])/i) ||
-        question.match(/La respuesta correcta es\s*([ABCD])/i);
+        const answerMatch =
+          question.match(/Respuesta correcta:\s*([ABCD])/i) ||
+          question.match(/Correcta:\s*([ABCD])/i) ||
+          question.match(/La respuesta correcta es\s*([ABCD])/i);
 
       if (answerMatch) {
         correctAnswer = answerMatch[1].toUpperCase();
-        question = question.replace(/Respuesta correcta:\s*([ABCD]).*/i, '').trim();
+         question = question
+           .replace(/Respuesta correcta:\s*[ABCD].*/i, "")
+           .trim();
       }
 
       const questionParts = question.split(/\n\s*\n/);
@@ -114,7 +117,7 @@ REGLAS ABSOLUTAS:
       questionText = questionText.replace(/^Pregunta:\s*/i, '').trim();
 
       const options = [];
-      const optionRegex = /^([ABCD])[\)\.]\s*(.+)$/gm;
+      const optionRegex = /^([ABCD])[).]\s*(.+)$/gim;
       let optionMatch;
 
       while ((optionMatch = optionRegex.exec(optionsText)) !== null) {
@@ -131,7 +134,7 @@ REGLAS ABSOLUTAS:
             const letter = String.fromCharCode(65 + index);
             options.push({
               letter: letter,
-              text: line.trim().replace(/^[ABCD][\)\.]\s*/, '')
+              text: line.trim().replace(/^[ABCD][).]\s*/, "")
             });
           }
         });
