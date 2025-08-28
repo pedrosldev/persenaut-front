@@ -13,12 +13,12 @@ const Dashboard = () => {
   const navigate = useNavigate();
 
 useEffect(() => {
-  // Verificar autenticación al cargar
+  
   const checkAuth = async () => {
     const isAuthenticated = await authService.requireAuth(navigate, "/login");
 
     if (isAuthenticated) {
-      // Obtener información del usuario - ELIMINADA la asignación innecesaria
+     
       await authService.updateAuthUI({
         onAuthenticated: (result) => setUser(result.user),
         onNotAuthenticated: () => navigate("/login"),
