@@ -12,22 +12,22 @@ const Dashboard = () => {
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    // Verificar autenticación al cargar
-    const checkAuth = async () => {
-      const isAuthenticated = await authService.requireAuth(navigate, "/login");
+useEffect(() => {
+  // Verificar autenticación al cargar
+  const checkAuth = async () => {
+    const isAuthenticated = await authService.requireAuth(navigate, "/login");
 
-      if (isAuthenticated) {
-        // Obtener información del usuario
-        const authResult = await authService.updateAuthUI({
-          onAuthenticated: (result) => setUser(result.user),
-          onNotAuthenticated: () => navigate("/login"),
-        });
-      }
-    };
+    if (isAuthenticated) {
+      // Obtener información del usuario - ELIMINADA la asignación innecesaria
+      await authService.updateAuthUI({
+        onAuthenticated: (result) => setUser(result.user),
+        onNotAuthenticated: () => navigate("/login"),
+      });
+    }
+  };
 
-    checkAuth();
-  }, [navigate]);
+  checkAuth();
+}, [navigate]);
 
   const handleSectionChange = (section) => {
     setCurrentSection(section);
