@@ -5,6 +5,7 @@ const Demo = () => {
   // URLs de API por defecto para el entorno de prueba
   const API_ENDPOINT = import.meta.env.VITE_API_ENDPOINT;
   const GROQ_API = import.meta.env.VITE_GROQ_API;
+  const API_QUESTIONS = import.meta.env.VITE_API_QUESTIONS;
 
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({ tematica: '', nivel: '' });
@@ -154,6 +155,49 @@ REGLAS ABSOLUTAS:
     questionHistory.set(theme, [...history, question.substring(0, 200)]);
   };
 
+    const saveQuestionToDB = async (
+      questionData,
+      theme,
+      level,
+      rawResponse
+    ) => {
+      try {
+        console.log("Intentando guardar en BD:", {
+          theme,
+          level,
+          question: questionData.questionText,
+        });
+
+        const response = await fetch(API_QUESTIONS, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            theme: theme,
+            level: level,
+            question: questionData.questionText,
+            options: questionData.options,
+            correctAnswer: questionData.correctAnswer,
+            rawResponse: rawResponse,
+          }),
+        });
+
+        console.log("Respuesta del servidor:", response.status);
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error("Error del servidor:", errorData);
+          throw new Error(errorData.error || "Error al guardar la pregunta");
+        }
+
+        const result = await response.json();
+        console.log("✅ Pregunta guardada con ID:", result.id);
+        return result;
+      } catch (error) {
+        console.error("Error al guardar:", error);
+        throw error;
+      }
+    };
+
   const handleSubmit = async () => {
     if (!formData.tematica || !formData.nivel) {
       alert("Por favor completa todos los campos");
@@ -178,6 +222,25 @@ REGLAS ABSOLUTAS:
         showAnswer: false,
         selectedOption: null
       });
+
+          try {
+            const saveResult = await saveQuestionToDB(
+              formatted,
+              formData.tematica,
+              formData.nivel,
+              responseText
+            );
+            console.log("Guardado exitoso:", saveResult);
+
+            // Opcional: mostrar un toast o mensaje de que se guardó
+            alert(`✅ Pregunta guardada en BD con ID: ${saveResult.id}`);
+          } catch (saveError) {
+            console.error(
+              "Error al guardar (pero la pregunta se mostró):",
+              saveError
+            );
+            // No mostramos error al usuario para no interrumpir la experiencia
+          }
 
     } catch (error) {
       setResult({
