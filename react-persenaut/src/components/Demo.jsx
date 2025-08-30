@@ -350,7 +350,7 @@ REGLAS ABSOLUTAS:
         <p>🔐 Esta es una versión demo. <a href="auth/register.html">Regístrate</a> para desbloquear:</p>
         <ul>
           <li>✔️ Historial de preguntas</li>
-          <li>✔️ Guardar tus favoritas</li>
+          <li>✔️ Guardar y ver tu progreso</li>
           <li>✔️ Automatización de la frecuencia de los retos</li>
         </ul>
       </div>
