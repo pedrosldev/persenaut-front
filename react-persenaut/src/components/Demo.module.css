@@ -1,5 +1,8 @@
 /* Demo.module.css */
-
+a{
+    color: #667eea;
+    text-decoration: none;
+}
 .container {
     background: white;
     border-radius: 20px;
