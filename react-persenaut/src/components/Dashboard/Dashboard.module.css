@@ -1,0 +1,17 @@
+/* src/components/Dashboard/Dashboard.module.css */
+.dashboardContainer {
+    display: flex;
+        flex-direction: column;
+        height: 100vh;
+        /* fuerza a ocupar toda la pantalla */
+        width: 100vw;
+        /* opcional, asegura ocupar ancho completo */
+        margin: 0;
+        padding: 0;
+}
+
+@media (max-width: 768px) {
+    .dashboardContainer {
+        flex-direction: column;
+    }
+}
