@@ -136,6 +136,29 @@
     transform: translateY(-2px);
 }
 
+/* Añadir estos estilos */
+.section {
+    margin: 2rem 0;
+    padding: 1.5rem;
+    background: #f8f9fa;
+    border-radius: 12px;
+    border: 1px solid #e9ecef;
+}
+
+.section h3 {
+    margin-bottom: 1rem;
+    color: #2c3e50;
+}
+
+.questionBadge {
+    background: #667eea;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    margin-left: 10px;
+}
+
 @media (max-width: 768px) {
     .contentHeader {
         flex-direction: column;
