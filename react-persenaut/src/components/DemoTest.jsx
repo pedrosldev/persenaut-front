@@ -9,6 +9,7 @@ import {
   testGroq,
   saveQuestionToDB,
 } from "../services/apiService";
+import { Link } from "react-router-dom";
 
 const DemoTest = () => {
   const [questionHistory, updateHistory] = useQuestionHistory();
@@ -132,7 +133,7 @@ const DemoTest = () => {
       <div className={styles.demoBanner}>
         <p>
           🔐 Esta es una versión demo.{" "}
-          <a href="auth/register.html">Regístrate</a> para desbloquear:
+          <Link to="/register">Regístrate</Link> para desbloquear:
         </p>
         <ul>
           <li>✔️ Historial de preguntas</li>
