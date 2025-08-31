@@ -1,7 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Landing from './components/Landing';
-// import Demo from './components/Demo';
-import Demo from './components/DemoTest';
+import Demo from './components/Demo';
 import RegisterComponent from './components/Register';
 import LoginComponent from './components/Login';
 // import Dashboard from './components/Dashboard';
