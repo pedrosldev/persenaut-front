@@ -1,6 +1,9 @@
-// src/components/Dashboard/ChallengesContent/ChallengesContent.jsx
 import { useState } from "react";
 import styles from "./ChallengesContent.module.css";
+import QuestionForm from "../QuestionForm";
+import { useQuestionHistory } from "../hooks/useQuestionHistory"; // ✅ Añadir hook
+import { generatePrompt, formatQuestion } from "../../services/promptService"; // ✅ Usar formatQuestion
+import { fetchChallenge, saveQuestionToDB } from "../../services/apiService";
 
 const ChallengesContent = () => {
   const [challenges, setChallenges] = useState([
@@ -24,12 +27,14 @@ const ChallengesContent = () => {
     },
   ]);
 
+  const [questionHistory, updateHistory] = useQuestionHistory(); // ✅ Usar el hook
   const [newChallenge, setNewChallenge] = useState({
     title: "",
     deadline: "",
   });
 
   const [showForm, setShowForm] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -39,6 +44,62 @@ const ChallengesContent = () => {
     }));
   };
 
+  // ✅ Función mejorada para guardar preguntas en BD
+  const handleSaveQuestion = async (formData) => {
+    if (!formData.tematica || !formData.nivel) {
+      alert("Por favor completa todos los campos");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      // ✅ Usar questionHistory para evitar repeticiones
+      const previousQuestions = questionHistory.get(formData.tematica) || [];
+      const prompt = generatePrompt(
+        formData.tematica,
+        formData.nivel,
+        previousQuestions
+      );
+      const responseText = await fetchChallenge(prompt);
+
+      // ✅ Usar formatQuestion en lugar de objeto hardcodeado
+      const formatted = formatQuestion(responseText);
+
+      // ✅ Actualizar historial para evitar preguntas repetidas
+      updateHistory(formData.tematica, responseText);
+
+      const saveResult = await saveQuestionToDB(
+        formatted,
+        formData.tematica,
+        formData.nivel,
+        responseText
+      );
+
+      console.log("✅ Pregunta guardada con ID:", saveResult.id);
+      alert(`✅ Pregunta guardada en BD con ID: ${saveResult.id}`);
+
+      // ✅ Usar la pregunta real formateada en lugar de texto genérico
+      const newChallenge = {
+        id: saveResult.id,
+        title: `Pregunta: ${formData.tematica} (${
+          formData.nivel
+        }) - ${formatted.questionText.substring(0, 50)}...`,
+        deadline: new Date().toLocaleDateString(),
+        status: "pending",
+        type: "question",
+        questionData: formatted, // ✅ Guardar datos completos para uso futuro
+      };
+
+      setChallenges((prev) => [...prev, newChallenge]);
+    } catch (error) {
+      console.error("Error al guardar pregunta:", error);
+      alert(`❌ Error: ${error.message || "Error al guardar la pregunta"}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleAddChallenge = () => {
     if (newChallenge.title && newChallenge.deadline) {
       const challenge = {
@@ -46,6 +107,7 @@ const ChallengesContent = () => {
         title: newChallenge.title,
         deadline: newChallenge.deadline,
         status: "pending",
+        type: "custom",
       };
 
       setChallenges((prev) => [...prev, challenge]);
@@ -84,6 +146,14 @@ const ChallengesContent = () => {
                 <div className={styles.challengeDate}>
                   Fecha límite: {challenge.deadline}
                 </div>
+                {challenge.type === "question" && (
+                  <span className={styles.questionBadge}>
+                    📝 Pregunta generada
+                  </span>
+                )}
+                {challenge.type === "custom" && (
+                  <span className={styles.customBadge}>⭐ Personalizado</span>
+                )}
               </div>
               <div
                 className={`${styles.challengeStatus} ${
@@ -99,9 +169,16 @@ const ChallengesContent = () => {
           ))}
         </div>
 
+        {/* ✅ Sección para generar preguntas */}
+        <div className={styles.section}>
+          <h3>Generar preguntas automáticamente</h3>
+          <QuestionForm onSubmit={handleSaveQuestion} loading={loading} />
+        </div>
+
+        {/* ✅ Formulario para retos personalizados */}
         {showForm ? (
           <div className={styles.challengeForm}>
-            <h3>Crear nuevo reto</h3>
+            <h3>Crear nuevo reto personalizado</h3>
             <div className={styles.formGroup}>
               <label htmlFor="title">Título del reto</label>
               <input
@@ -143,7 +220,7 @@ const ChallengesContent = () => {
             className={styles.btnPrimary}
             onClick={() => setShowForm(true)}
           >
-            Crear nuevo reto
+            Crear nuevo reto personalizado
           </button>
         )}
       </div>
