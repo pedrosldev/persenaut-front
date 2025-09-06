@@ -5,27 +5,28 @@ import { useQuestionHistory } from "../hooks/useQuestionHistory"; // ✅ Añadir
 import { generatePrompt, formatQuestion } from "../../services/promptService"; // ✅ Usar formatQuestion
 import { fetchChallenge, saveQuestionToDB } from "../../services/apiService";
 
-const ChallengesContent = () => {
-  const [challenges, setChallenges] = useState([
-    {
-      id: 1,
-      title: "Reto de lectura",
-      deadline: "25/05/2025",
-      status: "pending",
-    },
-    {
-      id: 2,
-      title: "Ejercicio matutino",
-      deadline: "20/05/2025",
-      status: "completed",
-    },
-    {
-      id: 3,
-      title: "Aprendizaje de nuevo skill",
-      deadline: "30/05/2025",
-      status: "pending",
-    },
-  ]);
+const ChallengesContent = ({ user }) => {
+  // const [challenges, setChallenges] = useState([
+  //   {
+  //     id: 1,
+  //     title: "Reto de lectura",
+  //     deadline: "25/05/2025",
+  //     status: "pending",
+  //   },
+  //   {
+  //     id: 2,
+  //     title: "Ejercicio matutino",
+  //     deadline: "20/05/2025",
+  //     status: "completed",
+  //   },
+  //   {
+  //     id: 3,
+  //     title: "Aprendizaje de nuevo skill",
+  //     deadline: "30/05/2025",
+  //     status: "pending",
+  //   },
+  // ]);
+  const [challenges, setChallenges] = useState([]);
 
   const [questionHistory, updateHistory] = useQuestionHistory(); // ✅ Usar el hook
   const [newChallenge, setNewChallenge] = useState({
@@ -35,7 +36,7 @@ const ChallengesContent = () => {
 
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(false);
-
+  
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setNewChallenge((prev) => ({
@@ -45,8 +46,72 @@ const ChallengesContent = () => {
   };
 
   // ✅ Función mejorada para guardar preguntas en BD
-  const handleSaveQuestion = async (formData) => {
-    if (!formData.tematica || !formData.nivel) {
+  // const handleSaveQuestion = async (formData) => {
+  //   if (!formData.tematica || !formData.nivel) {
+  //     alert("Por favor completa todos los campos");
+  //     return;
+  //   }
+
+  //   setLoading(true);
+
+  //   try {
+  //     // ✅ Usar questionHistory para evitar repeticiones
+  //     const previousQuestions = questionHistory.get(formData.tematica) || [];
+  //     const prompt = generatePrompt(
+  //       formData.tematica,
+  //       formData.nivel,
+  //       previousQuestions
+  //     );
+  //     const responseText = await fetchChallenge(prompt);
+
+  //     // ✅ Usar formatQuestion en lugar de objeto hardcodeado
+  //     const formatted = formatQuestion(responseText);
+
+  //     // ✅ Actualizar historial para evitar preguntas repetidas
+  //     updateHistory(formData.tematica, responseText);
+
+  //     const saveResult = await saveQuestionToDB(
+  //       formatted,
+  //       formData.tematica,
+  //       formData.nivel,
+  //       responseText
+  //     );
+
+  //     console.log("✅ Pregunta guardada con ID:", saveResult.id);
+  //     alert(`✅ Pregunta guardada en BD con ID: ${saveResult.id}`);
+
+  //     // ✅ Usar la pregunta real formateada en lugar de texto genérico
+  //     const newChallenge = {
+  //       id: saveResult.id,
+  //       title: `Pregunta: ${formData.tematica} (${
+  //         formData.nivel
+  //       }) - ${formatted.questionText.substring(0, 50)}...`,
+  //       deadline: new Date().toLocaleDateString(),
+  //       status: "pending",
+  //       type: "question",
+  //       questionData: formatted, // ✅ Guardar datos completos para uso futuro
+  //     };
+
+  //     setChallenges((prev) => [...prev, newChallenge]);
+  //   } catch (error) {
+  //     console.error("Error al guardar pregunta:", error);
+  //     alert(`❌ Error: ${error.message || "Error al guardar la pregunta"}`);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+  // ✅ Función modificada para aceptar preferencias
+  const handleSaveQuestion = async (formDataWithPreferences) => {
+    const { tematica, nivel, preferences = {} } = formDataWithPreferences;
+
+      const {
+        deliveryTime = "09:00:00",
+        frequency = "daily",
+        isActive = true,
+      } = preferences;
+
+    if (!tematica || !nivel) {
       alert("Por favor completa todos los campos");
       return;
     }
@@ -54,41 +119,47 @@ const ChallengesContent = () => {
     setLoading(true);
 
     try {
-      // ✅ Usar questionHistory para evitar repeticiones
-      const previousQuestions = questionHistory.get(formData.tematica) || [];
-      const prompt = generatePrompt(
-        formData.tematica,
-        formData.nivel,
-        previousQuestions
-      );
+      const previousQuestions = questionHistory.get(tematica) || [];
+      const prompt = generatePrompt(tematica, nivel, previousQuestions);
       const responseText = await fetchChallenge(prompt);
-
-      // ✅ Usar formatQuestion en lugar de objeto hardcodeado
       const formatted = formatQuestion(responseText);
 
-      // ✅ Actualizar historial para evitar preguntas repetidas
-      updateHistory(formData.tematica, responseText);
+      updateHistory(tematica, responseText);
 
+      // ✅ Guardar con las preferencias de programación
       const saveResult = await saveQuestionToDB(
         formatted,
-        formData.tematica,
-        formData.nivel,
-        responseText
+        tematica,
+        nivel,
+        responseText,
+        user.id, // ✅ userId requerido
+        deliveryTime, // ✅ Ahora siempre tendrá valor
+        frequency, // ✅ Ahora siempre tendrá valor
+        isActive // ✅ Ahora siempre tendrá valor
       );
 
-      console.log("✅ Pregunta guardada con ID:", saveResult.id);
-      alert(`✅ Pregunta guardada en BD con ID: ${saveResult.id}`);
+      console.log("✅ Pregunta guardada y programada con ID:", saveResult.id);
 
-      // ✅ Usar la pregunta real formateada en lugar de texto genérico
+      // ✅ Mostrar info de programación en el alert
+      alert(
+        `✅ Pregunta guardada con ID: ${saveResult.id}\n📅 Se entregará ${
+          preferences.frequency
+        }mente a las ${preferences.deliveryTime.substring(0, 5)}`
+      );
+
       const newChallenge = {
         id: saveResult.id,
-        title: `Pregunta: ${formData.tematica} (${
-          formData.nivel
-        }) - ${formatted.questionText.substring(0, 50)}...`,
-        deadline: new Date().toLocaleDateString(),
+        title: `Pregunta: ${tematica} (${nivel}) - ${formatted.questionText.substring(
+          0,
+          50
+        )}...`,
+        deadline: `Programado: ${
+          preferences.frequency
+        } a las ${preferences.deliveryTime.substring(0, 5)}`,
         status: "pending",
-        type: "question",
-        questionData: formatted, // ✅ Guardar datos completos para uso futuro
+        type: "scheduled_question", // ✅ Nuevo tipo
+        questionData: formatted,
+        scheduleInfo: preferences, // ✅ Guardar info de programación
       };
 
       setChallenges((prev) => [...prev, newChallenge]);
@@ -146,6 +217,9 @@ const ChallengesContent = () => {
                 <div className={styles.challengeDate}>
                   Fecha límite: {challenge.deadline}
                 </div>
+                {challenge.type === "scheduled_question" && (
+                  <span className={styles.scheduledBadge}>⏰ Programado</span>
+                )}
                 {challenge.type === "question" && (
                   <span className={styles.questionBadge}>
                     📝 Pregunta generada

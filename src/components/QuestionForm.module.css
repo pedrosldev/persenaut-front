@@ -73,3 +73,38 @@
     opacity: 0.6;
     cursor: not-allowed;
 }
+
+/* QuestionForm.module.css */
+.preferencesSection {
+    margin: 1.5rem 0;
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid #007bff;
+}
+
+.preferencesSection h4 {
+    margin: 0 0 1rem 0;
+    color: #495057;
+}
+
+.checkboxLabel {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+}
+
+.checkboxLabel input[type="checkbox"] {
+    margin: 0;
+}
+
+/* ChallengesContent.module.css */
+.scheduledBadge {
+    background-color: #17a2b8;
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    margin-left: 0.5rem;
+}

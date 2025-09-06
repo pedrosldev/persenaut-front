@@ -52,7 +52,7 @@ export const testGroq = async (prompt) => {
     }
 };
 
-export const saveQuestionToDB = async (questionData, theme, level, rawResponse) => {
+export const saveQuestionToDB = async (questionData, theme, level, rawResponse, userId, deliveryTime = '09:00:00', frequency = 'daily', isActive = true) => {
     try {
         console.log("Intentando guardar en BD:", {
             theme,
@@ -70,6 +70,10 @@ export const saveQuestionToDB = async (questionData, theme, level, rawResponse) 
                 options: questionData.options,
                 correctAnswer: questionData.correctAnswer,
                 rawResponse: rawResponse,
+                userId: userId,
+                deliveryTime: deliveryTime,
+                frequency: frequency,
+                isActive: isActive,
             }),
         });
 

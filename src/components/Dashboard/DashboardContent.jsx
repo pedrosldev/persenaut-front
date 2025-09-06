@@ -2,7 +2,7 @@
 import { useState } from "react";
 import styles from "./DashboardContent.module.css";
 
-const DashboardContent = () => {
+const DashboardContent = ({ user }) => {
   const [activeInfo, setActiveInfo] = useState("progress");
 
   const handleCardClick = (target) => {
@@ -12,7 +12,7 @@ const DashboardContent = () => {
   return (
     <>
       <header className={styles.contentHeader}>
-        <h2>¡Tú puedes lograrlo!</h2>
+        <h2>¡Tú puedes lograrlo {user.name}!</h2>
         <div className={styles.searchBar}>
           <input type="text" placeholder="Buscar..." />
         </div>
