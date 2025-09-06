@@ -5,19 +5,19 @@ import ChallengesContent from "./ChallengesContent";
 import SettingsContent from "./SettingsContent";
 import styles from "./MainContent.module.css";
 
-const MainContent = ({ currentSection }) => {
+const MainContent = ({ currentSection, user }) => {
   const renderContent = () => {
     switch (currentSection) {
       case "dashboard":
-        return <DashboardContent />;
+        return <DashboardContent user={user} />;
       case "notes":
-        return <NotesContent />;
+        return <NotesContent user={user} />;
       case "challenges":
-        return <ChallengesContent />;
+        return <ChallengesContent user={user} />;
       case "settings":
-        return <SettingsContent />;
+        return <SettingsContent user={user} />;
       default:
-        return <DashboardContent />;
+        return <DashboardContent user={user} />;
     }
   };
 

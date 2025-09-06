@@ -5,7 +5,7 @@ import { useQuestionHistory } from "../hooks/useQuestionHistory"; // ✅ Añadir
 import { generatePrompt, formatQuestion } from "../../services/promptService"; // ✅ Usar formatQuestion
 import { fetchChallenge, saveQuestionToDB } from "../../services/apiService";
 
-const ChallengesContent = () => {
+const ChallengesContent = ({ user }) => {
   // const [challenges, setChallenges] = useState([
   //   {
   //     id: 1,
@@ -36,7 +36,7 @@ const ChallengesContent = () => {
 
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(false);
-  const userId = 1; // Simulación de userId fijo
+  
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setNewChallenge((prev) => ({
@@ -132,7 +132,7 @@ const ChallengesContent = () => {
         tematica,
         nivel,
         responseText,
-        userId, // ✅ userId requerido
+        user.id, // ✅ userId requerido
         deliveryTime, // ✅ Ahora siempre tendrá valor
         frequency, // ✅ Ahora siempre tendrá valor
         isActive // ✅ Ahora siempre tendrá valor

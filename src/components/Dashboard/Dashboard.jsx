@@ -54,7 +54,7 @@ useEffect(() => {
         user={user}
         onLogout={handleLogout}
       />
-      <MainContent currentSection={currentSection} />
+      <MainContent currentSection={currentSection} user={user} />
       <Footer />
     </div>
   );

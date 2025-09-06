@@ -1,11 +1,11 @@
 // src/components/Dashboard/NotesContent/NotesContent.jsx
 import styles from "./NotesContent.module.css";
 
-const NotesContent = () => {
+const NotesContent = ({ user }) => {
   return (
     <>
       <header className={styles.contentHeader}>
-        <h2>Mis apuntes</h2>
+        <h2>Los apuntes de {user.name}</h2>
         <div className={styles.searchBar}>
           <input type="text" placeholder="Buscar apuntes..." />
         </div>
