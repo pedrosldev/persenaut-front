@@ -2,10 +2,10 @@
 import { useState } from "react";
 import styles from "./SettingsContent.module.css";
 
-const SettingsContent = () => {
+const SettingsContent = ({ user }) => {
   const [settings, setSettings] = useState({
-    username: "Usuario Persenaut",
-    email: "usuario@example.com",
+    username: user.name,
+    email: user.email,
     notifications: "Activadas",
     goals: 5,
   });
