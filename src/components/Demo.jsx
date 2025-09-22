@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import styles from "./Demo.module.css";
 import QuestionForm from "./QuestionForm";
 import QuestionDisplay from "./QuestionDisplay";
-import { generatePrompt, formatQuestion } from "../services/promptService";
+// import { generatePrompt, formatQuestion } from "../services/promptService";
 import { testGroq } from "../services/apiService";
 import { Link } from "react-router-dom";
 
