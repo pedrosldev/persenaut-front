@@ -2,35 +2,53 @@ const API_ENDPOINT = import.meta.env.VITE_API_ENDPOINT;
 const GROQ_API = import.meta.env.VITE_GROQ_API;
 const API_QUESTIONS = import.meta.env.VITE_API_QUESTIONS;
 
-export const fetchChallenge = async (prompt) => {
-    const payload = {
-        prompt,
-        model: "mistral",
-        stream: false,
-        options: { temperature: 0.7, top_p: 0.9 },
-    };
+// export const fetchChallenge = async (prompt) => {
+//     const payload = {
+//         prompt,
+//         model: "mistral",
+//         stream: false,
+//         options: { temperature: 0.7, top_p: 0.9 },
+//     };
 
+//     const response = await fetch(API_ENDPOINT, {
+//         method: "POST",
+//         headers: { "Content-Type": "application/json" },
+//         body: JSON.stringify(payload),
+//     });
+
+//     if (!response.ok) {
+//         const error = await response.json().catch(() => ({}));
+//         throw new Error(error.message || `Error ${response.status}`);
+//     }
+
+//     const data = await response.json();
+//     return (
+//         data.reto ||
+//         data.response ||
+//         data.message?.content ||
+//         data.choices?.[0]?.message?.content ||
+//         ""
+//     );
+// };
+export const generateAndSaveQuestion = async (questionData) => {
+  try {
     const response = await fetch(API_ENDPOINT, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(questionData),
     });
 
     if (!response.ok) {
-        const error = await response.json().catch(() => ({}));
-        throw new Error(error.message || `Error ${response.status}`);
+      const error = await response.json();
+      throw new Error(error.error || `Error ${response.status}`);
     }
 
-    const data = await response.json();
-    return (
-        data.reto ||
-        data.response ||
-        data.message?.content ||
-        data.choices?.[0]?.message?.content ||
-        ""
-    );
+    return await response.json();
+  } catch (error) {
+    console.error("Error generating question:", error);
+    throw error;
+  }
 };
-
 export const testGroq = async (prompt) => {
     try {
         const res = await fetch(GROQ_API, {
