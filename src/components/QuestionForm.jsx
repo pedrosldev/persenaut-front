@@ -1,51 +1,57 @@
 import React, { useState } from "react";
 import styles from "./QuestionForm.module.css";
 
-const QuestionForm = ({ onSubmit, onTestGroq, loading = false }) => {
+const QuestionForm = ({
+  onSubmit,
+  onTestGroq,
+  loading = false,
+  showPreferences = true, // ✅ Nueva prop para controlar visibilidad
+}) => {
   const [formData, setFormData] = useState({ tematica: "", nivel: "" });
 
-    const [preferences, setPreferences] = useState({
-      deliveryTime: "09:00",
-      frequency: "daily",
-      isActive: true,
-    });
+  const [preferences, setPreferences] = useState({
+    deliveryTime: "09:00",
+    frequency: "daily",
+    isActive: true,
+  });
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-    const handlePreferenceChange = (e) => {
-      const { name, value, type, checked } = e.target;
-      setPreferences((prev) => ({
-        ...prev,
-        [name]: type === "checkbox" ? checked : value,
-      }));
-    };
-
-  // const handleSubmit = (e) => {
-  //   e.preventDefault();
-  //   if (onSubmit) {
-  //     onSubmit({...formData, ...preferences, deliveryTime: preferences.deliveryTime + ":00" });
-  //   }
-  // };
+  const handlePreferenceChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setPreferences((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (onSubmit) {
-      // ✅ FORMA CORRECTA - preferences como objeto anidado
-      onSubmit({
-        tematica: formData.tematica,
-        nivel: formData.nivel,
-        preferences: {
-          deliveryTime: preferences.deliveryTime
-            ? preferences.deliveryTime + ":00"
-            : "09:00:00",
-          frequency: preferences.frequency || "daily",
-          isActive:
-            preferences.isActive !== undefined ? preferences.isActive : true,
-        },
-      });
+      if (showPreferences) {
+        // ✅ CON preferencias
+        onSubmit({
+          tematica: formData.tematica,
+          nivel: formData.nivel,
+          preferences: {
+            deliveryTime: preferences.deliveryTime
+              ? preferences.deliveryTime + ":00"
+              : "09:00:00",
+            frequency: preferences.frequency || "daily",
+            isActive:
+              preferences.isActive !== undefined ? preferences.isActive : true,
+          },
+        });
+      } else {
+        // ✅ SIN preferencias - solo datos básicos
+        onSubmit({
+          tematica: formData.tematica,
+          nivel: formData.nivel,
+        });
+      }
     }
   };
 
@@ -94,56 +100,58 @@ const QuestionForm = ({ onSubmit, onTestGroq, loading = false }) => {
         </select>
       </div>
 
-      {/* ✅ NUEVA SECCIÓN: Preferencias de Programación */}
-      <div className={styles.preferencesSection}>
-        <h4>⏰ Preferencias de Entrega</h4>
+      {/* ✅ SECCIÓN DE PREFERENCIAS - CONDICIONAL */}
+      {showPreferences && (
+        <div className={styles.preferencesSection}>
+          <h4>⏰ Preferencias de Entrega</h4>
 
-        <div className={styles.formGroup}>
-          <label className={styles.label} htmlFor="deliveryTime">
-            Hora de entrega:
-          </label>
-          <input
-            className={styles.input}
-            type="time"
-            id="deliveryTime"
-            name="deliveryTime"
-            value={preferences.deliveryTime}
-            onChange={handlePreferenceChange}
-            disabled={loading}
-          />
-        </div>
-
-        <div className={styles.formGroup}>
-          <label className={styles.label} htmlFor="frequency">
-            Frecuencia:
-          </label>
-          <select
-            className={styles.select}
-            id="frequency"
-            name="frequency"
-            value={preferences.frequency}
-            onChange={handlePreferenceChange}
-            disabled={loading}
-          >
-            <option value="daily">Diario</option>
-            <option value="weekly">Semanal</option>
-            <option value="monthly">Mensual</option>
-          </select>
-        </div>
-
-        <div className={styles.formGroup}>
-          <label className={styles.checkboxLabel}>
+          <div className={styles.formGroup}>
+            <label className={styles.label} htmlFor="deliveryTime">
+              Hora de entrega:
+            </label>
             <input
-              type="checkbox"
-              name="isActive"
-              checked={preferences.isActive}
+              className={styles.input}
+              type="time"
+              id="deliveryTime"
+              name="deliveryTime"
+              value={preferences.deliveryTime}
               onChange={handlePreferenceChange}
               disabled={loading}
             />
-            Activar entrega automática
-          </label>
+          </div>
+
+          <div className={styles.formGroup}>
+            <label className={styles.label} htmlFor="frequency">
+              Frecuencia:
+            </label>
+            <select
+              className={styles.select}
+              id="frequency"
+              name="frequency"
+              value={preferences.frequency}
+              onChange={handlePreferenceChange}
+              disabled={loading}
+            >
+              <option value="daily">Diario</option>
+              <option value="weekly">Semanal</option>
+              <option value="monthly">Mensual</option>
+            </select>
+          </div>
+
+          <div className={styles.formGroup}>
+            <label className={styles.checkboxLabel}>
+              <input
+                type="checkbox"
+                name="isActive"
+                checked={preferences.isActive}
+                onChange={handlePreferenceChange}
+                disabled={loading}
+              />
+              Activar entrega automática
+            </label>
+          </div>
         </div>
-      </div>
+      )}
 
       <div className={styles.buttonGroup}>
         {onSubmit && (
@@ -154,7 +162,9 @@ const QuestionForm = ({ onSubmit, onTestGroq, loading = false }) => {
             }`}
             disabled={loading || !formData.tematica || !formData.nivel}
           >
-            🚀 Generar y Programar Pregunta
+            {showPreferences
+              ? "🚀 Generar y Programar Pregunta"
+              : "🚀 Generar Pregunta"}
           </button>
         )}
 
