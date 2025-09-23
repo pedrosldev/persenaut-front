@@ -22,24 +22,49 @@ export const generateAndSaveQuestion = async (questionData) => {
     throw error;
   }
 };
-export const testGroq = async (prompt) => {
-    try {
-        const res = await fetch(GROQ_API, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ prompt }),
-        });
+// export const testGroq = async (prompt) => {
+//     try {
+//         const res = await fetch(GROQ_API, {
+//             method: "POST",
+//             headers: { "Content-Type": "application/json" },
+//             body: JSON.stringify({ prompt }),
+//         });
 
-        if (!res.ok) {
-            const error = await res.json();
-            throw new Error(error.error || "Error en la API Groq");
-        }
+//         if (!res.ok) {
+//             const error = await res.json();
+//             throw new Error(error.error || "Error en la API Groq");
+//         }
 
-        const data = await res.json();
-        return data.response;
-    } catch (err) {
-        console.error(err);
-        throw err;
+//         const data = await res.json();
+//         return data.response;
+//     } catch (err) {
+//         console.error(err);
+//         throw err;
+//     }
+// };
+
+export const testGroq = async (data) => {
+  try {
+    const res = await fetch(GROQ_API, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      // ✅ Enviar theme, level, previousQuestions en lugar de prompt
+      body: JSON.stringify({
+        theme: data.theme,
+        level: data.level,
+        previousQuestions: data.previousQuestions || [],
+      }),
+    });
+
+    if (!res.ok) {
+      const error = await res.json();
+      throw new Error(error.error || "Error en la API Groq");
     }
-};
 
+    const data_response = await res.json();
+    return data_response.response;
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};
