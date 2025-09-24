@@ -138,7 +138,7 @@ const QuestionForm = ({
             </select>
           </div>
 
-          <div className={styles.formGroup}>
+          {/*    <div className={styles.formGroup}>
             <label className={styles.checkboxLabel}>
               <input
                 type="checkbox"
@@ -149,7 +149,7 @@ const QuestionForm = ({
               />
               Activar entrega automática
             </label>
-          </div>
+          </div> */}
         </div>
       )}
 
