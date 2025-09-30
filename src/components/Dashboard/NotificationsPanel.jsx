@@ -4,7 +4,7 @@ import styles from "./NotificationsPanel.module.css";
 import {
   getPendingChallenges,
   startChallenge,
-} from "../services/notificationService";
+} from "../../services/notificationService";
 
 const NotificationsPanel = ({ user, onChallengeSelect }) => {
   const [notifications, setNotifications] = useState([]);
