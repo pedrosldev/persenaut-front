@@ -1,5 +1,5 @@
 // components/ChallengeResolver/ChallengeResolver.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import QuestionDisplay from "../QuestionDisplay";
 import styles from "./ChallengeResolver.module.css";
 
@@ -7,6 +7,13 @@ const ChallengeResolver = ({ challenge, onComplete }) => {
   const [selectedOption, setSelectedOption] = useState(null);
   const [showAnswer, setShowAnswer] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
+
+    useEffect(() => {
+      setSelectedOption(null);
+      setShowAnswer(false);
+      setIsCompleted(false);
+      console.log("🔄 Estado reiniciado para nuevo reto"); // Opcional para depuración
+    }, [challenge]);
 
   // Transformar los datos del challenge al formato que espera QuestionDisplay
   const questionData = {
