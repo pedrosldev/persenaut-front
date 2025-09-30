@@ -1,18 +1,26 @@
 // src/components/Dashboard/DashboardContent/DashboardContent.jsx
 import { useState } from "react";
 import styles from "./DashboardContent.module.css";
+import NotificationsPanel from "../NotificationsPanel";
 
 const DashboardContent = ({ user }) => {
   const [activeInfo, setActiveInfo] = useState("progress");
-
+   const [currentChallenge, setCurrentChallenge] = useState(null);
   const handleCardClick = (target) => {
     setActiveInfo(target);
   };
-
+   const handleChallengeSelect = (challenge) => {
+     setCurrentChallenge(challenge);
+   };
+     
   return (
     <>
       <header className={styles.contentHeader}>
         <h2>¡Tú puedes lograrlo {user.name}!</h2>
+        <NotificationsPanel
+          user={user}
+          onChallengeSelect={handleChallengeSelect}
+        />
         <div className={styles.searchBar}>
           <input type="text" placeholder="Buscar..." />
         </div>
