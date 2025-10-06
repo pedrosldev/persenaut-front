@@ -1,5 +1,6 @@
 const API_ENDPOINT = import.meta.env.VITE_API_ENDPOINT;
 const GROQ_API = import.meta.env.VITE_GROQ_API;
+const  NOTES_API = import.meta.env.VITE_GENERATE_FROM_NOTES_API;
 
 
 
@@ -19,6 +20,25 @@ export const generateAndSaveQuestion = async (questionData) => {
     return await response.json();
   } catch (error) {
     console.error("Error generating question:", error);
+    throw error;
+  }
+};
+export const generateFromNotes = async (notesData) => {
+  try {
+    const response = await fetch(NOTES_API, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(notesData),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || `Error ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error generating question from notes:", error);
     throw error;
   }
 };
