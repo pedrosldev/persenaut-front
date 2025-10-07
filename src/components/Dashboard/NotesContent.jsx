@@ -252,7 +252,7 @@ const NotesContent = ({ user }) => {
                   value={formData.frequency}
                   onChange={handleInputChange}
                 >
-                  <option value="once">Una sola vez</option>
+                
                   <option value="daily">Diario</option>
                   <option value="weekly">Semanal</option>
                   <option value="monthly">Mensual</option>
