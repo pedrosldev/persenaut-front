@@ -1,31 +1,4 @@
-export const generatePrompt = (theme, level, previousQuestions = []) => {
-    const avoidRepetition = previousQuestions.length > 0 ?
-        `\n\nPREGUNTAS RECIENTES A EVITAR:\n${previousQuestions.slice(-3).join('\n')}\n` : '';
 
-    return `ERES UN EXAMINADOR PROFESIONAL. GENERA EXCLUSIVAMENTE PREGUNTAS TIPO TEST CON 4 OPCIONES (A-D) Y 1 RESPUESTA CORRECTA.
-
-TEMA: ${theme}
-NIVEL: ${level}
-${avoidRepetition}
-
-FORMATO OBLIGATORIO (COPIA ESTA ESTRUCTURA):
-
-Pregunta: [Tu pregunta aquí]
-
-A) [Opción A]
-B) [Opción B]
-C) [Opción C]
-D) [Opción D]
-
-Respuesta correcta: [Letra]
-
-REGLAS ABSOLUTAS:
-1. ¡NUNCA omitas las opciones A-D!
-2. ¡Siempre incluye "Respuesta correcta:"!
-3. ¡Solo 4 opciones exactamente!
-4. ¡No añadas explicaciones adicionales!
-5. ¡Mantén el formato línea por línea!`;
-};
 
 export const formatQuestion = (rawText) => {
     if (!rawText || rawText.trim() === '') {

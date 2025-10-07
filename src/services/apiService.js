@@ -1,95 +1,90 @@
 const API_ENDPOINT = import.meta.env.VITE_API_ENDPOINT;
 const GROQ_API = import.meta.env.VITE_GROQ_API;
-const API_QUESTIONS = import.meta.env.VITE_API_QUESTIONS;
+const  NOTES_API = import.meta.env.VITE_GENERATE_FROM_NOTES_API;
 
-export const fetchChallenge = async (prompt) => {
-    const payload = {
-        prompt,
-        model: "mistral",
-        stream: false,
-        options: { temperature: 0.7, top_p: 0.9 },
-    };
 
+
+export const generateAndSaveQuestion = async (questionData) => {
+  try {
     const response = await fetch(API_ENDPOINT, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(questionData),
     });
 
     if (!response.ok) {
-        const error = await response.json().catch(() => ({}));
-        throw new Error(error.message || `Error ${response.status}`);
+      const error = await response.json();
+      throw new Error(error.error || `Error ${response.status}`);
     }
 
-    const data = await response.json();
-    return (
-        data.reto ||
-        data.response ||
-        data.message?.content ||
-        data.choices?.[0]?.message?.content ||
-        ""
-    );
+    return await response.json();
+  } catch (error) {
+    console.error("Error generating question:", error);
+    throw error;
+  }
 };
+export const generateFromNotes = async (notesData) => {
+  try {
+    const response = await fetch(NOTES_API, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(notesData),
+    });
 
-export const testGroq = async (prompt) => {
-    try {
-        const res = await fetch(GROQ_API, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ prompt }),
-        });
-
-        if (!res.ok) {
-            const error = await res.json();
-            throw new Error(error.error || "Error en la API Groq");
-        }
-
-        const data = await res.json();
-        return data.response;
-    } catch (err) {
-        console.error(err);
-        throw err;
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || `Error ${response.status}`);
     }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error generating question from notes:", error);
+    throw error;
+  }
 };
+// export const testGroq = async (prompt) => {
+//     try {
+//         const res = await fetch(GROQ_API, {
+//             method: "POST",
+//             headers: { "Content-Type": "application/json" },
+//             body: JSON.stringify({ prompt }),
+//         });
 
-export const saveQuestionToDB = async (questionData, theme, level, rawResponse, userId, deliveryTime = '09:00:00', frequency = 'daily', isActive = true) => {
-    try {
-        console.log("Intentando guardar en BD:", {
-            theme,
-            level,
-            question: questionData.questionText,
-        });
+//         if (!res.ok) {
+//             const error = await res.json();
+//             throw new Error(error.error || "Error en la API Groq");
+//         }
 
-        const response = await fetch(API_QUESTIONS, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                theme: theme,
-                level: level,
-                question: questionData.questionText,
-                options: questionData.options,
-                correctAnswer: questionData.correctAnswer,
-                rawResponse: rawResponse,
-                userId: userId,
-                deliveryTime: deliveryTime,
-                frequency: frequency,
-                isActive: isActive,
-            }),
-        });
+//         const data = await res.json();
+//         return data.response;
+//     } catch (err) {
+//         console.error(err);
+//         throw err;
+//     }
+// };
 
-        console.log("Respuesta del servidor:", response.status);
+export const testGroq = async (data) => {
+  try {
+    const res = await fetch(GROQ_API, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      // ✅ Enviar theme, level, previousQuestions en lugar de prompt
+      body: JSON.stringify({
+        theme: data.theme,
+        level: data.level,
+        previousQuestions: data.previousQuestions || [],
+      }),
+    });
 
-        if (!response.ok) {
-            const errorData = await response.json();
-            console.error("Error del servidor:", errorData);
-            throw new Error(errorData.error || "Error al guardar la pregunta");
-        }
-
-        const result = await response.json();
-        console.log("✅ Pregunta guardada con ID:", result.id);
-        return result;
-    } catch (error) {
-        console.error("Error al guardar:", error);
-        throw error;
+    if (!res.ok) {
+      const error = await res.json();
+      throw new Error(error.error || "Error en la API Groq");
     }
+
+    const data_response = await res.json();
+    return data_response.response;
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
 };

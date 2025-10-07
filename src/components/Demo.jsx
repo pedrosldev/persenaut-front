@@ -2,19 +2,12 @@ import React, { useState } from "react";
 import styles from "./Demo.module.css";
 import QuestionForm from "./QuestionForm";
 import QuestionDisplay from "./QuestionDisplay";
-import { generatePrompt, formatQuestion } from "../services/promptService";
+import { formatQuestion } from "../services/promptService";
 import { testGroq } from "../services/apiService";
 import { Link } from "react-router-dom";
 
 const Demo = () => {
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState({
-    show: false,
-    content: "",
-    isError: false,
-    showAnswer: false,
-    selectedOption: null,
-  });
   const [testResult, setTestResult] = useState({
     show: false,
     content: "",
@@ -22,7 +15,7 @@ const Demo = () => {
     selectedOption: null,
   });
 
-  const handleTestGroq = async (formData) => {
+  const handleGenerateQuestion = async (formData) => {
     setLoading(true);
     setTestResult({
       show: false,
@@ -32,12 +25,21 @@ const Demo = () => {
     });
 
     try {
-      const theme = formData.tematica || "Test general";
-      const level = formData.nivel || "intermedio";
-      const prompt = generatePrompt(theme, level);
+      const { tematica: theme, nivel: level } = formData;
 
-      const responseText = await testGroq(prompt);
-      const formatted = formatQuestion(responseText);
+      if (!theme || !level) {
+        throw new Error("Tema y nivel son requeridos");
+      }
+
+      // Pasar los datos en el formato correcto
+      const result = await testGroq({
+        theme: theme,
+        level: level,
+        previousQuestions: [],
+      });
+
+      // ✅ AQUÍ ESTÁ LA CLAVE: usar formatQuestion para procesar la respuesta
+      const formatted = formatQuestion(result);
 
       setTestResult({
         show: true,
@@ -46,6 +48,7 @@ const Demo = () => {
         selectedOption: null,
       });
     } catch (error) {
+      console.error("Error en demo:", error);
       setTestResult({
         show: true,
         content: { error: error.message },
@@ -73,7 +76,11 @@ const Demo = () => {
         </ul>
       </div>
 
-      <QuestionForm onTestGroq={handleTestGroq} loading={loading} />
+      <QuestionForm
+        onSubmit={handleGenerateQuestion}
+        loading={loading}
+        showPreferences={false}
+      />
 
       {loading && (
         <div className={styles.loading}>
@@ -82,30 +89,9 @@ const Demo = () => {
         </div>
       )}
 
-      {result.show && (
-        <div
-          className={`${styles.result} ${
-            result.isError ? styles.resultError : ""
-          }`}
-        >
-          <QuestionDisplay
-            data={result.content}
-            isError={result.isError}
-            showAnswer={result.showAnswer}
-            selectedOption={result.selectedOption}
-            onShowAnswer={() =>
-              setResult((prev) => ({ ...prev, showAnswer: true }))
-            }
-            onSelectOption={(option) =>
-              setResult((prev) => ({ ...prev, selectedOption: option }))
-            }
-          />
-        </div>
-      )}
-
       {testResult.show && (
         <div className={styles.result}>
-          <h3>Resultado Test Groq</h3>
+          <h3>📊 Pregunta Generada</h3>
           <QuestionDisplay
             data={testResult.content}
             showAnswer={testResult.showAnswer}

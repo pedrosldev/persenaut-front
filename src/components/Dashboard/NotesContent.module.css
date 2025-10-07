@@ -1,77 +1,117 @@
-/* src/components/Dashboard/NotesContent/NotesContent.module.css */
-.contentHeader {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 30px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid #eaeaea;
+/* components/ManualChallengeCreator/ManualChallengeCreator.module.css */
+.creatorContainer {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
 }
 
-.searchBar input {
-    padding: 8px 15px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    width: 250px;
+.creatorContainer h3 {
+  margin-bottom: 20px;
+  color: #333;
 }
 
-.notesGrid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 20px;
-    margin-bottom: 20px;
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
-.noteCard {
-    background: white;
-    border-radius: 8px;
-    padding: 20px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-    min-height: 200px;
-    display: flex;
-    flex-direction: column;
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
-.noteTitle {
-    font-weight: bold;
-    margin-bottom: 10px;
-    color: #5a3a8c;
+.formGroup label {
+  font-weight: 600;
+  color: #495057;
 }
 
-.noteContent {
-    flex-grow: 1;
-    margin-bottom: 15px;
+.formGroup input,
+.formGroup select,
+.formGroup textarea {
+  padding: 10px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 14px;
 }
 
-.noteDate {
-    font-size: 0.8rem;
-    color: #888;
-    text-align: right;
+.formGroup textarea {
+  resize: vertical;
+  min-height: 80px;
 }
 
-.btnPrimary {
-    background-color: #d4af37;
-    color: #1a1a1a;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 4px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.3s ease;
+.optionsSection {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
-.btnPrimary:hover {
-    background-color: #c9a42d;
-    transform: translateY(-2px);
+.optionRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.optionLetter {
+  font-weight: bold;
+  width: 20px;
+  color: #495057;
+}
+
+.optionRow input {
+  flex: 1;
+  padding: 8px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+}
+
+.radioButton {
+  width: 32px;
+  height: 32px;
+  border: 2px solid #007bff;
+  background: white;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+
+.radioButton.selected {
+  background: #007bff;
+  color: white;
+}
+
+.submitButton {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.submitButton:hover:not(:disabled) {
+  background: #218838;
+}
+
+.submitButton:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
 }
 
 @media (max-width: 768px) {
-    .contentHeader {
+    .creatorContainer{
         flex-direction: column;
         align-items: flex-start;
     }
 
-    .searchBar input {
+    input {
         width: 100%;
         margin-top: 10px;
     }

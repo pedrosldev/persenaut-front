@@ -2,30 +2,9 @@ import { useState } from "react";
 import styles from "./ChallengesContent.module.css";
 import QuestionForm from "../QuestionForm";
 import { useQuestionHistory } from "../hooks/useQuestionHistory"; // ✅ Añadir hook
-import { generatePrompt, formatQuestion } from "../../services/promptService"; // ✅ Usar formatQuestion
-import { fetchChallenge, saveQuestionToDB } from "../../services/apiService";
+import { generateAndSaveQuestion } from "../../services/apiService";
 
 const ChallengesContent = ({ user }) => {
-  // const [challenges, setChallenges] = useState([
-  //   {
-  //     id: 1,
-  //     title: "Reto de lectura",
-  //     deadline: "25/05/2025",
-  //     status: "pending",
-  //   },
-  //   {
-  //     id: 2,
-  //     title: "Ejercicio matutino",
-  //     deadline: "20/05/2025",
-  //     status: "completed",
-  //   },
-  //   {
-  //     id: 3,
-  //     title: "Aprendizaje de nuevo skill",
-  //     deadline: "30/05/2025",
-  //     status: "pending",
-  //   },
-  // ]);
   const [challenges, setChallenges] = useState([]);
 
   const [questionHistory, updateHistory] = useQuestionHistory(); // ✅ Usar el hook
@@ -36,7 +15,7 @@ const ChallengesContent = ({ user }) => {
 
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(false);
-  
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setNewChallenge((prev) => ({
@@ -44,72 +23,13 @@ const ChallengesContent = ({ user }) => {
       [name]: value,
     }));
   };
-
-  // ✅ Función mejorada para guardar preguntas en BD
-  // const handleSaveQuestion = async (formData) => {
-  //   if (!formData.tematica || !formData.nivel) {
-  //     alert("Por favor completa todos los campos");
-  //     return;
-  //   }
-
-  //   setLoading(true);
-
-  //   try {
-  //     // ✅ Usar questionHistory para evitar repeticiones
-  //     const previousQuestions = questionHistory.get(formData.tematica) || [];
-  //     const prompt = generatePrompt(
-  //       formData.tematica,
-  //       formData.nivel,
-  //       previousQuestions
-  //     );
-  //     const responseText = await fetchChallenge(prompt);
-
-  //     // ✅ Usar formatQuestion en lugar de objeto hardcodeado
-  //     const formatted = formatQuestion(responseText);
-
-  //     // ✅ Actualizar historial para evitar preguntas repetidas
-  //     updateHistory(formData.tematica, responseText);
-
-  //     const saveResult = await saveQuestionToDB(
-  //       formatted,
-  //       formData.tematica,
-  //       formData.nivel,
-  //       responseText
-  //     );
-
-  //     console.log("✅ Pregunta guardada con ID:", saveResult.id);
-  //     alert(`✅ Pregunta guardada en BD con ID: ${saveResult.id}`);
-
-  //     // ✅ Usar la pregunta real formateada en lugar de texto genérico
-  //     const newChallenge = {
-  //       id: saveResult.id,
-  //       title: `Pregunta: ${formData.tematica} (${
-  //         formData.nivel
-  //       }) - ${formatted.questionText.substring(0, 50)}...`,
-  //       deadline: new Date().toLocaleDateString(),
-  //       status: "pending",
-  //       type: "question",
-  //       questionData: formatted, // ✅ Guardar datos completos para uso futuro
-  //     };
-
-  //     setChallenges((prev) => [...prev, newChallenge]);
-  //   } catch (error) {
-  //     console.error("Error al guardar pregunta:", error);
-  //     alert(`❌ Error: ${error.message || "Error al guardar la pregunta"}`);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
-  // ✅ Función modificada para aceptar preferencias
   const handleSaveQuestion = async (formDataWithPreferences) => {
     const { tematica, nivel, preferences = {} } = formDataWithPreferences;
-
-      const {
-        deliveryTime = "09:00:00",
-        frequency = "daily",
-        isActive = true,
-      } = preferences;
+    const {
+      deliveryTime = "09:00:00",
+      frequency = "daily",
+      isActive = true,
+    } = preferences;
 
     if (!tematica || !nivel) {
       alert("Por favor completa todos los campos");
@@ -120,52 +40,53 @@ const ChallengesContent = ({ user }) => {
 
     try {
       const previousQuestions = questionHistory.get(tematica) || [];
-      const prompt = generatePrompt(tematica, nivel, previousQuestions);
-      const responseText = await fetchChallenge(prompt);
-      const formatted = formatQuestion(responseText);
 
-      updateHistory(tematica, responseText);
+      // ✅ SOLO UNA LLAMADA al backend que hace todo
+      const result = await generateAndSaveQuestion({
+        theme: tematica,
+        level: nivel,
+        previousQuestions: previousQuestions,
+        userId: user.id,
+        preferences: {
+          deliveryTime,
+          frequency,
+          isActive,
+        },
+      });
 
-      // ✅ Guardar con las preferencias de programación
-      const saveResult = await saveQuestionToDB(
-        formatted,
-        tematica,
-        nivel,
-        responseText,
-        user.id, // ✅ userId requerido
-        deliveryTime, // ✅ Ahora siempre tendrá valor
-        frequency, // ✅ Ahora siempre tendrá valor
-        isActive // ✅ Ahora siempre tendrá valor
-      );
+      // ✅ Actualizar historial
+      updateHistory(tematica, result.rawResponse);
 
-      console.log("✅ Pregunta guardada y programada con ID:", saveResult.id);
+      console.log("✅ Pregunta generada y guardada:", result.savedQuestionId);
 
-      // ✅ Mostrar info de programación en el alert
       alert(
-        `✅ Pregunta guardada con ID: ${saveResult.id}\n📅 Se entregará ${
-          preferences.frequency
-        }mente a las ${preferences.deliveryTime.substring(0, 5)}`
+        `✅ Pregunta generada y programada!\n📅 Se entregará ${frequency}mente a las ${deliveryTime.substring(
+          0,
+          5
+        )}`
       );
 
+      // ✅ Crear nuevo challenge para el estado local
       const newChallenge = {
-        id: saveResult.id,
-        title: `Pregunta: ${tematica} (${nivel}) - ${formatted.questionText.substring(
+        id: result.savedQuestionId,
+        title: `Pregunta: ${tematica} (${nivel}) - ${result.question.questionText.substring(
           0,
           50
         )}...`,
-        deadline: `Programado: ${
-          preferences.frequency
-        } a las ${preferences.deliveryTime.substring(0, 5)}`,
+        deadline: `Programado: ${frequency} a las ${deliveryTime.substring(
+          0,
+          5
+        )}`,
         status: "pending",
-        type: "scheduled_question", // ✅ Nuevo tipo
-        questionData: formatted,
-        scheduleInfo: preferences, // ✅ Guardar info de programación
+        type: "scheduled_question",
+        questionData: result.question,
+        scheduleInfo: preferences,
       };
 
       setChallenges((prev) => [...prev, newChallenge]);
     } catch (error) {
       console.error("Error al guardar pregunta:", error);
-      alert(`❌ Error: ${error.message || "Error al guardar la pregunta"}`);
+      alert(`❌ Error: ${error.message || "Error al generar la pregunta"}`);
     } finally {
       setLoading(false);
     }
