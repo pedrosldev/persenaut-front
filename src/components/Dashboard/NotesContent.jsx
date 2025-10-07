@@ -1,7 +1,8 @@
 // components/GenerateFromNotes/NotesContent.jsx
 import React, { useState } from "react";
 import styles from "./NotesContent.module.css";
-import { generateFromNotes } from "../../services/apiService"; // ✅ Importar el servicio
+import { generateFromNotes } from "../../services/apiService";
+import ChallengeResolver from "./ChallengeResolver";
 
 const NotesContent = ({ user }) => {
   const [formData, setFormData] = useState({
@@ -14,6 +15,7 @@ const NotesContent = ({ user }) => {
     frequency: "once",
   });
   const [loading, setLoading] = useState(false);
+  const [currentChallenge, setCurrentChallenge] = useState(null);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -23,49 +25,67 @@ const NotesContent = ({ user }) => {
     }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const resetForm = () => {
+    setFormData({
+      notes: "",
+      theme: "",
+      level: "intermedio",
+      scheduleType: "immediate",
+      deliveryDate: "",
+      deliveryTime: "09:00",
+      frequency: "once",
+    });
+  };
 
-    if (!formData.notes || !formData.theme) {
+  const isFormValid = () => {
+    if (!formData.notes.trim() || !formData.theme.trim()) {
       alert("Por favor ingresa tus apuntes y un tema");
-      return;
+      return false;
     }
+
+    if (formData.scheduleType === "scheduled") {
+      if (!formData.deliveryDate || !formData.deliveryTime) {
+        alert("Por favor completa la fecha y hora de entrega");
+        return false;
+      }
+    }
+
+    return true;
+  };
+
+  const handleGenerateImmediate = async () => {
+    if (!isFormValid()) return;
 
     setLoading(true);
     try {
-      // ✅ USAR EL SERVICIO API EN LUGAR DE FETCH DIRECTAMENTE
       const result = await generateFromNotes({
         userId: user.id,
         notes: formData.notes,
         theme: formData.theme,
         level: formData.level,
         preferences: {
-          scheduleType: formData.scheduleType,
-          deliveryDate: formData.deliveryDate,
-          deliveryTime: formData.deliveryTime,
-          frequency: formData.frequency,
-          isActive: formData.scheduleType === "scheduled",
+          scheduleType: "immediate",
+          frequency: "once",
+          isActive: false,
         },
       });
 
-      // Reset form
-      setFormData({
-        notes: "",
-        theme: "",
-        level: "intermedio",
-        scheduleType: "immediate",
-        deliveryDate: "",
-        deliveryTime: "09:00",
-        frequency: "once",
-      });
+      if (result.question) {
+        const immediateChallenge = {
+          id: `immediate-${Date.now()}`,
+          theme: formData.theme,
+          level: formData.level,
+          question: result.question.questionText,
+          options: result.question.options,
+          correct_answer: result.question.correctAnswer,
+          frequency: "once",
+          created_at: new Date().toISOString(),
+        };
 
-     
+        setCurrentChallenge(immediateChallenge);
+      }
 
-      const message =
-        formData.scheduleType === "immediate"
-          ? "✅ Reto generado correctamente"
-          : `✅ Reto programado para el ${formData.deliveryDate} a las ${formData.deliveryTime}`;
-      alert(message);
+      resetForm();
     } catch (error) {
       console.error("Error:", error);
       alert(
@@ -76,12 +96,59 @@ const NotesContent = ({ user }) => {
     }
   };
 
-  // ... (el resto del JSX se mantiene igual)
+  const handleScheduleChallenge = async () => {
+    if (!isFormValid()) return;
+
+    setLoading(true);
+    try {
+      const result = await generateFromNotes({
+        userId: user.id,
+        notes: formData.notes,
+        theme: formData.theme,
+        level: formData.level,
+        preferences: {
+          scheduleType: "scheduled",
+          deliveryDate: formData.deliveryDate,
+          deliveryTime: formData.deliveryTime,
+          frequency: formData.frequency,
+          isActive: true,
+        },
+      });
+
+      resetForm();
+      alert(
+        `✅ Reto programado para el ${formData.deliveryDate} a las ${formData.deliveryTime}`
+      );
+    } catch (error) {
+      console.error("Error:", error);
+      alert(`❌ Error: ${error.message || "Error al programar el reto"}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleChallengeComplete = () => {
+    setCurrentChallenge(null);
+  };
+
+  // Renderizar ChallengeResolver si hay un reto inmediato
+  if (currentChallenge) {
+    return (
+      <div className={styles.container}>
+        <ChallengeResolver
+          challenge={currentChallenge}
+          onComplete={handleChallengeComplete}
+        />
+      </div>
+    );
+  }
+
+  // Renderizar el formulario normal si no hay reto activo
   return (
     <div className={styles.container}>
       <h3>🤖 Generar Reto desde Apuntes (IA)</h3>
 
-      <form onSubmit={handleSubmit} className={styles.form}>
+      <form className={styles.form}>
         <div className={styles.formGroup}>
           <label>Tema principal:</label>
           <input
@@ -195,13 +262,35 @@ const NotesContent = ({ user }) => {
           )}
         </div>
 
-        <button
-          type="submit"
-          className={styles.submitButton}
-          disabled={loading || !formData.notes.trim()}
-        >
-          {loading ? "🤖 Generando..." : "🚀 Generar Reto con IA"}
-        </button>
+        <div className={styles.actions}>
+          {formData.scheduleType === "immediate" ? (
+            <button
+              type="button"
+              className={styles.submitButton}
+              onClick={handleGenerateImmediate}
+              disabled={
+                loading || !formData.notes.trim() || !formData.theme.trim()
+              }
+            >
+              {loading ? "🤖 Generando..." : "🚀 Generar para Resolver Ahora"}
+            </button>
+          ) : (
+            <button
+              type="button"
+              className={styles.submitButton}
+              onClick={handleScheduleChallenge}
+              disabled={
+                loading ||
+                !formData.notes.trim() ||
+                !formData.theme.trim() ||
+                !formData.deliveryDate ||
+                !formData.deliveryTime
+              }
+            >
+              {loading ? "🗓️ Programando..." : "🗓️ Programar Reto"}
+            </button>
+          )}
+        </div>
       </form>
     </div>
   );
