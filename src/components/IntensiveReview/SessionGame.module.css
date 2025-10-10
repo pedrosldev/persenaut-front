@@ -1,0 +1,192 @@
+/* src/components/IntensiveReview/SessionGame.module.css */
+.game {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.header {
+    background: #f8f9fa;
+    padding: 15px 20px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.progressBar {
+    width: 100%;
+    height: 8px;
+    background: #e9ecef;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+
+.progressFill {
+    height: 100%;
+    background: linear-gradient(90deg, #667eea, #764ba2);
+    transition: width 0.3s ease;
+}
+
+.stats {
+    display: flex;
+    justify-content: space-between;
+    font-weight: 600;
+    color: #555;
+}
+
+.challenge {
+    padding: 30px;
+}
+
+.theme {
+    background: #667eea;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    display: inline-block;
+    margin-bottom: 20px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.question {
+    font-size: 20px;
+    line-height: 1.5;
+    color: #333;
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.option {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    border: 2px solid #e1e5e9;
+    border-radius: 8px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+}
+
+.option:hover {
+    border-color: #667eea;
+    background: #f8f9ff;
+}
+
+.optionLetter {
+    font-weight: bold;
+    color: #667eea;
+    margin-right: 15px;
+    min-width: 20px;
+}
+
+.optionText {
+    flex: 1;
+    line-height: 1.4;
+}
+
+.quitButton {
+    margin: 20px;
+    padding: 10px 20px;
+    background: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.quitButton:hover {
+    background: #5a6268;
+}
+/* Agregar estos estilos al archivo existente */
+.timerSection {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 10px;
+}
+
+.timer {
+    font-size: 24px;
+    font-weight: bold;
+    color: #28a745;
+    background: #f8f9fa;
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: 2px solid #28a745;
+}
+
+.timer.warning {
+    color: #dc3545;
+    border-color: #dc3545;
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.7;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+.timeUp {
+    color: #dc3545;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.gameOver {
+    text-align: center;
+    padding: 20px;
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    border-radius: 8px;
+    margin: 20px;
+}
+
+.gameOver p {
+    margin: 0 0 15px 0;
+    font-size: 18px;
+    font-weight: bold;
+    color: #856404;
+}
+
+.resultsButton {
+    padding: 10px 20px;
+    background: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.resultsButton:hover {
+    background: #c82333;
+}
+
+.option:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.option:disabled:hover {
+    border-color: #e1e5e9;
+    background: white;
+}
