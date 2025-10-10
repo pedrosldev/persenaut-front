@@ -1,0 +1,59 @@
+/* src/components/IntensiveReview/SessionResults.module.css */
+.results {
+    text-align: center;
+    background: white;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.header h2 {
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.message {
+    font-size: 20px;
+    font-weight: 600;
+    color: #667eea;
+    margin-bottom: 30px;
+}
+
+.stats {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    margin: 30px 0;
+}
+
+.stat {
+    text-align: center;
+}
+
+.statValue {
+    font-size: 36px;
+    font-weight: bold;
+    color: #333;
+}
+
+.statLabel {
+    color: #666;
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+.restartButton {
+    padding: 15px 30px;
+    background: #28a745;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.restartButton:hover {
+    background: #218838;
+}
