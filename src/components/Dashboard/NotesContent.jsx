@@ -12,7 +12,7 @@ const NotesContent = ({ user }) => {
     scheduleType: "immediate",
     deliveryDate: "",
     deliveryTime: "09:00",
-    frequency: "daily",
+    frequency: "once",
   });
   const [loading, setLoading] = useState(false);
   const [currentChallenge, setCurrentChallenge] = useState(null);
@@ -33,7 +33,7 @@ const NotesContent = ({ user }) => {
       scheduleType: "immediate",
       deliveryDate: "",
       deliveryTime: "09:00",
-      frequency: "daily",
+      frequency: "once",
     });
   };
 
@@ -65,7 +65,7 @@ const NotesContent = ({ user }) => {
         level: formData.level,
         preferences: {
           scheduleType: "immediate",
-          frequency: "daily",
+          frequency: "once",
           isActive: false,
         },
       });
@@ -78,7 +78,7 @@ const NotesContent = ({ user }) => {
           question: result.question.questionText,
           options: result.question.options,
           correct_answer: result.question.correctAnswer,
-          frequency: "daily",
+          frequency: "once",
           created_at: new Date().toISOString(),
         };
 
@@ -101,6 +101,20 @@ const NotesContent = ({ user }) => {
 
     setLoading(true);
     try {
+      // eslint-disable-next-line no-unused-vars
+      const result = await generateFromNotes({
+        userId: user.id,
+        notes: formData.notes,
+        theme: formData.theme,
+        level: formData.level,
+        preferences: {
+          scheduleType: "scheduled",
+          deliveryDate: formData.deliveryDate,
+          deliveryTime: formData.deliveryTime,
+          frequency: formData.frequency,
+          isActive: true,
+        },
+      });
 
       resetForm();
       alert(
