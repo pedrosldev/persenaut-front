@@ -6,21 +6,23 @@ const SessionGame = ({ session, onEnd }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [correctAnswers, setCorrectAnswers] = useState([]);
   const [incorrectAnswers, setIncorrectAnswers] = useState([]);
-  const [timeRemaining, setTimeRemaining] = useState(180);
+  const [timeRemaining, setTimeRemaining] = useState(
+    session.gameMode === "timed" ? 180 : null // ← Tiempo solo para modo ráfaga
+  );
   const [gameActive, setGameActive] = useState(true);
 
   const currentChallenge = session.challenges[currentIndex];
 
-  // ✅ useCallback para onEnd
   const handleEndSession = useCallback(
     (finalCorrect, finalIncorrect) => {
-      onEnd(finalCorrect, finalIncorrect);
+      onEnd(finalCorrect, finalIncorrect, timeRemaining);
     },
-    [onEnd]
+    [onEnd, timeRemaining]
   );
 
-  // Timer countdown
+  // Timer countdown SOLO para modo ráfaga
   useEffect(() => {
+    if (session.gameMode !== "timed") return; // ← Solo ejecutar para modo ráfaga
     if (!gameActive || timeRemaining <= 0) return;
 
     const timer = setInterval(() => {
@@ -28,7 +30,6 @@ const SessionGame = ({ session, onEnd }) => {
         if (prev <= 1) {
           clearInterval(timer);
           setGameActive(false);
-          // Usar la versión memoizada
           setTimeout(
             () => handleEndSession(correctAnswers, incorrectAnswers),
             500
@@ -46,7 +47,8 @@ const SessionGame = ({ session, onEnd }) => {
     correctAnswers,
     incorrectAnswers,
     handleEndSession,
-  ]); // ✅ Todas las dependencias
+    session.gameMode, // ← Dependencia importante
+  ]);
 
   const handleAnswer = (selectedOption) => {
     if (!gameActive) return;
@@ -57,6 +59,20 @@ const SessionGame = ({ session, onEnd }) => {
       setCorrectAnswers((prev) => [...prev, currentChallenge.id]);
     } else {
       setIncorrectAnswers((prev) => [...prev, currentChallenge.id]);
+
+      // En modo supervivencia, terminar al fallar
+      if (session.gameMode === "survival") {
+        setGameActive(false);
+        setTimeout(
+          () =>
+            handleEndSession(correctAnswers, [
+              ...incorrectAnswers,
+              currentChallenge.id,
+            ]),
+          500
+        );
+        return;
+      }
     }
 
     // Siguiente pregunta o terminar
@@ -71,9 +87,16 @@ const SessionGame = ({ session, onEnd }) => {
   const progress = ((currentIndex + 1) / session.challenges.length) * 100;
 
   const formatTime = (seconds) => {
+    if (seconds === null) return "∞";
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}:${secs.toString().padStart(2, "0")}`;
+  };
+
+  const getGameTitle = () => {
+    return session.gameMode === "survival"
+      ? "🏆 Modo Supervivencia"
+      : "⚡ Ráfaga Contra Reloj";
   };
 
   return (
@@ -82,12 +105,19 @@ const SessionGame = ({ session, onEnd }) => {
         <div className={styles.timerSection}>
           <div
             className={`${styles.timer} ${
-              timeRemaining <= 30 ? styles.warning : ""
+              timeRemaining !== null && timeRemaining <= 30
+                ? styles.warning
+                : ""
             }`}
           >
-            ⏱️ {formatTime(timeRemaining)}
+            {session.gameMode === "timed" ? "⏱️" : "🏆"}{" "}
+            {formatTime(timeRemaining)}
           </div>
-          {!gameActive && <div className={styles.timeUp}>¡Tiempo!</div>}
+          {!gameActive && (
+            <div className={styles.timeUp}>
+              {session.gameMode === "survival" ? "¡Has fallado!" : "¡Tiempo!"}
+            </div>
+          )}
         </div>
 
         <div className={styles.progressBar}>
@@ -106,9 +136,17 @@ const SessionGame = ({ session, onEnd }) => {
         </div>
       </div>
 
+      <div className={styles.gameTitle}>
+        <h2>{getGameTitle()}</h2>
+        <p>
+          {session.gameMode === "survival"
+            ? "Continúa hasta que falles"
+            : "Responde máximo de preguntas en 3 minutos"}
+        </p>
+      </div>
+
       <div className={styles.challenge}>
         <div className={styles.theme}>{currentChallenge.theme}</div>
-
         <h3 className={styles.question}>{currentChallenge.question}</h3>
 
         <div className={styles.options}>
@@ -128,7 +166,11 @@ const SessionGame = ({ session, onEnd }) => {
 
       {!gameActive && (
         <div className={styles.gameOver}>
-          <p>El tiempo ha terminado</p>
+          <p>
+            {session.gameMode === "survival"
+              ? "¡Has fallado una pregunta!"
+              : "El tiempo ha terminado"}
+          </p>
           <button
             onClick={() => handleEndSession(correctAnswers, incorrectAnswers)}
             className={styles.resultsButton}

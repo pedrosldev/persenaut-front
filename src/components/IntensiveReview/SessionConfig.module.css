@@ -85,3 +85,53 @@
     margin-bottom: 30px;
     text-align: center;
 }
+.modeOptions {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 0.5rem;
+}
+
+.modeOption {
+    display: flex;
+    align-items: flex-start;
+    padding: 1rem;
+    border: 2px solid #e1e5e9;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.modeOption:hover {
+    border-color: #007bff;
+    background-color: #f8f9fa;
+}
+
+.modeOption input[type="radio"] {
+    margin-right: 0.75rem;
+    margin-top: 0.25rem;
+}
+
+.modeInfo {
+    flex: 1;
+}
+
+.modeName {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.modeDescription {
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+/* Estilos para la opción seleccionada */
+.modeOption:has(input[type="radio"]:checked) {
+    border-color: #007bff;
+    background-color: #e7f3ff;
+}
+
+.modeOption input[type="radio"]:checked+.modeInfo .modeName {
+    color: #007bff;
+}
