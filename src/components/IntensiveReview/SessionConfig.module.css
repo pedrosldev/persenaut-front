@@ -1,47 +1,120 @@
 /* src/components/IntensiveReview/SessionConfig.module.css */
+
+/* Contenedor principal */
 .config {
     text-align: center;
     background: white;
     padding: 30px;
     border-radius: 12px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    max-width: 500px;
+    margin: 0 auto;
 }
 
+/* Encabezado */
 .config h2 {
     color: #333;
-    margin-bottom: 30px;
+    margin-bottom: 10px;
     font-size: 28px;
 }
 
+.subtitle {
+    color: #666;
+    font-size: 16px;
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+/* Formulario */
 .form {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 25px;
     align-items: center;
 }
 
 .formGroup {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
     width: 100%;
-    max-width: 400px;
+    text-align: left;
 }
 
 .formGroup label {
     font-weight: 600;
     color: #555;
-    text-align: left;
 }
 
+/* Select de temas */
 .select {
     padding: 12px;
     border: 2px solid #e1e5e9;
     border-radius: 8px;
     font-size: 16px;
     background: white;
+    transition: border-color 0.2s ease;
 }
 
+.select:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+/* Opciones de modo de juego */
+.modeOptions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.modeOption {
+    display: flex;
+    align-items: flex-start;
+    padding: 16px;
+    border: 2px solid #e1e5e9;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.modeOption:hover {
+    border-color: #667eea;
+    background-color: #f8f9fa;
+}
+
+.modeOption input[type="radio"] {
+    margin-right: 12px;
+    margin-top: 2px;
+}
+
+.modeInfo {
+    flex: 1;
+}
+
+.modeName {
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: #333;
+}
+
+.modeDescription {
+    font-size: 14px;
+    color: #6c757d;
+    line-height: 1.4;
+}
+
+/* Estado seleccionado */
+.modeOption:has(input[type="radio"]:checked) {
+    border-color: #667eea;
+    background-color: #f0f4ff;
+}
+
+.modeOption input[type="radio"]:checked+.modeInfo .modeName {
+    color: #667eea;
+}
+
+/* Botón de inicio */
 .startButton {
     padding: 15px 30px;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -51,25 +124,31 @@
     font-size: 18px;
     font-weight: 600;
     cursor: pointer;
-    transition: transform 0.2s;
+    transition: all 0.3s ease;
+    min-width: 200px;
 }
 
 .startButton:hover:not(:disabled) {
     transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(102, 126, 234, 0.3);
 }
 
 .startButton:disabled {
     background: #ccc;
     cursor: not-allowed;
     transform: none;
+    box-shadow: none;
 }
 
+/* Estados especiales */
 .noThemes {
     background: #fff3cd;
     border: 1px solid #ffeaa7;
     border-radius: 8px;
-    padding: 15px;
+    padding: 16px;
     color: #856404;
+    text-align: center;
+    width: 100%;
 }
 
 .loading {
@@ -77,61 +156,42 @@
     padding: 40px;
     font-size: 18px;
     color: #666;
-}
-/* Agregar esta clase */
-.subtitle {
-    color: #666;
-    font-size: 16px;
-    margin-bottom: 30px;
-    text-align: center;
-}
-.modeOptions {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    margin-top: 0.5rem;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.modeOption {
-    display: flex;
-    align-items: flex-start;
-    padding: 1rem;
-    border: 2px solid #e1e5e9;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.2s ease;
+/* Responsive */
+@media (max-width: 768px) {
+    .config {
+        padding: 20px;
+        margin: 10px;
+    }
+
+    .config h2 {
+        font-size: 24px;
+    }
+
+    .startButton {
+        padding: 12px 24px;
+        font-size: 16px;
+    }
 }
 
-.modeOption:hover {
-    border-color: #007bff;
-    background-color: #f8f9fa;
-}
+@media (max-width: 480px) {
+    .config {
+        padding: 15px;
+    }
 
-.modeOption input[type="radio"] {
-    margin-right: 0.75rem;
-    margin-top: 0.25rem;
-}
+    .modeOption {
+        padding: 12px;
+    }
 
-.modeInfo {
-    flex: 1;
-}
+    .modeName {
+        font-size: 14px;
+    }
 
-.modeName {
-    font-weight: 600;
-    margin-bottom: 0.25rem;
-}
-
-.modeDescription {
-    font-size: 0.875rem;
-    color: #6c757d;
-}
-
-/* Estilos para la opción seleccionada */
-.modeOption:has(input[type="radio"]:checked) {
-    border-color: #007bff;
-    background-color: #e7f3ff;
-}
-
-.modeOption input[type="radio"]:checked+.modeInfo .modeName {
-    color: #007bff;
+    .modeDescription {
+        font-size: 12px;
+    }
 }

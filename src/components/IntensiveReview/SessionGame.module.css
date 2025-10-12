@@ -1,15 +1,42 @@
 /* src/components/IntensiveReview/SessionGame.module.css */
+
+/* Contenedor principal del juego */
 .game {
     background: white;
     border-radius: 12px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     overflow: hidden;
+    min-height: 600px;
 }
 
+/* Header con información de progreso */
 .header {
     background: #f8f9fa;
-    padding: 15px 20px;
+    padding: 20px;
     border-bottom: 1px solid #e9ecef;
+}
+
+.timerSection {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.timer {
+    font-size: 24px;
+    font-weight: bold;
+    color: #28a745;
+    background: #f8f9fa;
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: 2px solid #28a745;
+}
+
+.timer.warning {
+    color: #dc3545;
+    border-color: #dc3545;
+    animation: pulse 1s infinite;
 }
 
 .progressBar {
@@ -18,7 +45,7 @@
     background: #e9ecef;
     border-radius: 4px;
     overflow: hidden;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
 }
 
 .progressFill {
@@ -32,10 +59,33 @@
     justify-content: space-between;
     font-weight: 600;
     color: #555;
+    font-size: 14px;
 }
 
+/* Título del juego */
+.gameTitle {
+    text-align: center;
+    padding: 20px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.gameTitle h2 {
+    color: #333;
+    margin-bottom: 8px;
+    font-size: 24px;
+}
+
+.gameTitle p {
+    color: #666;
+    font-size: 16px;
+    margin: 0;
+}
+
+/* Desafío actual */
 .challenge {
     padding: 30px;
+    max-width: 800px;
+    margin: 0 auto;
 }
 
 .theme {
@@ -55,135 +105,40 @@
     color: #333;
     margin-bottom: 30px;
     text-align: center;
+    font-weight: 600;
 }
 
+/* Opciones de respuesta */
 .options {
     display: flex;
     flex-direction: column;
     gap: 12px;
-    max-width: 600px;
     margin: 0 auto;
 }
 
 .option {
     display: flex;
     align-items: center;
-    padding: 15px 20px;
+    padding: 16px 20px;
     border: 2px solid #e1e5e9;
     border-radius: 8px;
     background: white;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.2s ease;
     text-align: left;
+    width: 100%;
 }
 
-.option:hover {
+.option:hover:not(:disabled) {
     border-color: #667eea;
     background: #f8f9ff;
-}
-
-.optionLetter {
-    font-weight: bold;
-    color: #667eea;
-    margin-right: 15px;
-    min-width: 20px;
-}
-
-.optionText {
-    flex: 1;
-    line-height: 1.4;
-}
-
-.quitButton {
-    margin: 20px;
-    padding: 10px 20px;
-    background: #6c757d;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-}
-
-.quitButton:hover {
-    background: #5a6268;
-}
-/* Agregar estos estilos al archivo existente */
-.timerSection {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    margin-bottom: 10px;
-}
-
-.timer {
-    font-size: 24px;
-    font-weight: bold;
-    color: #28a745;
-    background: #f8f9fa;
-    padding: 8px 16px;
-    border-radius: 20px;
-    border: 2px solid #28a745;
-}
-
-.timer.warning {
-    color: #dc3545;
-    border-color: #dc3545;
-    animation: pulse 1s infinite;
-}
-
-@keyframes pulse {
-    0% {
-        opacity: 1;
-    }
-
-    50% {
-        opacity: 0.7;
-    }
-
-    100% {
-        opacity: 1;
-    }
-}
-
-.timeUp {
-    color: #dc3545;
-    font-weight: bold;
-    font-size: 18px;
-}
-
-.gameOver {
-    text-align: center;
-    padding: 20px;
-    background: #fff3cd;
-    border: 1px solid #ffeaa7;
-    border-radius: 8px;
-    margin: 20px;
-}
-
-.gameOver p {
-    margin: 0 0 15px 0;
-    font-size: 18px;
-    font-weight: bold;
-    color: #856404;
-}
-
-.resultsButton {
-    padding: 10px 20px;
-    background: #dc3545;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-.resultsButton:hover {
-    background: #c82333;
+    transform: translateY(-1px);
 }
 
 .option:disabled {
     opacity: 0.6;
     cursor: not-allowed;
+    transform: none;
 }
 
 .option:disabled:hover {
@@ -191,81 +146,39 @@
     background: white;
 }
 
-/* SessionGame.module.css - Agregar estos estilos */
-.survivalStats {
-    display: flex;
-    gap: 20px;
-    margin-bottom: 15px;
-    flex-wrap: wrap;
-}
-
-.streak,
-.maxStreak,
-.totalCorrect {
-    background: #fff3cd;
-    padding: 8px 12px;
-    border-radius: 8px;
-    border: 1px solid #ffeaa7;
-    font-weight: 600;
-}
-
-.streak {
-    background: #ffeaa7;
-    border-color: #fdcb6e;
-}
-
-.continueScreen,
-.gameOver {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.8);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-}
-
-.continueContent,
-.gameOverContent {
-    background: white;
-    padding: 30px;
-    border-radius: 12px;
-    text-align: center;
-    max-width: 400px;
-    width: 90%;
-}
-
-.continueActions {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-top: 20px;
-}
-
-.continueButton {
-    padding: 15px;
-    background: #28a745;
-    color: white;
-    border: none;
-    border-radius: 8px;
+.optionLetter {
+    font-weight: bold;
+    color: #667eea;
+    margin-right: 15px;
+    min-width: 20px;
     font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
 }
 
-.continueButton:hover {
-    background: #218838;
+.optionText {
+    flex: 1;
+    line-height: 1.4;
+    font-size: 16px;
 }
 
+/* Transiciones de fin de juego */
 .gameEndTransition {
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 60vh;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 12px;
+    padding: 2rem;
+    color: white;
+    text-align: center;
+}
+
+.resultsTransition {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 60vh;
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
     border-radius: 12px;
     padding: 2rem;
     color: white;
@@ -282,19 +195,6 @@
     margin: 1rem 0;
 }
 
-/* Transición a resultados */
-.resultsTransition {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 60vh;
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    border-radius: 12px;
-    padding: 2rem;
-    color: white;
-    text-align: center;
-}
-
 .loadingSpinner {
     width: 50px;
     height: 50px;
@@ -303,6 +203,38 @@
     border-radius: 50%;
     animation: spin 1s linear infinite;
     margin: 1rem auto;
+}
+
+/* Estados de juego terminado (mantenidos por compatibilidad) */
+.gameOver {
+    text-align: center;
+    padding: 30px;
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    border-radius: 8px;
+    margin: 20px;
+}
+
+.gameOver p {
+    margin: 0 0 20px 0;
+    font-size: 18px;
+    font-weight: bold;
+    color: #856404;
+}
+
+.resultsButton {
+    padding: 12px 24px;
+    background: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.resultsButton:hover {
+    background: #c82333;
 }
 
 /* Animaciones */
@@ -337,5 +269,58 @@
 
     100% {
         transform: rotate(360deg);
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .game {
+        margin: 10px;
+        min-height: 500px;
+    }
+
+    .header {
+        padding: 15px;
+    }
+
+    .challenge {
+        padding: 20px;
+    }
+
+    .question {
+        font-size: 18px;
+    }
+
+    .option {
+        padding: 14px 16px;
+    }
+
+    .timer {
+        font-size: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .stats {
+        flex-direction: column;
+        gap: 8px;
+        align-items: center;
+    }
+
+    .gameTitle h2 {
+        font-size: 20px;
+    }
+
+    .gameTitle p {
+        font-size: 14px;
+    }
+
+    .question {
+        font-size: 16px;
+    }
+
+    .optionLetter,
+    .optionText {
+        font-size: 14px;
     }
 }

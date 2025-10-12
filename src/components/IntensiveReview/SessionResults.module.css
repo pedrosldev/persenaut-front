@@ -1,59 +1,167 @@
 /* src/components/IntensiveReview/SessionResults.module.css */
+
+/* Contenedor principal de resultados */
 .results {
     text-align: center;
     background: white;
     padding: 40px;
     border-radius: 12px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Encabezado */
+.header {
+    margin-bottom: 30px;
 }
 
 .header h2 {
     color: #333;
     margin-bottom: 10px;
+    font-size: 28px;
 }
 
 .message {
     font-size: 20px;
     font-weight: 600;
     color: #667eea;
-    margin-bottom: 30px;
+    margin: 0;
 }
 
+/* Estadísticas */
 .stats {
     display: flex;
     justify-content: center;
     gap: 40px;
-    margin: 30px 0;
+    margin: 40px 0;
+    flex-wrap: wrap;
 }
 
 .stat {
     text-align: center;
+    min-width: 100px;
 }
 
 .statValue {
     font-size: 36px;
     font-weight: bold;
     color: #333;
+    line-height: 1;
+    margin-bottom: 8px;
 }
 
 .statLabel {
     color: #666;
     font-size: 14px;
-    margin-top: 5px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
+/* Botón de reinicio */
 .restartButton {
-    padding: 15px 30px;
-    background: #28a745;
+    padding: 16px 32px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     border: none;
     border-radius: 8px;
-    font-size: 16px;
+    font-size: 18px;
     font-weight: 600;
     cursor: pointer;
-    transition: background 0.2s;
+    transition: all 0.3s ease;
+    min-width: 200px;
 }
 
 .restartButton:hover {
-    background: #218838;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(102, 126, 234, 0.3);
+}
+
+/* Estados específicos por modo de juego */
+.stat:nth-child(1) .statValue {
+    color: #28a745;
+    /* Correctas - verde */
+}
+
+.stat:nth-child(2) .statValue {
+    color: #667eea;
+    /* Precisión - azul */
+}
+
+.stat:nth-child(3) .statValue {
+    color: #ff6b6b;
+    /* Tiempo usado - rojo */
+}
+
+.stat:nth-child(4) .statValue {
+    color: #fdcb6e;
+    /* Preguntas consecutivas - amarillo */
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .results {
+        padding: 30px 20px;
+        margin: 10px;
+    }
+
+    .header h2 {
+        font-size: 24px;
+    }
+
+    .message {
+        font-size: 18px;
+    }
+
+    .stats {
+        gap: 30px;
+        margin: 30px 0;
+    }
+
+    .statValue {
+        font-size: 32px;
+    }
+
+    .restartButton {
+        padding: 14px 28px;
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .results {
+        padding: 20px 15px;
+    }
+
+    .header h2 {
+        font-size: 22px;
+    }
+
+    .message {
+        font-size: 16px;
+    }
+
+    .stats {
+        gap: 20px;
+        margin: 25px 0;
+    }
+
+    .stat {
+        min-width: 80px;
+    }
+
+    .statValue {
+        font-size: 28px;
+    }
+
+    .statLabel {
+        font-size: 12px;
+    }
+
+    .restartButton {
+        padding: 12px 24px;
+        font-size: 16px;
+        min-width: 180px;
+    }
 }
