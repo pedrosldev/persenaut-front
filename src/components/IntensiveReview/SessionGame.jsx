@@ -7,9 +7,10 @@ const SessionGame = ({ session, onEnd }) => {
   const [correctAnswers, setCorrectAnswers] = useState([]);
   const [incorrectAnswers, setIncorrectAnswers] = useState([]);
   const [timeRemaining, setTimeRemaining] = useState(
-    session.gameMode === "timed" ? 180 : null // ← Tiempo solo para modo ráfaga
+    session.gameMode === "timed" ? 180 : null
   );
   const [gameActive, setGameActive] = useState(true);
+  const [gameState, setGameState] = useState("playing"); // 'playing', 'ended', 'showingResults'
 
   const currentChallenge = session.challenges[currentIndex];
 
@@ -22,7 +23,7 @@ const SessionGame = ({ session, onEnd }) => {
 
   // Timer countdown SOLO para modo ráfaga
   useEffect(() => {
-    if (session.gameMode !== "timed") return; // ← Solo ejecutar para modo ráfaga
+    if (session.gameMode !== "timed") return;
     if (!gameActive || timeRemaining <= 0) return;
 
     const timer = setInterval(() => {
@@ -30,10 +31,13 @@ const SessionGame = ({ session, onEnd }) => {
         if (prev <= 1) {
           clearInterval(timer);
           setGameActive(false);
-          setTimeout(
-            () => handleEndSession(correctAnswers, incorrectAnswers),
-            500
-          );
+          setGameState("ended");
+          setTimeout(() => {
+            setGameState("showingResults");
+            setTimeout(() => {
+              handleEndSession(correctAnswers, incorrectAnswers);
+            }, 1500);
+          }, 2000);
           return 0;
         }
         return prev - 1;
@@ -47,7 +51,7 @@ const SessionGame = ({ session, onEnd }) => {
     correctAnswers,
     incorrectAnswers,
     handleEndSession,
-    session.gameMode, // ← Dependencia importante
+    session.gameMode,
   ]);
 
   const handleAnswer = (selectedOption) => {
@@ -63,14 +67,16 @@ const SessionGame = ({ session, onEnd }) => {
       // En modo supervivencia, terminar al fallar
       if (session.gameMode === "survival") {
         setGameActive(false);
-        setTimeout(
-          () =>
+        setGameState("ended");
+        setTimeout(() => {
+          setGameState("showingResults");
+          setTimeout(() => {
             handleEndSession(correctAnswers, [
               ...incorrectAnswers,
               currentChallenge.id,
-            ]),
-          500
-        );
+            ]);
+          }, 1500);
+        }, 2000);
         return;
       }
     }
@@ -80,7 +86,13 @@ const SessionGame = ({ session, onEnd }) => {
       setCurrentIndex((prev) => prev + 1);
     } else {
       setGameActive(false);
-      setTimeout(() => handleEndSession(correctAnswers, incorrectAnswers), 500);
+      setGameState("ended");
+      setTimeout(() => {
+        setGameState("showingResults");
+        setTimeout(() => {
+          handleEndSession(correctAnswers, incorrectAnswers);
+        }, 1500);
+      }, 2000);
     }
   };
 
@@ -99,6 +111,48 @@ const SessionGame = ({ session, onEnd }) => {
       : "⚡ Ráfaga Contra Reloj";
   };
 
+  const getEndMessage = () => {
+    if (session.gameMode === "survival") {
+      return incorrectAnswers.length > 0 ? "¡Has fallado!" : "¡Completado!";
+    }
+    return "¡Tiempo completado!";
+  };
+
+  const getTransitionMessage = () => {
+    if (session.gameMode === "survival") {
+      return incorrectAnswers.length > 0
+        ? "Analizando tu racha..."
+        : "¡Racha perfecta!";
+    }
+    return "Calculando tu velocidad...";
+  };
+
+  // Render condicional por estado del juego
+  if (gameState === "ended") {
+    return (
+      <div className={styles.gameEndTransition}>
+        <div className={styles.transitionContent}>
+          <h2>{getEndMessage()}</h2>
+          <div className={styles.pulseAnimation}>🎯</div>
+          <p>Preparando tus resultados...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (gameState === "showingResults") {
+    return (
+      <div className={styles.resultsTransition}>
+        <div className={styles.transitionContent}>
+          <h3>🎯 {getTransitionMessage()}</h3>
+          <div className={styles.loadingSpinner}></div>
+          <p>¡Tu desempeño fue increíble!</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Estado normal de juego
   return (
     <div className={styles.game}>
       <div className={styles.header}>
@@ -113,11 +167,6 @@ const SessionGame = ({ session, onEnd }) => {
             {session.gameMode === "timed" ? "⏱️" : "🏆"}{" "}
             {formatTime(timeRemaining)}
           </div>
-          {!gameActive && (
-            <div className={styles.timeUp}>
-              {session.gameMode === "survival" ? "¡Has fallado!" : "¡Tiempo!"}
-            </div>
-          )}
         </div>
 
         <div className={styles.progressBar}>
@@ -163,22 +212,6 @@ const SessionGame = ({ session, onEnd }) => {
           ))}
         </div>
       </div>
-
-      {!gameActive && (
-        <div className={styles.gameOver}>
-          <p>
-            {session.gameMode === "survival"
-              ? "¡Has fallado una pregunta!"
-              : "El tiempo ha terminado"}
-          </p>
-          <button
-            onClick={() => handleEndSession(correctAnswers, incorrectAnswers)}
-            className={styles.resultsButton}
-          >
-            Ver Resultados
-          </button>
-        </div>
-      )}
     </div>
   );
 };
