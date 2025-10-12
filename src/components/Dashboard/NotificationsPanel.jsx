@@ -26,11 +26,19 @@ const NotificationsPanel = ({ user, onChallengeSelect }) => {
     }
   }, [user?.id]); // ✅ Dependencia: user.id
 
+  // ✅ Cargar notificaciones cuando el componente se monta o el usuario cambia
+  useEffect(() => {
+    if (user) {
+      loadPendingChallenges();
+    }
+  }, [user, loadPendingChallenges]); // ✅ Carga automáticamente
+
+  // ✅ Opcional: Recargar cuando se abre el panel también
   useEffect(() => {
     if (user && showPanel) {
       loadPendingChallenges();
     }
-  }, [user, showPanel, loadPendingChallenges]); // ✅ Ahora incluye loadPendingChallenges
+  }, [user, showPanel, loadPendingChallenges]);
 
   const handleStartChallenge = async (challenge) => {
     try {
