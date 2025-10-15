@@ -1,0 +1,360 @@
+/* components/Dashboard/MetricsDashboard.module.css */
+
+/* Contenedor principal */
+.dashboard {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Header y pestañas */
+.header {
+    margin-bottom: 30px;
+    border-bottom: 2px solid #f1f3f4;
+    padding-bottom: 20px;
+}
+
+.header h1 {
+    color: #333;
+    margin-bottom: 20px;
+    font-size: 28px;
+}
+
+.tabs {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.tab {
+    padding: 10px 20px;
+    background: #f8f9fa;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.tab:hover {
+    background: #e9ecef;
+}
+
+.tab.active {
+    background: #667eea;
+    color: white;
+}
+
+/* Contenido */
+.content {
+    min-height: 400px;
+}
+
+/* Estados de carga y sin datos */
+.loading,
+.noData {
+    text-align: center;
+    padding: 60px 20px;
+    color: #666;
+    font-size: 18px;
+}
+
+/* Pestaña de Resumen */
+.overview {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+/* Tarjeta de puntuación principal */
+.scoreCard {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 30px;
+    border-radius: 12px;
+    text-align: center;
+}
+
+.scoreHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.scoreHeader h2 {
+    margin: 0;
+    font-size: 24px;
+}
+
+.levelBadge {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.scoreValue {
+    font-size: 48px;
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+.progressBar {
+    width: 100%;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 20px 0;
+}
+
+.progressFill {
+    height: 100%;
+    background: white;
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+
+.nextLevel {
+    margin: 0;
+    opacity: 0.9;
+    font-size: 14px;
+}
+
+/* Grid de estadísticas */
+.statsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 20px;
+}
+
+.statCard {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    border: 1px solid #e9ecef;
+}
+
+.statIcon {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.statValue {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.statLabel {
+    color: #666;
+    font-size: 14px;
+}
+
+/* Modos de juego */
+.gameModes {
+    background: #f8f9fa;
+    padding: 25px;
+    border-radius: 8px;
+}
+
+.gameModes h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.modesGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.modeCard {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+.modeName {
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.modeStats {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #666;
+}
+
+/* Pestaña de Sesiones */
+.sessionsList {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.sessionCard {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    border-left: 4px solid #667eea;
+}
+
+.sessionHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.sessionTheme {
+    font-weight: 600;
+    color: #333;
+}
+
+.sessionMode {
+    font-size: 18px;
+}
+
+.sessionStats {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 10px;
+    font-size: 14px;
+    color: #666;
+}
+
+.sessionDate {
+    font-size: 12px;
+    color: #999;
+}
+
+/* Pestaña de Temas */
+.themesList {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.themeCard {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.themeHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.themeName {
+    font-weight: 600;
+    color: #333;
+}
+
+.themeAccuracy {
+    font-weight: bold;
+    color: #667eea;
+}
+
+.accuracyBar {
+    width: 100%;
+    height: 6px;
+    background: #e9ecef;
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+
+.accuracyFill {
+    height: 100%;
+    background: linear-gradient(90deg, #667eea, #764ba2);
+    border-radius: 3px;
+    transition: width 0.3s ease;
+}
+
+.themeStats {
+    display: flex;
+    gap: 20px;
+    font-size: 12px;
+    color: #666;
+}
+
+/* Pestaña de Logros */
+.achievementsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.achievementCard {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+.achievementIcon {
+    font-size: 24px;
+}
+
+.achievementInfo {
+    flex: 1;
+}
+
+.achievementName {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.achievementDesc {
+    font-size: 14px;
+    color: #666;
+}
+
+.achievementDate {
+    font-size: 12px;
+    color: #999;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .dashboard {
+        padding: 15px;
+        margin: 10px;
+    }
+
+    .tabs {
+        justify-content: center;
+    }
+
+    .statsGrid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .sessionStats {
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .achievementsGrid {
+        grid-template-columns: 1fr;
+    }
+}

@@ -44,9 +44,44 @@ const IntensiveReview = ({ user }) => {
     [user.id]
   );
 
+  // const endSession = useCallback(
+  //   async (correctAnswers, incorrectAnswers, timeRemaining = 0) => {
+  //     try {
+  //       const response = await fetch(SAVE_RESULTS_INTENSIVE_REVIEW_API, {
+  //         method: "POST",
+  //         headers: { "Content-Type": "application/json" },
+  //         body: JSON.stringify({
+  //           sessionId: session.sessionId,
+  //           correctAnswers,
+  //           incorrectAnswers,
+  //           gameMode: session.gameMode, // ← Guardar el modo
+  //           timeUsed: session.gameMode === "timed" ? 180 - timeRemaining : null,
+  //         }),
+  //       });
+
+  //       if (!response.ok) throw new Error("Error al guardar resultados");
+
+  //       setResults({
+  //         correct: correctAnswers.length,
+  //         total: session.challenges.length,
+  //         gameMode: session.gameMode,
+  //         timeUsed: session.gameMode === "timed" ? 180 - timeRemaining : null,
+  //       });
+  //       setCurrentView("results");
+  //     } catch (error) {
+  //       alert("Error al guardar resultados: " + error.message);
+  //     }
+  //   },
+  //   [session]
+  // );
+
+  // En src/components/IntensiveReview/IntensiveReview.jsx
   const endSession = useCallback(
-    async (correctAnswers, incorrectAnswers, timeRemaining = 0) => {
+    async (correctAnswers, incorrectAnswers, timeRemaining = 0, theme) => {
       try {
+        const timeUsed =
+          session.gameMode === "timed" ? 180 - timeRemaining : timeRemaining;
+
         const response = await fetch(SAVE_RESULTS_INTENSIVE_REVIEW_API, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -54,19 +89,25 @@ const IntensiveReview = ({ user }) => {
             sessionId: session.sessionId,
             correctAnswers,
             incorrectAnswers,
-            gameMode: session.gameMode, // ← Guardar el modo
-            timeUsed: session.gameMode === "timed" ? 180 - timeRemaining : null,
+            gameMode: session.gameMode,
+            timeUsed: timeUsed,
+            theme: theme || session.theme,
           }),
         });
 
         if (!response.ok) throw new Error("Error al guardar resultados");
 
+        const result = await response.json();
+
         setResults({
           correct: correctAnswers.length,
           total: session.challenges.length,
           gameMode: session.gameMode,
-          timeUsed: session.gameMode === "timed" ? 180 - timeRemaining : null,
+          timeUsed: timeUsed,
+          points: result.points, // ← Nuevo
+          accuracy: result.accuracy, // ← Nuevo
         });
+
         setCurrentView("results");
       } catch (error) {
         alert("Error al guardar resultados: " + error.message);
@@ -74,7 +115,6 @@ const IntensiveReview = ({ user }) => {
     },
     [session]
   );
-
   const restart = useCallback(() => {
     setSession(null);
     setResults(null);

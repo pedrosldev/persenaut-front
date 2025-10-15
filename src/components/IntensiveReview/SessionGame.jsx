@@ -14,11 +14,18 @@ const SessionGame = ({ session, onEnd }) => {
 
   const currentChallenge = session.challenges[currentIndex];
 
+  // const handleEndSession = useCallback(
+  //   (finalCorrect, finalIncorrect) => {
+  //     onEnd(finalCorrect, finalIncorrect, timeRemaining);
+  //   },
+  //   [onEnd, timeRemaining]
+  // );
   const handleEndSession = useCallback(
     (finalCorrect, finalIncorrect) => {
-      onEnd(finalCorrect, finalIncorrect, timeRemaining);
+      console.log("🎯 DEBUG SessionGame - Enviando theme:", session.theme);
+      onEnd(finalCorrect, finalIncorrect, timeRemaining, session.theme);
     },
-    [onEnd, timeRemaining]
+    [onEnd, timeRemaining, session.theme]
   );
 
   // Timer countdown SOLO para modo ráfaga
