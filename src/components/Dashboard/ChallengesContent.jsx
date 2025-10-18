@@ -1,7 +1,7 @@
 import { useState } from "react";
 import styles from "./ChallengesContent.module.css";
 import QuestionForm from "../QuestionForm";
-import { useQuestionHistory } from "../hooks/useQuestionHistory"; // ✅ Añadir hook
+import { useQuestionHistory } from "../../hooks/useQuestionHistory"; // ✅ Añadir hook
 import { generateAndSaveQuestion } from "../../services/apiService";
 
 const ChallengesContent = ({ user }) => {
