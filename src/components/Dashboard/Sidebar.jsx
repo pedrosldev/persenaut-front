@@ -8,6 +8,7 @@ const Sidebar = ({ currentSection, onSectionChange, user, onLogout }) => {
     { id: "challenges", label: "Programar retos", icon: "🎯" },
     { id: "intensiveReview", label: "Repaso intensivo", icon: "🔄" },
     { id: "metrics", label: "Mis Métricas", icon: "📈" },
+    { id: "themes", label: "Mis Temas", icon: "🗂️" },
     { id: "settings", label: "Configuración", icon: "⚙️" },
   ];
 
