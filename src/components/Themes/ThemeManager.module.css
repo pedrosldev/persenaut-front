@@ -168,20 +168,28 @@
     padding: 12px;
     margin-top: 12px;
     display: flex;
+    flex-direction: column;
+    /* Cambiado de flex a flex-column */
     gap: 12px;
-    align-items: flex-start;
+    align-items: stretch;
+    /* Para que los hijos ocupen todo el ancho */
 }
 
 .warningIcon {
     font-size: 18px;
+    text-align: center;
+    /* Centrar el icono */
 }
 
 .confirmText {
     flex: 1;
+    text-align: center;
+    /* Centrar el texto */
 }
 
 .confirmText p {
-    margin: 0 0 4px 0;
+    margin: 0 0 8px 0;
+    /* Más espacio entre párrafos */
     font-size: 14px;
     line-height: 1.4;
 }
@@ -189,33 +197,70 @@
 .warning {
     color: #856404;
     font-weight: 600;
+    font-size: 13px;
 }
 
 .confirmActions {
     display: flex;
+    flex-direction: column;
     gap: 8px;
-    flex-shrink: 0;
+    width: 100%;
 }
 
 .confirmYes {
-    background: #dc3545;
+    background: #28a745;
+    /* Verde para "Solo este nivel" */
     color: white;
     border: none;
-    padding: 6px 12px;
-    border-radius: 4px;
+    padding: 10px 16px;
+    border-radius: 6px;
     cursor: pointer;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 600;
+    transition: background 0.2s;
+    width: 100%;
+}
+
+.confirmYes:hover {
+    background: #218838;
+}
+
+.confirmDanger {
+    background: #dc3545;
+    /* Rojo para "Eliminar TODO" */
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: background 0.2s;
+    width: 100%;
+}
+
+.confirmDanger:hover {
+    background: #c82333;
 }
 
 .confirmNo {
     background: #6c757d;
+    /* Gris para cancelar */
     color: white;
     border: none;
-    padding: 6px 12px;
-    border-radius: 4px;
+    padding: 10px 16px;
+    border-radius: 6px;
     cursor: pointer;
-    font-size: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    transition: background 0.2s;
+    width: 100%;
+    margin-top: 5px;
+    /* Separación extra del botón cancelar */
+}
+
+.confirmNo:hover {
+    background: #5a6268;
 }
 
 .loading {
@@ -261,5 +306,19 @@
 
     .dates {
         text-align: left;
+    }
+}
+@media (min-width: 768px) {
+    .confirmActions {
+        flex-direction: row;
+        justify-content: space-between;
+    }
+
+    .confirmYes,
+    .confirmDanger,
+    .confirmNo {
+        width: auto;
+        flex: 1;
+        margin: 0 4px;
     }
 }

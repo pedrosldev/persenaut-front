@@ -67,4 +67,35 @@ export const themeService = {
       throw new Error(`Error al eliminar los temas: ${error.message}`);
     }
   },
+  async deleteThemeWithLevel(theme, level, userId) {
+    try {
+      console.log("🎯 Eliminando tema con nivel:", { theme, level });
+
+      const encodedTheme = encodeURIComponent(theme);
+      const encodedLevel = encodeURIComponent(level);
+
+      const response = await fetch(
+        `${API_THEMES}/${encodedTheme}/${encodedLevel}`,
+        {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId }),
+        }
+      );
+
+      console.log("📨 Status de respuesta:", response.status);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || `Error ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log("✅ Tema con nivel eliminado:", result);
+      return result;
+    } catch (error) {
+      console.error("❌ Error en deleteThemeWithLevel:", error);
+      throw new Error(`Error al eliminar el tema: ${error.message}`);
+    }
+  }
 };

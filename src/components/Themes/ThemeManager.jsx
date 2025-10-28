@@ -44,8 +44,40 @@ const ThemeManager = ({ userId }) => {
     return colorMap[level] || "#6c757d";
   };
 
+  const handleDeleteTheme = async (theme, level) => {
+    try {
+      console.log("🎯 Eliminando tema específico:", { theme, level });
+
+      // Usar la NUEVA función que elimina por nivel específico
+      const result = await themeService.deleteThemeWithLevel(
+        theme,
+        level,
+        userId
+      );
+
+      // Actualizar estado local - filtrar por tema Y nivel exactos
+      setThemes(
+        themes.filter((t) => !(t.theme === theme && t.level === level))
+      );
+      setDeleteConfirm(null);
+
+      // Actualizar estadísticas
+      setStats((prev) => ({
+        totalThemes: prev.totalThemes - 1,
+        totalQuestions: prev.totalQuestions - result.deletedQuestions,
+      }));
+
+      alert(
+        `Tema "${theme}" (${level}) eliminado correctamente (${result.deletedQuestions} preguntas)`
+      );
+    } catch (error) {
+      console.error("❌ Error eliminando tema específico:", error);
+      alert(`Error: ${error.message}`);
+    }
+  };
+
   // ELIMINAR TEMA COMPLETO (SOLO TEMA)
-  const handleDeleteTheme = async (theme) => {
+  const handleDeleteCompleteTheme = async (theme) => {
     try {
       console.log("🎯 Eliminando tema completo:", theme);
       const result = await themeService.deleteTheme(theme, userId);
@@ -171,9 +203,12 @@ const ThemeManager = ({ userId }) => {
                   </div>
                 </div>
 
+                {/* BOTÓN CORREGIDO - pasar theme Y level */}
                 <button
                   className={styles.deleteBtn}
-                  onClick={() => setDeleteConfirm(theme.theme)}
+                  onClick={() =>
+                    setDeleteConfirm(`${theme.theme}-${theme.level}`)
+                  }
                   title="Eliminar este tema y TODAS sus preguntas"
                 >
                   🗑️
@@ -185,29 +220,35 @@ const ThemeManager = ({ userId }) => {
                 <span>Última: {formatDate(theme.last_created)}</span>
               </div>
 
-              {deleteConfirm === theme.theme && (
+              {/* CONDICIÓN CORRECTA - ya estaba bien */}
+              {deleteConfirm === `${theme.theme}-${theme.level}` && (
                 <div className={styles.confirmDelete}>
                   <div className={styles.warningIcon}>⚠️</div>
                   <div className={styles.confirmText}>
                     <p>
-                      <strong>
-                        ¿Eliminar tema "{theme.theme}" COMPLETAMENTE?
-                      </strong>
+                      <strong>¿Qué quieres eliminar?</strong>
                     </p>
                     <p>
-                      Se eliminarán TODAS las preguntas de este tema en todos
-                      los niveles.
+                      Tema: "{theme.theme}" ({theme.level})
                     </p>
                     <p className={styles.warning}>
-                      Esta acción no se puede deshacer.
+                      Se eliminarán {theme.total_questions} preguntas
                     </p>
                   </div>
                   <div className={styles.confirmActions}>
                     <button
                       className={styles.confirmYes}
-                      onClick={() => handleDeleteTheme(theme.theme)}
+                      onClick={() =>
+                        handleDeleteTheme(theme.theme, theme.level)
+                      }
                     >
-                      Sí, eliminar todo
+                      Solo este nivel ({theme.level})
+                    </button>
+                    <button
+                      className={styles.confirmDanger}
+                      onClick={() => handleDeleteCompleteTheme(theme.theme)}
+                    >
+                      Eliminar TODO el tema
                     </button>
                     <button
                       className={styles.confirmNo}
