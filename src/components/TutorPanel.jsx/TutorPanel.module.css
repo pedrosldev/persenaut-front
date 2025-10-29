@@ -1,0 +1,119 @@
+.tutorPanel {
+    background: white;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.tutorHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.tutorHeader h3 {
+    color: #333;
+    margin: 0;
+}
+
+.timeRangeSelect {
+    padding: 5px 10px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+}
+
+.analysisSection {
+    margin-bottom: 20px;
+}
+
+.analysisSection h4 {
+    color: #667eea;
+    margin-bottom: 10px;
+}
+
+.recommendationsGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.recommendationColumn ul {
+    list-style: none;
+    padding: 0;
+}
+
+.recommendationColumn li {
+    padding: 5px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.recommendation {
+    background: #f8f9ff;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    border-left: 4px solid #667eea;
+}
+
+.recommendation.high {
+    border-left-color: #e74c3c;
+}
+
+.recommendation.medium {
+    border-left-color: #f39c12;
+}
+
+.recommendation.low {
+    border-left-color: #27ae60;
+}
+
+.priorityBadge {
+    background: #667eea;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    text-transform: uppercase;
+}
+
+.goalsSection ul {
+    list-style: none;
+    padding: 0;
+}
+
+.goalsSection li {
+    padding: 8px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.encouragement {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 15px;
+    border-radius: 10px;
+    text-align: center;
+    margin: 20px 0;
+}
+
+.refreshButton {
+    background: #667eea;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    width: 100%;
+}
+
+.refreshButton:hover {
+    background: #5a6fd8;
+}
+
+.loading {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+}

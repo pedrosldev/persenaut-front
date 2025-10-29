@@ -3,6 +3,7 @@ import { useState } from "react";
 import styles from "./DashboardContent.module.css";
 import NotificationsPanel from "./NotificationsPanel";
 import ChallengeResolver from "./ChallengeResolver";
+import TutorPanel from "../TutorPanel.jsx/TutorPanel";
 
 const DashboardContent = ({ user }) => {
   const [activeInfo, setActiveInfo] = useState("progress");
@@ -34,6 +35,7 @@ const DashboardContent = ({ user }) => {
           <ChallengeResolver
             challenge={currentChallenge}
             onComplete={handleChallengeComplete}
+            userId={user.id}
           />
         ) : (
           <div>
@@ -67,54 +69,7 @@ const DashboardContent = ({ user }) => {
               </div>
             </div>
 
-            <div className={styles.dashboardInfo}>
-              <div
-                className={styles.infoSection}
-                style={{
-                  display: activeInfo === "progress" ? "block" : "none",
-                }}
-              >
-                <h3>Tu progreso semanal</h3>
-                <p>
-                  Has completado el 65% de tus objetivos esta semana. ¡Sigue
-                  así!
-                </p>
-                <div className={styles.progressBar}>
-                  <div
-                    className={styles.progress}
-                    style={{ width: "65%" }}
-                  ></div>
-                </div>
-              </div>
-
-              <div
-                className={styles.infoSection}
-                style={{
-                  display: activeInfo === "activity" ? "block" : "none",
-                }}
-              >
-                <h3>Actividad reciente</h3>
-                <ul>
-                  <li>Completaste 5 tareas ayer</li>
-                  <li>Nuevo récord: 3 días consecutivos</li>
-                  <li>Logro "Consistencia" desbloqueado</li>
-                </ul>
-              </div>
-
-              <div
-                className={styles.infoSection}
-                style={{
-                  display: activeInfo === "achievements" ? "block" : "none",
-                }}
-              >
-                <h3>Logros desbloqueados</h3>
-                <div className={styles.badges}>
-                  <div className={styles.badge}>🏆 Primer paso</div>
-                  <div className={styles.badge}>⭐ 3 días seguidos</div>
-                  <div className={styles.badge}>🚀 Productividad</div>
-                </div>
-              </div>
-            </div>
+            <TutorPanel userId={user.id} />
           </div>
         )}
       </div>

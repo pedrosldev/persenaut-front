@@ -1,6 +1,7 @@
 const API_ENDPOINT = import.meta.env.VITE_API_ENDPOINT;
 const GROQ_API = import.meta.env.VITE_GROQ_API;
 const  NOTES_API = import.meta.env.VITE_GENERATE_FROM_NOTES_API;
+const API_TUTOR = import.meta.env.VITE_API_TUTOR;
 
 
 
@@ -86,5 +87,25 @@ export const testGroq = async (data) => {
   } catch (err) {
     console.error(err);
     throw err;
+  }
+};
+
+// En tu apiService.js - AÑADE ESTO
+export const getTutorAdvice = async (userId, timeRange = 'week') => {
+  try {
+    const response = await fetch(`${API_TUTOR}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId, timeRange }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error getting tutor advice:", error);
+    throw error;
   }
 };
