@@ -6,17 +6,15 @@ import ChallengeResolver from "./ChallengeResolver";
 import TutorPanel from "../TutorPanel.jsx/TutorPanel";
 
 const DashboardContent = ({ user }) => {
-  const [activeInfo, setActiveInfo] = useState("progress");
+
   const [currentChallenge, setCurrentChallenge] = useState(null);
-  const handleCardClick = (target) => {
-    setActiveInfo(target);
-  };
+
   const handleChallengeSelect = (challenge) => {
     setCurrentChallenge(challenge);
   };
   const handleChallengeComplete = () => {
     setCurrentChallenge(null);
-    // Recargar notificaciones si es necesario
+    
   };
   return (
     <>
@@ -39,35 +37,7 @@ const DashboardContent = ({ user }) => {
           />
         ) : (
           <div>
-            <div className={styles.cardsContainer}>
-              <div
-                className={`${styles.card} ${
-                  activeInfo === "progress" ? styles.selected : ""
-                }`}
-                onClick={() => handleCardClick("progress")}
-              >
-                <h4>Estadísticas de progreso</h4>
-                <p>Ver tu evolución y métricas</p>
-              </div>
-              <div
-                className={`${styles.card} ${
-                  activeInfo === "activity" ? styles.selected : ""
-                }`}
-                onClick={() => handleCardClick("activity")}
-              >
-                <h4>Actividad reciente</h4>
-                <p>Tu historial de acciones</p>
-              </div>
-              <div
-                className={`${styles.card} ${
-                  activeInfo === "achievements" ? styles.selected : ""
-                }`}
-                onClick={() => handleCardClick("achievements")}
-              >
-                <h4>Logros desbloqueados</h4>
-                <p>Tus conquistas y metas</p>
-              </div>
-            </div>
+
 
             <TutorPanel userId={user.id} />
           </div>
