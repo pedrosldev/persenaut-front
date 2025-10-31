@@ -1,6 +1,7 @@
 // components/IntensiveReview/SessionGame.jsx
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import styles from "./SessionGame.module.css";
+import { saveIntensiveResponse } from "../../services/apiService";
 
 const SessionGame = ({ session, onEnd }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -10,16 +11,40 @@ const SessionGame = ({ session, onEnd }) => {
     session.gameMode === "timed" ? 180 : null
   );
   const [gameActive, setGameActive] = useState(true);
-  const [gameState, setGameState] = useState("playing"); // 'playing', 'ended', 'showingResults'
-
+  const [gameState, setGameState] = useState("playing");
+  const questionStartTime = useRef(Date.now());
   const currentChallenge = session.challenges[currentIndex];
 
-  // const handleEndSession = useCallback(
-  //   (finalCorrect, finalIncorrect) => {
-  //     onEnd(finalCorrect, finalIncorrect, timeRemaining);
-  //   },
-  //   [onEnd, timeRemaining]
-  // );
+  useEffect(() => {
+    questionStartTime.current = Date.now();
+  }, [currentIndex]);
+
+  // ✅ FUNCIÓN SIMPLIFICADA usando apiService
+  const saveIntensiveResponseToAPI = async (
+    questionId,
+    selectedAnswer,
+    isCorrect,
+    responseTime
+  ) => {
+    if (!session?.sessionId) {
+      console.warn("No sessionId disponible");
+      return;
+    }
+
+    try {
+      await saveIntensiveResponse({
+        sessionId: session.sessionId,
+        questionId: questionId,
+        selectedAnswer: selectedAnswer,
+        isCorrect: isCorrect,
+        responseTime: responseTime,
+      });
+      console.log("✅ Respuesta intensiva guardada");
+    } catch (error) {
+      console.error("❌ Error guardando respuesta:", error);
+    }
+  };
+
   const handleEndSession = useCallback(
     (finalCorrect, finalIncorrect) => {
       console.log("🎯 DEBUG SessionGame - Enviando theme:", session.theme);
@@ -64,7 +89,19 @@ const SessionGame = ({ session, onEnd }) => {
   const handleAnswer = (selectedOption) => {
     if (!gameActive) return;
 
+    const endTime = Date.now();
+    const responseTime = Math.floor(
+      (endTime - questionStartTime.current) / 1000
+    );
     const isCorrect = selectedOption === currentChallenge.correct_answer;
+
+    // ✅ USA la nueva función con apiService
+    saveIntensiveResponseToAPI(
+      currentChallenge.id,
+      selectedOption,
+      isCorrect,
+      responseTime
+    );
 
     if (isCorrect) {
       setCorrectAnswers((prev) => [...prev, currentChallenge.id]);
