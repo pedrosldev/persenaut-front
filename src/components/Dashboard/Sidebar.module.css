@@ -1,4 +1,4 @@
-/* src/components/Dashboard/Sidebar/Sidebar.module.css */
+/* --- Sidebar.module.css --- */
 .sidebar {
     width: 250px;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -7,9 +7,65 @@
     flex-direction: column;
     position: fixed;
     height: 100%;
+    left: 0;
+    top: 0;
+    transition: transform 0.3s ease;
     box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
 }
 
+/* Oculta el menú en móviles */
+@media (max-width: 768px) {
+    .sidebar {
+        transform: translateX(-100%);
+        width: 70%;
+        max-width: 300px;
+        z-index: 999;
+    }
+
+    .sidebar.open {
+        transform: translateX(0);
+    }
+         .sidebar.open::before {
+             content: '';
+             position: fixed;
+             top: 0;
+             left: 0;
+             width: 100vw;
+             height: 100vh;
+             background: rgba(0, 0, 0, 0.5);
+             z-index: -1;
+         }
+}
+
+/* Botón hamburguesa */
+.hamburger {
+    display: none;
+    /* ← Esto lo oculta en todas las pantallas */
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    z-index: 1000;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    border-radius: 4px;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(10px);
+}
+
+/* Solo visible en móviles */
+@media (max-width: 768px) {
+    .hamburger {
+        display: block;
+    }
+}
+
+/* Resto igual que antes */
 .logoContainer {
     padding: 20px;
     text-align: center;
@@ -62,14 +118,6 @@
     text-align: center;
 }
 
-.userSection div {
-    margin-left: 10px;
-    font-size: 1rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
 .logoutBtn {
     background-color: #d4af37;
     color: #1a1a1a;
@@ -87,12 +135,4 @@
 .logoutBtn:hover {
     background-color: #c9a42d;
     transform: translateY(-2px);
-}
-
-@media (max-width: 768px) {
-    .sidebar {
-        width: 100%;
-        height: auto;
-        position: relative;
-    }
 }

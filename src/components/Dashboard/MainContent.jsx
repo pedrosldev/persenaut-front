@@ -5,6 +5,7 @@ import ChallengesContent from "./ChallengesContent";
 import SettingsContent from "./SettingsContent";
 import IntensiveReview from "../IntensiveReview/IntensiveReview";
 import MetricsDashboard from "./MetricsDashboard";
+import ThemeManager from "../Themes/ThemeManager";
 import styles from "./MainContent.module.css";
 
 const MainContent = ({ currentSection, user }) => {
@@ -22,6 +23,8 @@ const MainContent = ({ currentSection, user }) => {
         return <IntensiveReview user={user} />;
       case "metrics":
         return <MetricsDashboard user={user} />;
+      case "themes":
+        return <ThemeManager userId={user.id} />;
       default:
         return <DashboardContent user={user} />;
     }

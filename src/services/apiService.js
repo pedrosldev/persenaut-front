@@ -1,7 +1,10 @@
 const API_ENDPOINT = import.meta.env.VITE_API_ENDPOINT;
 const GROQ_API = import.meta.env.VITE_GROQ_API;
 const  NOTES_API = import.meta.env.VITE_GENERATE_FROM_NOTES_API;
-
+const API_TUTOR = import.meta.env.VITE_API_TUTOR;
+const SAVE_RESPONSE_API = import.meta.env.VITE_API_SAVE_RESPONSE;
+const SAVE_INTENSIVE_RESPONSES_API = import.meta.env
+  .VITE_SAVE_INTENSIVE_RESPONSES_API;
 
 
 export const generateAndSaveQuestion = async (questionData) => {
@@ -86,5 +89,65 @@ export const testGroq = async (data) => {
   } catch (err) {
     console.error(err);
     throw err;
+  }
+};
+
+// En tu apiService.js - AÑADE ESTO
+export const getTutorAdvice = async (userId, timeRange = 'week') => {
+  try {
+    const response = await fetch(`${API_TUTOR}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId, timeRange }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error getting tutor advice:", error);
+    throw error;
+  }
+};
+
+// ✅ PARA RESPUESTAS NORMALES
+export const saveUserResponse = async (responseData) => {
+  try {
+    const response = await fetch(SAVE_RESPONSE_API, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(responseData),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error saving user response:", error);
+    throw error;
+  }
+};
+
+// ✅ PARA RESPUESTAS INTENSIVAS
+export const saveIntensiveResponse = async (responseData) => {
+  try {
+    const response = await fetch(SAVE_INTENSIVE_RESPONSES_API, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(responseData),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error saving intensive response:", error);
+    throw error;
   }
 };

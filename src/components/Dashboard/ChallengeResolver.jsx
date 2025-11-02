@@ -1,21 +1,64 @@
-// components/ChallengeResolver/ChallengeResolver.jsx
-import React, { useState, useEffect } from "react";
+// components/ChallengeResolver/ChallengeResolver.jsx - VERSIÓN UNIFICADA
+import React, { useState, useEffect, useRef } from "react";
 import QuestionDisplay from "../QuestionDisplay";
 import styles from "./ChallengeResolver.module.css";
+import {
+  saveUserResponse,
 
-const ChallengeResolver = ({ challenge, onComplete }) => {
+} from "../../services/apiService";
+
+const ChallengeResolver = ({
+  challenge,
+  onComplete,
+  userId,
+  mode = "normal",
+  sessionId = null,
+}) => {
   const [selectedOption, setSelectedOption] = useState(null);
   const [showAnswer, setShowAnswer] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [saveResult, setSaveResult] = useState(null);
 
-    useEffect(() => {
-      setSelectedOption(null);
-      setShowAnswer(false);
-      setIsCompleted(false);
-      console.log("🔄 Estado reiniciado para nuevo reto"); // Opcional para depuración
-    }, [challenge]);
+  const startTime = useRef(null);
 
-  // Transformar los datos del challenge al formato que espera QuestionDisplay
+  useEffect(() => {
+    setSelectedOption(null);
+    setShowAnswer(false);
+    setIsCompleted(false);
+    setIsSubmitting(false);
+    setSaveResult(null);
+    startTime.current = Date.now();
+    console.log("🔄 Estado reiniciado para nuevo reto");
+  }, [challenge]);
+
+  // ✅ FUNCIÓN ÚNICA PARA AMBOS MODOS
+  const saveResponse = async () => {
+    if (!userId || !challenge?.id) {
+      console.warn("⚠️ No se puede guardar: falta userId o challenge.id");
+      return null;
+    }
+
+    const endTime = Date.now();
+    const responseTime = Math.floor((endTime - startTime.current) / 1000);
+
+    try {
+      const result= await saveUserResponse({
+        userId: userId,
+          questionId: challenge.id,
+          selectedAnswer: selectedOption,
+          responseTime: responseTime,
+        });
+        console.log("✅ Respuesta NORMAL guardada:", result);
+      
+
+      return result;
+    } catch (error) {
+      console.error("❌ Error guardando respuesta:", error);
+      return null;
+    }
+  };
+
   const questionData = {
     questionText: challenge.question,
     options: Array.isArray(challenge.options)
@@ -25,41 +68,55 @@ const ChallengeResolver = ({ challenge, onComplete }) => {
   };
 
   const handleOptionSelect = (optionLetter) => {
-    if (!isCompleted) {
+    if (!isCompleted && !isSubmitting) {
       setSelectedOption(optionLetter);
     }
   };
 
-  const handleShowAnswer = () => {
+  const handleShowAnswer = async () => {
+    if (!selectedOption) return;
+
+    setIsSubmitting(true);
+    const result = await saveResponse(); 
+    setSaveResult(result); 
     setShowAnswer(true);
     setIsCompleted(true);
+    setIsSubmitting(false);
   };
 
   const handleNext = () => {
     onComplete();
   };
 
-  const handleSubmit = () => {
-    if (selectedOption) {
-      setShowAnswer(true);
-      setIsCompleted(true);
-    }
-  };
+const handleSubmit = async () => {
+  if (selectedOption && !isSubmitting) {
+    setIsSubmitting(true);
+    const result = await saveResponse(); // ← Cambia el nombre aquí
+    setSaveResult(result);
+    setShowAnswer(true);
+    setIsCompleted(true);
+    setIsSubmitting(false);
+  }
+};
+
+  const isCorrect =
+    saveResult?.isCorrect !== undefined
+      ? saveResult.isCorrect
+      : selectedOption === challenge.correct_answer;
 
   return (
     <div className={styles.resolverContainer}>
       <div className={styles.challengeHeader}>
-        <h2>🎯 Resolver Reto</h2>
+        <h2>🎯 Resolver Reto {mode === "intensive" ? "(Intensivo)" : ""}</h2>
         <div className={styles.challengeInfo}>
           <span className={styles.theme}>{challenge.theme}</span>
           <span className={styles.level}>{challenge.level}</span>
-          {challenge.frequency && (
+          {challenge.frequency && mode !== "intensive" && (
             <span className={styles.frequency}>🔄 {challenge.frequency}</span>
           )}
         </div>
       </div>
 
-      {/* ✅ REUTILIZAMOS QuestionDisplay */}
       <QuestionDisplay
         data={questionData}
         showAnswer={showAnswer}
@@ -68,29 +125,40 @@ const ChallengeResolver = ({ challenge, onComplete }) => {
         onSelectOption={handleOptionSelect}
       />
 
-      {/* Acciones específicas del ChallengeResolver */}
+      {isSubmitting && (
+        <div className={styles.savingIndicator}>
+          💾 Guardando tu respuesta...
+        </div>
+      )}
+
       <div className={styles.actions}>
         {!showAnswer ? (
           <button
             className={`${styles.submitButton} ${
-              !selectedOption ? styles.disabled : ""
+              !selectedOption || isSubmitting ? styles.disabled : ""
             }`}
             onClick={handleSubmit}
-            disabled={!selectedOption}
+            disabled={!selectedOption || isSubmitting}
           >
-            📨 Enviar Respuesta
+            {isSubmitting ? "📨 Guardando..." : "📨 Enviar Respuesta"}
           </button>
         ) : (
           <div className={styles.resultActions}>
             <div className={styles.resultFeedback}>
-              {selectedOption === challenge.correct_answer ? (
+              {isCorrect ? (
                 <div className={styles.correctFeedback}>
                   ✅ ¡Excelente! Respuesta correcta
+                  {saveResult && (
+                    <div className={styles.saveStatus}>✓ Guardado</div>
+                  )}
                 </div>
               ) : (
                 <div className={styles.incorrectFeedback}>
                   ❌ Has seleccionado: {selectedOption} | Correcta:{" "}
                   {challenge.correct_answer}
+                  {saveResult && (
+                    <div className={styles.saveStatus}>✓ Guardado</div>
+                  )}
                 </div>
               )}
             </div>

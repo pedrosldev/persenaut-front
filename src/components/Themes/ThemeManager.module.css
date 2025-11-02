@@ -1,0 +1,324 @@
+.themeManager {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    margin: 20px 0;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.headerInfo h3 {
+    color: #333;
+    margin: 0 0 10px 0;
+}
+
+.stats {
+    display: flex;
+    gap: 15px;
+}
+
+.stat {
+    background: #f8f9fa;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 14px;
+    color: #666;
+    border: 1px solid #e9ecef;
+}
+
+.deleteSelectedBtn {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.deleteSelectedBtn:hover {
+    background: #c82333;
+}
+
+.themesGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 16px;
+}
+
+.themeCard {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 16px;
+    background: #fafafa;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.themeCard:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.themeHeader {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.checkbox {
+    margin-top: 5px;
+}
+
+.themeInfo {
+    flex: 1;
+}
+
+.themeName {
+    margin: 0 0 8px 0;
+    color: #333;
+    text-transform: capitalize;
+    font-size: 16px;
+    line-height: 1.3;
+}
+
+.themeMeta {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.level {
+    background: #667eea;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+}
+
+.questions {
+    background: #6c757d;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+}
+
+.deleteBtn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 5px;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+
+.deleteBtn:hover {
+    background: #ffebee;
+}
+
+.themeStats {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #e9ecef;
+}
+
+.accuracy {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.accuracyLabel {
+    font-size: 12px;
+    color: #666;
+}
+
+.accuracyValue {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.dates {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: 11px;
+    color: #666;
+    text-align: right;
+}
+
+.confirmDelete {
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    border-radius: 6px;
+    padding: 12px;
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    /* Cambiado de flex a flex-column */
+    gap: 12px;
+    align-items: stretch;
+    /* Para que los hijos ocupen todo el ancho */
+}
+
+.warningIcon {
+    font-size: 18px;
+    text-align: center;
+    /* Centrar el icono */
+}
+
+.confirmText {
+    flex: 1;
+    text-align: center;
+    /* Centrar el texto */
+}
+
+.confirmText p {
+    margin: 0 0 8px 0;
+    /* Más espacio entre párrafos */
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.warning {
+    color: #856404;
+    font-weight: 600;
+    font-size: 13px;
+}
+
+.confirmActions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+}
+
+.confirmYes {
+    background: #28a745;
+    /* Verde para "Solo este nivel" */
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: background 0.2s;
+    width: 100%;
+}
+
+.confirmYes:hover {
+    background: #218838;
+}
+
+.confirmDanger {
+    background: #dc3545;
+    /* Rojo para "Eliminar TODO" */
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: background 0.2s;
+    width: 100%;
+}
+
+.confirmDanger:hover {
+    background: #c82333;
+}
+
+.confirmNo {
+    background: #6c757d;
+    /* Gris para cancelar */
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: background 0.2s;
+    width: 100%;
+    margin-top: 5px;
+    /* Separación extra del botón cancelar */
+}
+
+.confirmNo:hover {
+    background: #5a6268;
+}
+
+.loading {
+    text-align: center;
+    padding: 40px;
+    color: #666;
+    font-size: 16px;
+}
+
+.emptyState {
+    text-align: center;
+    padding: 60px 20px;
+    color: #666;
+    grid-column: 1 / -1;
+}
+
+.emptySubtitle {
+    font-size: 14px;
+    margin-top: 8px;
+    opacity: 0.7;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .themesGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .header {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .stats {
+        justify-content: flex-start;
+    }
+
+    .themeStats {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .dates {
+        text-align: left;
+    }
+}
+@media (min-width: 768px) {
+    .confirmActions {
+        flex-direction: row;
+        justify-content: space-between;
+    }
+
+    .confirmYes,
+    .confirmDanger,
+    .confirmNo {
+        width: auto;
+        flex: 1;
+        margin: 0 4px;
+    }
+}
