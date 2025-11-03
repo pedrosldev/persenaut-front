@@ -13,8 +13,12 @@ const fetchTutorAdvice = useCallback(async () => {
     setLoading(true);
     const data = await getTutorAdvice(userId, timeRange);
 
-    if (data.success) {
+    if (data.analysis) {
+      setAdvice(data);
+    } else if (data.advice) {
       setAdvice(data.advice);
+    } else {
+      console.warn("Formato inesperado en la respuesta del tutor:", data);
     }
   } catch (error) {
     console.error("Error fetching tutor advice:", error);
