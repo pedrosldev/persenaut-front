@@ -35,7 +35,7 @@ const fetchTutorAdvice = useCallback(async () => {
   if (loading) {
     return (
       <div className={styles.tutorPanel}>
-        <h3>🤖 Tu Tutor IA</h3>
+        <h3><img src="/persenaut.svg" alt="" /> Tu Tutor IA</h3>
         <div className={styles.loading}>Analizando tu progreso...</div>
       </div>
     );
@@ -44,7 +44,9 @@ const fetchTutorAdvice = useCallback(async () => {
   if (!advice) {
     return (
       <div className={styles.tutorPanel}>
-        <h3>🤖 Tu Tutor IA</h3>
+        <h3>
+          <img src="/persenaut.svg" alt="" /> Tu Tutor IA
+        </h3>
         <div className={styles.error}>
           No se pudieron cargar las recomendaciones
         </div>
@@ -58,7 +60,9 @@ const fetchTutorAdvice = useCallback(async () => {
   return (
     <div className={styles.tutorPanel}>
       <div className={styles.tutorHeader}>
-        <h3>🤖 Tu Tutor IA</h3>
+        <h3>
+          <img src="/persenaut.svg" alt="" /> Tu Tutor IA
+        </h3>
         <select
           value={timeRange}
           onChange={(e) => setTimeRange(e.target.value)}
