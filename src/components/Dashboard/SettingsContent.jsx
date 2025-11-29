@@ -148,6 +148,16 @@ const SettingsContent = ({ user, onProfileUpdate }) => {
     // Validar antes de enviar
     if (!validateProfile()) {
       showMessage("error", "Por favor corrige los errores en el formulario");
+      
+      // Hacer scroll al primer campo con error
+      const firstErrorField = Object.keys(errors).find(key => errors[key]);
+      if (firstErrorField) {
+        const element = document.getElementById(firstErrorField);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          element.focus();
+        }
+      }
       return;
     }
 

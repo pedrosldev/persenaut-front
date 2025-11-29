@@ -149,6 +149,21 @@
     border-radius: 4px;
     margin-bottom: 20px;
     font-weight: 500;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .message.success {
@@ -161,6 +176,7 @@
     background-color: #f8d7da;
     color: #721c24;
     border: 1px solid #f5c6cb;
+    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.15);
 }
 
 .infoNote {
