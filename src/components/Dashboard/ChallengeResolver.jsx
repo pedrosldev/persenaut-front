@@ -12,7 +12,7 @@ const ChallengeResolver = ({
   onComplete,
   userId,
   mode = "normal",
-  sessionId = null,
+  sessionId = null, // eslint-disable-line no-unused-vars
 }) => {
   const [selectedOption, setSelectedOption] = useState(null);
   const [showAnswer, setShowAnswer] = useState(false);
