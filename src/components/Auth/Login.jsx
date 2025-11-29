@@ -1,7 +1,7 @@
 // LoginComponent.jsx
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { authService } from "../services/authService";
+import { authService } from "../../services/authService";
 import styles from "./Login.module.css"; // Importamos los estilos modulares
 
 const LoginComponent = ({ onLogin, redirectUrl = "/dashboard" }) => {

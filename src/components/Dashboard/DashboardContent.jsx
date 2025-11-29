@@ -3,7 +3,7 @@ import { useState } from "react";
 import styles from "./DashboardContent.module.css";
 import NotificationsPanel from "./NotificationsPanel";
 import ChallengeResolver from "./ChallengeResolver";
-import TutorPanel from "../TutorPanel.jsx/TutorPanel";
+import TutorPanel from "../TutorPanel";
 
 const DashboardContent = ({ user }) => {
 

@@ -1,6 +1,6 @@
 // components/ChallengeResolver/ChallengeResolver.jsx - VERSIÓN UNIFICADA
 import React, { useState, useEffect, useRef } from "react";
-import QuestionDisplay from "../QuestionDisplay";
+import QuestionDisplay from "../Common/QuestionDisplay";
 import styles from "./ChallengeResolver.module.css";
 import {
   saveUserResponse,

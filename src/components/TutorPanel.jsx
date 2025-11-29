@@ -1,7 +1,7 @@
 // src/components/Dashboard/TutorPanel/TutorPanel.jsx
 import { useState, useEffect, useCallback } from "react";
 import styles from "./TutorPanel.module.css";
-import { getTutorAdvice } from "../../services/apiService";
+import { getTutorAdvice } from "../services/apiService";
 
 const TutorPanel = ({ userId }) => {
   const [advice, setAdvice] = useState(null);
