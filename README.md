@@ -153,6 +153,46 @@ persenaut-front/
 - `POST /api/tutor-advice` - Consejos del tutor IA
 - `GET /api/user` - Perfil de usuario
 
+## 🚧 Estado del Proyecto
+
+Este proyecto representa mi enfoque de aprendizaje activo en desarrollo full-stack, combinando conocimientos fundamentales con herramientas modernas de desarrollo asistido por IA.
+
+### 💡 Filosofía de Desarrollo
+
+He utilizado herramientas de IA (como GitHub Copilot y asistentes de código) como **acelerador del aprendizaje**, no como sustituto. Cada decisión de arquitectura, patrón de diseño y solución implementada ha sido:
+- 📖 **Analizada y comprendida** antes de su implementación
+- 🎯 **Alineada con mejores prácticas** de la industria
+- 🔍 **Revisada críticamente** para entender el por qué, no solo el cómo
+- 🛠️ **Base para refactorización manual** continua aplicando mis propios criterios
+
+El objetivo es acelerar el desarrollo del MVP mientras consolido conocimientos, permitiéndome enfocarme en la arquitectura, lógica de negocio y mejores prácticas, en lugar de solo en la sintaxis.
+
+### ✅ Implementado
+- Sistema de autenticación completo con gestión de sesiones
+- Generación de desafíos personalizados con IA (Groq)
+- Dashboard interactivo con múltiples secciones
+- Gestión completa de perfil de usuario
+- Sistema de revisión intensiva gamificada
+- Métricas y seguimiento de progreso
+- Gestión de temas y notas
+- Arquitectura modular y escalable
+
+### 🔨 En Desarrollo Activo
+- Refactorización manual de componentes
+- Suite de testing automatizado (Jest, React Testing Library)
+- Implementación de CI/CD pipelines
+- Optimización de rendimiento
+- Mejoras de accesibilidad (a11y)
+- Aplicación de patrones de diseño avanzados
+
+### 📅 Roadmap
+- Migración a TypeScript (con comprensión profunda de tipos)
+- Dockerización y orquestación
+- Progressive Web App (PWA)
+- Internacionalización (i18n)
+- Sistema de notificaciones en tiempo real
+- Implementación de arquitectura hexagonal
+
 ## 🤝 Contribución
 
 Las contribuciones son bienvenidas. Por favor:
