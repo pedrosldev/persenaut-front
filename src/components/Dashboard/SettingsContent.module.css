@@ -177,6 +177,20 @@
     color: #1976d2;
 }
 
+/* Añade estos estilos a SettingsContent.module.css */
+
+.inputError {
+    border-color: #dc2626 !important;
+    background-color: #fef2f2;
+}
+
+.errorMessage {
+    display: block;
+    color: #dc2626;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .contentHeader {

@@ -28,7 +28,13 @@ const SettingsContent = ({ user, onProfileUpdate }) => {
   const [message, setMessage] = useState({ type: "", text: "" });
   const [isLoading, setIsLoading] = useState(false);
 
-  // Cargar perfil al montar el componente
+  // Errores de validación por campo
+  const [errors, setErrors] = useState({
+    name: "",
+    username: "",
+    email: "",
+  });
+
   useEffect(() => {
     loadProfile();
   }, []);
@@ -39,7 +45,6 @@ const SettingsContent = ({ user, onProfileUpdate }) => {
       setProfile(profileData);
     } catch (error) {
       showMessage("error", "Error al cargar el perfil");
-      // Usar datos del user prop como fallback
       setProfile({
         name: user.name,
         username: user.username,
@@ -53,9 +58,85 @@ const SettingsContent = ({ user, onProfileUpdate }) => {
     setTimeout(() => setMessage({ type: "", text: "" }), 5000);
   };
 
+  // Validaciones individuales
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email.trim()) {
+      return "El email es requerido";
+    }
+    if (!emailRegex.test(email)) {
+      return "El formato del email no es válido";
+    }
+    return "";
+  };
+
+  const validateName = (name) => {
+    if (!name.trim()) {
+      return "El nombre es requerido";
+    }
+    if (name.trim().length < 2) {
+      return "El nombre debe tener al menos 2 caracteres";
+    }
+    return "";
+  };
+
+  const validateUsername = (username) => {
+    if (!username.trim()) {
+      return "El nombre de usuario es requerido";
+    }
+    if (username.trim().length < 3) {
+      return "El nombre de usuario debe tener al menos 3 caracteres";
+    }
+    if (!/^[a-zA-Z0-9_-]+$/.test(username)) {
+      return "Solo letras, números, guiones y guiones bajos";
+    }
+    return "";
+  };
+
+  // Validar todo el perfil
+  const validateProfile = () => {
+    const newErrors = {
+      name: validateName(profile.name),
+      username: validateUsername(profile.username),
+      email: validateEmail(profile.email),
+    };
+
+    setErrors(newErrors);
+
+    // Retorna true si no hay errores
+    return !Object.values(newErrors).some((error) => error !== "");
+  };
+
   const handleProfileChange = (e) => {
     const { name, value } = e.target;
     setProfile((prev) => ({ ...prev, [name]: value }));
+
+    // Limpiar error del campo cuando el usuario empieza a escribir
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: "" }));
+    }
+  };
+
+  // Validar campo al perder el foco
+  const handleBlur = (e) => {
+    const { name, value } = e.target;
+    let error = "";
+
+    switch (name) {
+      case "email":
+        error = validateEmail(value);
+        break;
+      case "name":
+        error = validateName(value);
+        break;
+      case "username":
+        error = validateUsername(value);
+        break;
+      default:
+        break;
+    }
+
+    setErrors((prev) => ({ ...prev, [name]: error }));
   };
 
   const handlePasswordChange = (e) => {
@@ -64,6 +145,12 @@ const SettingsContent = ({ user, onProfileUpdate }) => {
   };
 
   const handleSaveProfile = async () => {
+    // Validar antes de enviar
+    if (!validateProfile()) {
+      showMessage("error", "Por favor corrige los errores en el formulario");
+      return;
+    }
+
     setIsLoading(true);
     try {
       await updateProfile(profile);
@@ -82,6 +169,14 @@ const SettingsContent = ({ user, onProfileUpdate }) => {
   const handleChangePassword = async () => {
     if (passwordData.newPassword !== passwordData.confirmPassword) {
       showMessage("error", "Las contraseñas no coinciden");
+      return;
+    }
+
+    if (passwordData.newPassword.length < 6) {
+      showMessage(
+        "error",
+        "La nueva contraseña debe tener al menos 6 caracteres"
+      );
       return;
     }
 
@@ -124,7 +219,6 @@ const SettingsContent = ({ user, onProfileUpdate }) => {
     try {
       await deleteAccount(deletePassword);
       showMessage("success", "Cuenta eliminada correctamente");
-      // Redirigir al login después de 2 segundos
       setTimeout(() => {
         window.location.href = "/login";
       }, 2000);
@@ -137,7 +231,8 @@ const SettingsContent = ({ user, onProfileUpdate }) => {
 
   const cancelEditing = () => {
     setIsEditing(false);
-    loadProfile(); // Recargar datos originales
+    setErrors({ name: "", username: "", email: "" });
+    loadProfile();
   };
 
   const cancelPasswordChange = () => {
@@ -204,9 +299,14 @@ const SettingsContent = ({ user, onProfileUpdate }) => {
               name="name"
               value={profile.name}
               onChange={handleProfileChange}
+              onBlur={handleBlur}
               disabled={!isEditing || isLoading}
               placeholder="Tu nombre completo"
+              className={errors.name ? styles.inputError : ""}
             />
+            {errors.name && (
+              <span className={styles.errorMessage}>{errors.name}</span>
+            )}
           </div>
 
           <div className={styles.formGroup}>
@@ -217,9 +317,14 @@ const SettingsContent = ({ user, onProfileUpdate }) => {
               name="username"
               value={profile.username}
               onChange={handleProfileChange}
+              onBlur={handleBlur}
               disabled={!isEditing || isLoading}
               placeholder="Nombre de usuario único"
+              className={errors.username ? styles.inputError : ""}
             />
+            {errors.username && (
+              <span className={styles.errorMessage}>{errors.username}</span>
+            )}
           </div>
 
           <div className={styles.formGroup}>
@@ -230,9 +335,14 @@ const SettingsContent = ({ user, onProfileUpdate }) => {
               name="email"
               value={profile.email}
               onChange={handleProfileChange}
+              onBlur={handleBlur}
               disabled={!isEditing || isLoading}
               placeholder="tu@email.com"
+              className={errors.email ? styles.inputError : ""}
             />
+            {errors.email && (
+              <span className={styles.errorMessage}>{errors.email}</span>
+            )}
           </div>
         </div>
 
@@ -310,7 +420,6 @@ const SettingsContent = ({ user, onProfileUpdate }) => {
             </div>
           )}
 
-          {/* Nota sobre restablecimiento de contraseña */}
           <div className={styles.infoNote}>
             <p>
               ¿Olvidaste tu contraseña? El sistema de restablecimiento por email
