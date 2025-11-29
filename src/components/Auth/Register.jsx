@@ -103,6 +103,7 @@ const RegisterComponent = ({
     setIsLoading(true);
     setError("");
     setValidationErrors({});
+    // eslint-disable-next-line no-unused-vars
     const { confirmPassword, ...registerData } = formData;
 
     try {
