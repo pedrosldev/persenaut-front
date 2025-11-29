@@ -1,5 +1,5 @@
 // src/components/Dashboard/SettingsContent/SettingsContent.jsx
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   getProfile,
   updateProfile,
@@ -35,11 +35,7 @@ const SettingsContent = ({ user, onProfileUpdate }) => {
     email: "",
   });
 
-  useEffect(() => {
-    loadProfile();
-  }, []);
-
-  const loadProfile = async () => {
+  const loadProfile = useCallback(async () => {
     try {
       const profileData = await getProfile();
       setProfile(profileData);
@@ -51,7 +47,11 @@ const SettingsContent = ({ user, onProfileUpdate }) => {
         email: user.email,
       });
     }
-  };
+  }, [user.name, user.username, user.email]);
+
+  useEffect(() => {
+    loadProfile();
+  }, [loadProfile]);
 
   const showMessage = (type, text) => {
     setMessage({ type, text });
