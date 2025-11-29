@@ -153,6 +153,14 @@ const RegisterComponent = ({
     <div className={styles.pageContainer}>
       <main className={styles.container}>
         <h1 className={styles.title}>Crear cuenta</h1>
+        
+        <button
+          type="button"
+          onClick={() => navigate("/")}
+          className={styles.backLink}
+        >
+          ← Volver a la página principal
+        </button>
 
         <div>
           <div className={styles.formGroup}>
