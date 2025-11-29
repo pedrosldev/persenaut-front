@@ -43,7 +43,7 @@ const SettingsContent = ({ user, onProfileUpdate }) => {
     try {
       const profileData = await getProfile();
       setProfile(profileData);
-    } catch (error) {
+    } catch (error) { // eslint-disable-line no-unused-vars
       showMessage("error", "Error al cargar el perfil");
       setProfile({
         name: user.name,
