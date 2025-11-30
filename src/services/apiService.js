@@ -1,45 +1,28 @@
-const API_ENDPOINT = import.meta.env.VITE_API_ENDPOINT;
-const GROQ_API = import.meta.env.VITE_GROQ_API;
-const  NOTES_API = import.meta.env.VITE_GENERATE_FROM_NOTES_API;
-const API_TUTOR = import.meta.env.VITE_API_TUTOR;
-const SAVE_RESPONSE_API = import.meta.env.VITE_API_SAVE_RESPONSE;
-const SAVE_INTENSIVE_RESPONSES_API = import.meta.env
-  .VITE_SAVE_INTENSIVE_RESPONSES_API;
+// src/services/apiService.js
+import { httpClient } from '../lib/httpClient';
+import { API_CONFIG } from '../config/api';
 
-
+/**
+ * Generar y guardar pregunta
+ * @param {object} questionData - Datos de la pregunta
+ * @returns {Promise<object>}
+ */
 export const generateAndSaveQuestion = async (questionData) => {
   try {
-    const response = await fetch(API_ENDPOINT, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(questionData),
-    });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || `Error ${response.status}`);
-    }
-
-    return await response.json();
+    return await httpClient.post(API_CONFIG.questions.generate, questionData);
   } catch (error) {
     console.error("Error generating question:", error);
     throw error;
   }
 };
+/**
+ * Generar pregunta desde notas
+ * @param {object} notesData - Datos de las notas
+ * @returns {Promise<object>}
+ */
 export const generateFromNotes = async (notesData) => {
   try {
-    const response = await fetch(NOTES_API, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(notesData),
-    });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || `Error ${response.status}`);
-    }
-
-    return await response.json();
+    return await httpClient.post(API_CONFIG.questions.generateFromNotes, notesData);
   } catch (error) {
     console.error("Error generating question from notes:", error);
     throw error;
@@ -66,86 +49,62 @@ export const generateFromNotes = async (notesData) => {
 //     }
 // };
 
+/**
+ * Generar pregunta usando Groq API
+ * @param {object} data - {theme, level, previousQuestions}
+ * @returns {Promise<string>}
+ */
 export const testGroq = async (data) => {
   try {
-    const res = await fetch(GROQ_API, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      // ✅ Enviar theme, level, previousQuestions en lugar de prompt
-      body: JSON.stringify({
-        theme: data.theme,
-        level: data.level,
-        previousQuestions: data.previousQuestions || [],
-      }),
+    const response = await httpClient.post(API_CONFIG.questions.groq, {
+      theme: data.theme,
+      level: data.level,
+      previousQuestions: data.previousQuestions || [],
     });
-
-    if (!res.ok) {
-      const error = await res.json();
-      throw new Error(error.error || "Error en la API Groq");
-    }
-
-    const data_response = await res.json();
-    return data_response.response;
-  } catch (err) {
-    console.error(err);
-    throw err;
+    return response.response;
+  } catch (error) {
+    console.error("Error en Groq API:", error);
+    throw error;
   }
 };
 
-// En tu apiService.js - AÑADE ESTO
+/**
+ * Obtener consejos del tutor IA
+ * @param {string} userId - ID del usuario
+ * @param {string} timeRange - Rango de tiempo (default: 'week')
+ * @returns {Promise<object>}
+ */
 export const getTutorAdvice = async (userId, timeRange = 'week') => {
   try {
-    const response = await fetch(`${API_TUTOR}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId, timeRange }),
-    });
-
-    if (!response.ok) {
-      throw new Error(`Error ${response.status}`);
-    }
-
-    return await response.json();
+    return await httpClient.post(API_CONFIG.tutor, { userId, timeRange });
   } catch (error) {
     console.error("Error getting tutor advice:", error);
     throw error;
   }
 };
 
-// ✅ PARA RESPUESTAS NORMALES
+/**
+ * Guardar respuesta del usuario (normal)
+ * @param {object} responseData - Datos de la respuesta
+ * @returns {Promise<object>}
+ */
 export const saveUserResponse = async (responseData) => {
   try {
-    const response = await fetch(SAVE_RESPONSE_API, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(responseData),
-    });
-
-    if (!response.ok) {
-      throw new Error(`Error ${response.status}`);
-    }
-
-    return await response.json();
+    return await httpClient.post(API_CONFIG.questions.saveResponse, responseData);
   } catch (error) {
     console.error("Error saving user response:", error);
     throw error;
   }
 };
 
-// ✅ PARA RESPUESTAS INTENSIVAS
+/**
+ * Guardar respuesta intensiva del usuario
+ * @param {object} responseData - Datos de la respuesta intensiva
+ * @returns {Promise<object>}
+ */
 export const saveIntensiveResponse = async (responseData) => {
   try {
-    const response = await fetch(SAVE_INTENSIVE_RESPONSES_API, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(responseData),
-    });
-
-    if (!response.ok) {
-      throw new Error(`Error ${response.status}`);
-    }
-
-    return await response.json();
+    return await httpClient.post(API_CONFIG.questions.saveIntensiveResponses, responseData);
   } catch (error) {
     console.error("Error saving intensive response:", error);
     throw error;

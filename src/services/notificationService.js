@@ -1,39 +1,29 @@
-// services/notificationService.js
-const API_NOTIFY = import.meta.env.VITE_NOTIFY_API;
-const START_CHALLENGE_API = import.meta.env.VITE_START_CHALLENGE_API;
+// src/services/notificationService.js
+import { httpClient } from '../lib/httpClient';
+import { API_CONFIG } from '../config/api';
 
+/**
+ * Obtener desafíos pendientes del usuario
+ * @param {string} userId - ID del usuario
+ * @returns {Promise<object>}
+ */
 export const getPendingChallenges = async (userId) => {
   try {
-    const response = await fetch(API_NOTIFY, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId }),
-    });
-
-    if (!response.ok) {
-      throw new Error(`Error ${response.status}`);
-    }
-
-    return await response.json();
+    return await httpClient.post(API_CONFIG.notifications.pending, { userId });
   } catch (error) {
     console.error("Error fetching pending challenges:", error);
-    return { challenges: [] };
+    return { challenges: [] }; // Devuelve array vacío en caso de error
   }
 };
 
+/**
+ * Iniciar un desafío
+ * @param {string} challengeId - ID del desafío
+ * @returns {Promise<object>}
+ */
 export const startChallenge = async (challengeId) => {
   try {
-    const response = await fetch(START_CHALLENGE_API, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ challengeId }),
-    });
-
-    if (!response.ok) {
-      throw new Error(`Error ${response.status}`);
-    }
-
-    return await response.json();
+    return await httpClient.post(API_CONFIG.notifications.startChallenge, { challengeId });
   } catch (error) {
     console.error("Error starting challenge:", error);
     throw error;

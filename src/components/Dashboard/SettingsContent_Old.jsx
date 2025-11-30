@@ -1,92 +1,263 @@
-// src/components/Dashboard/SettingsContent.jsx
-import { useEffect } from 'react';
-import { useProfileForm } from '../../hooks/useProfileForm';
-import { usePasswordChange } from '../../hooks/usePasswordChange';
-import { useAccountDeletion } from '../../hooks/useAccountDeletion';
-import { useMessage } from '../../hooks/useMessage';
-import styles from './SettingsContent.module.css';
+// src/components/Dashboard/SettingsContent/SettingsContent.jsx
+import { useState, useEffect, useCallback } from "react";
+import {
+  getProfile,
+  updateProfile,
+  changePassword,
+  deleteAccount,
+} from "../../services/profileService";
+import styles from "./SettingsContent.module.css";
 
 const SettingsContent = ({ user, onProfileUpdate }) => {
-  // Custom hooks
-  const { message, showMessage } = useMessage();
-  
-  const {
-    profile,
-    errors,
-    isEditing,
-    isLoading: profileLoading,
-    setIsEditing,
-    loadProfile,
-    handleChange: handleProfileChange,
-    handleBlur,
-    saveProfile,
-    cancelEdit,
-  } = useProfileForm(user || {}, onProfileUpdate);
-
-  const {
-    passwordData,
-    isChangingPassword,
-    isLoading: passwordLoading,
-    setIsChangingPassword,
-    handleChange: handlePasswordChange,
-    handleChangePassword: changePass,
-    cancelPasswordChange,
-  } = usePasswordChange();
-
-  const {
-    deletePassword,
-    isDeleting,
-    isLoading: deleteLoading,
-    setIsDeleting,
-    handlePasswordChange: handleDeletePasswordChange,
-    handleDeleteAccount: deleteAcc,
-    cancelDeletion,
-  } = useAccountDeletion(() => {
-    showMessage('success', 'Cuenta eliminada correctamente');
-    setTimeout(() => {
-      window.location.href = '/login';
-    }, 2000);
+  const [profile, setProfile] = useState({
+    name: "",
+    username: "",
+    email: "",
   });
 
-  const isLoading = profileLoading || passwordLoading || deleteLoading;
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
 
-  // Cargar perfil al montar
+  const [deletePassword, setDeletePassword] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [message, setMessage] = useState({ type: "", text: "" });
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Errores de validación por campo
+  const [errors, setErrors] = useState({
+    name: "",
+    username: "",
+    email: "",
+  });
+
+  const loadProfile = useCallback(async () => {
+    try {
+      const profileData = await getProfile();
+      setProfile(profileData);
+    } catch (error) { // eslint-disable-line no-unused-vars
+      showMessage("error", "Error al cargar el perfil");
+      setProfile({
+        name: user.name,
+        username: user.username,
+        email: user.email,
+      });
+    }
+  }, [user.name, user.username, user.email]);
+
   useEffect(() => {
     loadProfile();
   }, [loadProfile]);
 
-  // Handlers con mensajes
+  const showMessage = (type, text) => {
+    setMessage({ type, text });
+    setTimeout(() => setMessage({ type: "", text: "" }), 5000);
+  };
+
+  // Validaciones individuales
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email.trim()) {
+      return "El email es requerido";
+    }
+    if (!emailRegex.test(email)) {
+      return "El formato del email no es válido";
+    }
+    return "";
+  };
+
+  const validateName = (name) => {
+    if (!name.trim()) {
+      return "El nombre es requerido";
+    }
+    if (name.trim().length < 2) {
+      return "El nombre debe tener al menos 2 caracteres";
+    }
+    return "";
+  };
+
+  const validateUsername = (username) => {
+    if (!username.trim()) {
+      return "El nombre de usuario es requerido";
+    }
+    if (username.trim().length < 3) {
+      return "El nombre de usuario debe tener al menos 3 caracteres";
+    }
+    if (!/^[a-zA-Z0-9_-]+$/.test(username)) {
+      return "Solo letras, números, guiones y guiones bajos";
+    }
+    return "";
+  };
+
+  // Validar todo el perfil
+  const validateProfile = () => {
+    const newErrors = {
+      name: validateName(profile.name),
+      username: validateUsername(profile.username),
+      email: validateEmail(profile.email),
+    };
+
+    setErrors(newErrors);
+
+    // Retorna true si no hay errores
+    return !Object.values(newErrors).some((error) => error !== "");
+  };
+
+  const handleProfileChange = (e) => {
+    const { name, value } = e.target;
+    setProfile((prev) => ({ ...prev, [name]: value }));
+
+    // Limpiar error del campo cuando el usuario empieza a escribir
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: "" }));
+    }
+  };
+
+  // Validar campo al perder el foco
+  const handleBlur = (e) => {
+    const { name, value } = e.target;
+    let error = "";
+
+    switch (name) {
+      case "email":
+        error = validateEmail(value);
+        break;
+      case "name":
+        error = validateName(value);
+        break;
+      case "username":
+        error = validateUsername(value);
+        break;
+      default:
+        break;
+    }
+
+    setErrors((prev) => ({ ...prev, [name]: error }));
+  };
+
+  const handlePasswordChange = (e) => {
+    const { name, value } = e.target;
+    setPasswordData((prev) => ({ ...prev, [name]: value }));
+  };
+
   const handleSaveProfile = async () => {
-    const result = await saveProfile();
-    if (result.success) {
-      showMessage('success', result.message);
-    } else {
-      showMessage('error', result.error);
+    // Validar antes de enviar
+    if (!validateProfile()) {
+      showMessage("error", "Por favor corrige los errores en el formulario");
+      
+      // Hacer scroll al primer campo con error
+      const firstErrorField = Object.keys(errors).find(key => errors[key]);
+      if (firstErrorField) {
+        const element = document.getElementById(firstErrorField);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          element.focus();
+        }
+      }
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      await updateProfile(profile);
+      setIsEditing(false);
+      showMessage("success", "Perfil actualizado correctamente");
+      if (onProfileUpdate) {
+        onProfileUpdate(profile);
+      }
+    } catch (error) {
+      showMessage("error", error.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleChangePassword = async () => {
-    const result = await changePass();
-    if (result.success) {
-      showMessage('success', result.message);
-    } else {
-      showMessage('error', result.error);
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      showMessage("error", "Las contraseñas no coinciden");
+      return;
+    }
+
+    if (passwordData.newPassword.length < 6) {
+      showMessage(
+        "error",
+        "La nueva contraseña debe tener al menos 6 caracteres"
+      );
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      await changePassword({
+        currentPassword: passwordData.currentPassword,
+        newPassword: passwordData.newPassword,
+      });
+
+      setPasswordData({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
+      setIsChangingPassword(false);
+      showMessage("success", "Contraseña cambiada correctamente");
+    } catch (error) {
+      showMessage("error", error.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleDeleteAccount = async () => {
-    const result = await deleteAcc();
-    if (result.success && !result.cancelled) {
-      // El mensaje lo maneja el callback del hook
-    } else if (!result.cancelled) {
-      showMessage('error', result.error);
+    if (!deletePassword) {
+      showMessage("error", "Por favor ingresa tu contraseña para confirmar");
+      return;
+    }
+
+    if (
+      !window.confirm(
+        "¿Estás seguro de que quieres eliminar tu cuenta? Esta acción no se puede deshacer y se perderán todos tus datos."
+      )
+    ) {
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      await deleteAccount(deletePassword);
+      showMessage("success", "Cuenta eliminada correctamente");
+      setTimeout(() => {
+        window.location.href = "/login";
+      }, 2000);
+    } catch (error) {
+      showMessage("error", error.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  // Validar que hay datos del usuario antes de renderizar
-  if (!user) {
-    return <div className={styles.content}>Cargando información del usuario...</div>;
-  }
+  const cancelEditing = () => {
+    setIsEditing(false);
+    setErrors({ name: "", username: "", email: "" });
+    loadProfile();
+  };
+
+  const cancelPasswordChange = () => {
+    setIsChangingPassword(false);
+    setPasswordData({
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+    });
+  };
+
+  const cancelDelete = () => {
+    setIsDeleting(false);
+    setDeletePassword("");
+  };
 
   return (
     <>
@@ -96,7 +267,7 @@ const SettingsContent = ({ user, onProfileUpdate }) => {
           <div className={styles.headerActions}>
             <button
               className={styles.btnSecondary}
-              onClick={cancelEdit}
+              onClick={cancelEditing}
               disabled={isLoading}
             >
               Cancelar
@@ -106,7 +277,7 @@ const SettingsContent = ({ user, onProfileUpdate }) => {
               onClick={handleSaveProfile}
               disabled={isLoading}
             >
-              {profileLoading ? 'Guardando...' : 'Guardar cambios'}
+              {isLoading ? "Guardando..." : "Guardar cambios"}
             </button>
           </div>
         ) : (
@@ -130,19 +301,18 @@ const SettingsContent = ({ user, onProfileUpdate }) => {
         {/* Información Personal */}
         <div className={styles.section}>
           <h3>Información Personal</h3>
-          
           <div className={styles.formGroup}>
             <label htmlFor="name">Nombre completo</label>
             <input
               type="text"
               id="name"
               name="name"
-              value={profile.name || ''}
+              value={profile.name}
               onChange={handleProfileChange}
               onBlur={handleBlur}
               disabled={!isEditing || isLoading}
               placeholder="Tu nombre completo"
-              className={errors.name ? styles.inputError : ''}
+              className={errors.name ? styles.inputError : ""}
             />
             {errors.name && (
               <span className={styles.errorMessage}>{errors.name}</span>
@@ -155,12 +325,12 @@ const SettingsContent = ({ user, onProfileUpdate }) => {
               type="text"
               id="username"
               name="username"
-              value={profile.username || ''}
+              value={profile.username}
               onChange={handleProfileChange}
               onBlur={handleBlur}
               disabled={!isEditing || isLoading}
               placeholder="Nombre de usuario único"
-              className={errors.username ? styles.inputError : ''}
+              className={errors.username ? styles.inputError : ""}
             />
             {errors.username && (
               <span className={styles.errorMessage}>{errors.username}</span>
@@ -173,12 +343,12 @@ const SettingsContent = ({ user, onProfileUpdate }) => {
               type="email"
               id="email"
               name="email"
-              value={profile.email || ''}
+              value={profile.email}
               onChange={handleProfileChange}
               onBlur={handleBlur}
               disabled={!isEditing || isLoading}
               placeholder="tu@email.com"
-              className={errors.email ? styles.inputError : ''}
+              className={errors.email ? styles.inputError : ""}
             />
             {errors.email && (
               <span className={styles.errorMessage}>{errors.email}</span>
@@ -254,7 +424,7 @@ const SettingsContent = ({ user, onProfileUpdate }) => {
                   onClick={handleChangePassword}
                   disabled={isLoading}
                 >
-                  {passwordLoading ? 'Cambiando...' : 'Cambiar contraseña'}
+                  {isLoading ? "Cambiando..." : "Cambiar contraseña"}
                 </button>
               </div>
             </div>
@@ -296,7 +466,7 @@ const SettingsContent = ({ user, onProfileUpdate }) => {
                     type="password"
                     id="deletePassword"
                     value={deletePassword}
-                    onChange={handleDeletePasswordChange}
+                    onChange={(e) => setDeletePassword(e.target.value)}
                     disabled={isLoading}
                     placeholder="Tu contraseña actual"
                   />
@@ -304,7 +474,7 @@ const SettingsContent = ({ user, onProfileUpdate }) => {
                 <div className={styles.formActions}>
                   <button
                     className={styles.btnSecondary}
-                    onClick={cancelDeletion}
+                    onClick={cancelDelete}
                     disabled={isLoading}
                   >
                     Cancelar
@@ -314,7 +484,7 @@ const SettingsContent = ({ user, onProfileUpdate }) => {
                     onClick={handleDeleteAccount}
                     disabled={isLoading}
                   >
-                    {deleteLoading ? 'Eliminando...' : 'Confirmar eliminación'}
+                    {isLoading ? "Eliminando..." : "Confirmar eliminación"}
                   </button>
                 </div>
               </div>

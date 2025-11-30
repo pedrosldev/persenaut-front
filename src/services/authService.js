@@ -1,44 +1,40 @@
 // src/services/authService.js
-export class AuthService {
-    constructor() {
-        this.API_URL_LOGIN = import.meta.env.VITE_LOGIN_API;
-        this.API_URL_REGISTER = import.meta.env.VITE_REGISTER_API || `${this.API_URL_LOGIN.replace('/login', '/register')}`;
-        this.API_URL_LOGOUT = import.meta.env.VITE_LOGOUT_API || `${this.API_URL_LOGIN.replace('/login', '/logout')}`;
-        this.API_URL_CHECK_AUTH = import.meta.env.VITE_CHECK_AUTH_API || `${this.API_URL_LOGIN.replace('/login', '/check-auth')}`;
-    }
+import { httpClient } from '../lib/httpClient';
+import { API_CONFIG } from '../config/api';
 
-    // Método base para verificar autenticación
+/**
+ * Servicio de autenticación
+ * Maneja login, registro, logout y verificación de autenticación
+ */
+export class AuthService {
+    /**
+     * Verificar autenticación actual
+     * @returns {Promise<{success: boolean, isAuthenticated: boolean, user?: object}>}
+     */
     async checkAuth() {
         try {
-            const res = await fetch(this.API_URL_CHECK_AUTH, {
-                method: 'GET',
-                credentials: 'include'
-            });
-
-            if (res.ok) {
-                const data = await res.json();
-                return {
-                    success: true,
-                    isAuthenticated: data.isAuthenticated,
-                    user: data.user || null
-                };
-            } else {
-                return {
-                    success: false,
-                    isAuthenticated: false
-                };
-            }
+            const data = await httpClient.get(API_CONFIG.auth.checkAuth);
+            return {
+                success: true,
+                isAuthenticated: data.isAuthenticated,
+                user: data.user || null,
+            };
         } catch (error) {
             console.error("Error verificando autenticación:", error);
             return {
                 success: false,
                 isAuthenticated: false,
-                error
+                error,
             };
         }
     }
 
-    // Para páginas protegidas - ahora usa React Router
+    /**
+     * Proteger rutas - Redirige si no está autenticado
+     * @param {Function} navigate - Función de navegación de React Router
+     * @param {string} redirectUrl - URL de redirección (default: /login)
+     * @returns {Promise<boolean>}
+     */
     async requireAuth(navigate, redirectUrl = '/login') {
         const result = await this.checkAuth();
 
@@ -46,7 +42,6 @@ export class AuthService {
             if (navigate) {
                 navigate(redirectUrl);
             } else {
-                // Fallback si no hay navigate disponible
                 window.location.href = redirectUrl;
             }
             return false;
@@ -55,95 +50,72 @@ export class AuthService {
         return true;
     }
 
-    // Método para login
+    /**
+     * Login de usuario
+     * @param {string} email
+     * @param {string} password
+     * @returns {Promise<{success: boolean, data?: object, error?: string}>}
+     */
     async login(email, password) {
         try {
-            const res = await fetch(this.API_URL_LOGIN, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password }),
-                credentials: 'include'
-            });
-
-            const data = await res.json();
-
-            if (res.ok) {
-                return {
-                    success: true,
-                    data
-                };
-            } else {
-                return {
-                    success: false,
-                    error: data.error || 'Credenciales inválidas'
-                };
-            }
+            const data = await httpClient.post(API_CONFIG.auth.login, { email, password });
+            return {
+                success: true,
+                data,
+            };
         } catch (error) {
             return {
                 success: false,
-                error: 'Error conectando con el servidor'
+                error: error.message || 'Credenciales inválidas',
             };
         }
     }
 
-    // Método para registro
+    /**
+     * Registro de usuario
+     * @param {object} userData - Datos del usuario
+     * @returns {Promise<{success: boolean, data?: object, error?: string}>}
+     */
     async register(userData) {
         try {
-            const res = await fetch(this.API_URL_REGISTER, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(userData),
-                credentials: 'include'
-            });
-
-            const data = await res.json();
-
-            if (res.ok) {
-                return {
-                    success: true,
-                    data
-                };
-            } else {
-                return {
-                    success: false,
-                    error: data.error || 'Error en el registro'
-                };
-            }
+            const data = await httpClient.post(API_CONFIG.auth.register, userData);
+            return {
+                success: true,
+                data,
+            };
         } catch (error) {
             return {
                 success: false,
-                error: 'Error conectando con el servidor'
+                error: error.message || 'Error en el registro',
             };
         }
     }
 
-    // Método para logout
+    /**
+     * Logout de usuario
+     * @returns {Promise<{success: boolean, error?: string}>}
+     */
     async logout() {
         try {
-            const res = await fetch(this.API_URL_LOGOUT, {
-                method: 'POST',
-                credentials: 'include'
-            });
-
+            await httpClient.post(API_CONFIG.auth.logout);
             return {
-                success: res.ok,
-                error: res.ok ? null : 'Error al cerrar sesión'
+                success: true,
             };
         } catch (error) {
             return {
                 success: false,
-                error: 'Error conectando con el servidor'
+                error: error.message || 'Error al cerrar sesión',
             };
         }
     }
 
-    // Para gestión de UI React - versión adaptada
+    /**
+     * Actualizar UI con estado de autenticación (para React)
+     * @param {object} callbacks - {onAuthenticated, onNotAuthenticated}
+     * @returns {Promise<object>}
+     */
     async updateAuthUI(callbacks = {}) {
-        const {
-            onAuthenticated,
-            onNotAuthenticated
-        } = callbacks;
-
+        const { onAuthenticated, onNotAuthenticated } = callbacks;
         const result = await this.checkAuth();
 
         if (result.isAuthenticated) {

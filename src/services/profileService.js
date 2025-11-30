@@ -1,81 +1,56 @@
-const API_USER_PROFILE = import.meta.env.VITE_API_USER_PROFILE;
+// src/services/profileService.js
+import { httpClient } from '../lib/httpClient';
+import { API_CONFIG } from '../config/api';
 
+/**
+ * Obtener perfil del usuario
+ * @returns {Promise<object>}
+ */
 export const getProfile = async () => {
   try {
-    const response = await fetch(`${API_USER_PROFILE}/profile`, {
-      method: "GET",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-    });
-
-    if (!response.ok) {
-      throw new Error(`Error ${response.status}`);
-    }
-
-    return await response.json();
+    return await httpClient.get(API_CONFIG.profile.getProfile);
   } catch (error) {
     console.error("Error getting profile:", error);
     throw error;
   }
 };
 
+/**
+ * Actualizar perfil del usuario
+ * @param {object} profileData - Datos del perfil
+ * @returns {Promise<object>}
+ */
 export const updateProfile = async (profileData) => {
   try {
-    const response = await fetch(`${API_USER_PROFILE}/profile`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify(profileData),
-    });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || `Error ${response.status}`);
-    }
-
-    return await response.json();
+    return await httpClient.put(API_CONFIG.profile.updateProfile, profileData);
   } catch (error) {
     console.error("Error updating profile:", error);
     throw error;
   }
 };
 
+/**
+ * Cambiar contraseña del usuario
+ * @param {object} passwordData - {currentPassword, newPassword}
+ * @returns {Promise<object>}
+ */
 export const changePassword = async (passwordData) => {
   try {
-    const response = await fetch(`${API_USER_PROFILE}/change-password`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify(passwordData),
-    });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || `Error ${response.status}`);
-    }
-
-    return await response.json();
+    return await httpClient.put(API_CONFIG.profile.changePassword, passwordData);
   } catch (error) {
     console.error("Error changing password:", error);
     throw error;
   }
 };
 
+/**
+ * Eliminar cuenta del usuario
+ * @param {string} password - Contraseña del usuario
+ * @returns {Promise<object>}
+ */
 export const deleteAccount = async (password) => {
   try {
-    const response = await fetch(`${API_USER_PROFILE}/account`, {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({ password }),
-    });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || `Error ${response.status}`);
-    }
-
-    return await response.json();
+    return await httpClient.delete(API_CONFIG.profile.deleteAccount, { password });
   } catch (error) {
     console.error("Error deleting account:", error);
     throw error;

@@ -1,16 +1,17 @@
-const API_THEMES = import.meta.env.VITE_API_THEMES;
+// src/services/themeService.js
+import { httpClient } from '../lib/httpClient';
+import { API_CONFIG } from '../config/api';
+
 export const themeService = {
-  // Obtener todos los temas del usuario
+  /**
+   * Obtener todos los temas del usuario
+   * @param {string} userId - ID del usuario
+   * @returns {Promise<object>}
+   */
   async getUserThemes(userId) {
     try {
       console.log("🔄 Solicitando temas para usuario:", userId);
-      const response = await fetch(`${API_THEMES}/user/${userId}`);
-
-      if (!response.ok) {
-        throw new Error(`Error ${response.status}: ${response.statusText}`);
-      }
-
-      const data = await response.json();
+      const data = await httpClient.get(API_CONFIG.themes.getUserThemes(userId));
       return data;
     } catch (error) {
       console.error("❌ Error en getUserThemes:", error);
@@ -18,26 +19,16 @@ export const themeService = {
     }
   },
 
-  // ELIMINAR TEMA COMPLETO (SOLO 2 PARÁMETROS)
+  /**
+   * Eliminar tema completo
+   * @param {string} theme - Nombre del tema
+   * @param {string} userId - ID del usuario
+   * @returns {Promise<object>}
+   */
   async deleteTheme(theme, userId) {
     try {
       console.log("🗑️ Eliminando tema completo:", theme);
-      const encodedTheme = encodeURIComponent(theme);
-
-      const response = await fetch(`${API_THEMES}/${encodedTheme}`, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId }),
-      });
-
-      console.log("📨 Status de respuesta:", response.status);
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || `Error ${response.status}`);
-      }
-
-      const result = await response.json();
+      const result = await httpClient.delete(API_CONFIG.themes.deleteTheme(theme), { userId });
       console.log("✅ Tema eliminado exitosamente:", result);
       return result;
     } catch (error) {
@@ -46,51 +37,35 @@ export const themeService = {
     }
   },
 
-  // Eliminar múltiples temas
+  /**
+   * Eliminar múltiples temas
+   * @param {Array<string>} themes - Array de nombres de temas
+   * @param {string} userId - ID del usuario
+   * @returns {Promise<object>}
+   */
   async deleteMultipleThemes(themes, userId) {
     try {
       console.log("🗑️ Eliminando múltiples temas:", themes);
-      const response = await fetch(`${API_THEMES}/delete-multiple`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ themes, userId }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Error al eliminar los temas");
-      }
-
-      return await response.json();
+      return await httpClient.post(API_CONFIG.themes.deleteMultiple, { themes, userId });
     } catch (error) {
       console.error("❌ Error en deleteMultipleThemes:", error);
       throw new Error(`Error al eliminar los temas: ${error.message}`);
     }
   },
+  /**
+   * Eliminar tema con nivel específico
+   * @param {string} theme - Nombre del tema
+   * @param {string} level - Nivel del tema
+   * @param {string} userId - ID del usuario
+   * @returns {Promise<object>}
+   */
   async deleteThemeWithLevel(theme, level, userId) {
     try {
       console.log("🎯 Eliminando tema con nivel:", { theme, level });
-
-      const encodedTheme = encodeURIComponent(theme);
-      const encodedLevel = encodeURIComponent(level);
-
-      const response = await fetch(
-        `${API_THEMES}/${encodedTheme}/${encodedLevel}`,
-        {
-          method: "DELETE",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ userId }),
-        }
+      const result = await httpClient.delete(
+        API_CONFIG.themes.deleteThemeWithLevel(theme, level),
+        { userId }
       );
-
-      console.log("📨 Status de respuesta:", response.status);
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || `Error ${response.status}`);
-      }
-
-      const result = await response.json();
       console.log("✅ Tema con nivel eliminado:", result);
       return result;
     } catch (error) {
