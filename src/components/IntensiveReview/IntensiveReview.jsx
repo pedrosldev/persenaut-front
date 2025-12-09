@@ -35,6 +35,7 @@ const IntensiveReview = ({ user }) => {
         setSession({
           ...sessionData,
           gameMode, // ← Agregar gameMode a la sesión
+          theme,    // ← Agregar theme a la sesión
         });
         setCurrentView("game");
       } catch (error) {
@@ -79,23 +80,33 @@ const IntensiveReview = ({ user }) => {
   const endSession = useCallback(
     async (correctAnswers, incorrectAnswers, timeRemaining = 0, theme) => {
       try {
+        // En modo timed: calcular tiempo usado
+        // En modo survival: siempre 0 (no hay límite de tiempo)
         const timeUsed =
-          session.gameMode === "timed" ? 180 - timeRemaining : timeRemaining;
+          session.gameMode === "timed" ? 180 - timeRemaining : 0;
+
+        const payload = {
+          sessionId: session.sessionId,
+          correctAnswers,
+          incorrectAnswers,
+          gameMode: session.gameMode,
+          timeUsed: timeUsed,
+          theme: theme || session.theme,
+        };
+
+        console.log("📤 Enviando al backend:", payload);
 
         const response = await fetch(SAVE_RESULTS_INTENSIVE_REVIEW_API, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            sessionId: session.sessionId,
-            correctAnswers,
-            incorrectAnswers,
-            gameMode: session.gameMode,
-            timeUsed: timeUsed,
-            theme: theme || session.theme,
-          }),
+          body: JSON.stringify(payload),
         });
 
-        if (!response.ok) throw new Error("Error al guardar resultados");
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          console.error("❌ Error del backend:", response.status, errorData);
+          throw new Error(errorData.error || "Error al guardar resultados");
+        }
 
         const result = await response.json();
 
