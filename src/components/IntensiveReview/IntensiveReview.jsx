@@ -14,11 +14,13 @@ const IntensiveReview = ({ user }) => {
   const [currentView, setCurrentView] = useState("config");
   const [session, setSession] = useState(null);
   const [results, setResults] = useState(null);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const startSession = useCallback(
     async (theme, gameMode) => {
       // ← Recibir gameMode
       try {
+        setIsGenerating(true);
         const response = await fetch(START_INTENSIVE_REVIEW_API, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -40,6 +42,8 @@ const IntensiveReview = ({ user }) => {
         setCurrentView("game");
       } catch (error) {
         alert("Error al iniciar sesión: " + error.message);
+      } finally {
+        setIsGenerating(false);
       }
     },
     [user.id]
@@ -134,6 +138,17 @@ const IntensiveReview = ({ user }) => {
 
   return (
     <div className={styles.container}>
+      {isGenerating && (
+        <div className={styles.loaderOverlay}>
+          <div className={styles.loaderContent}>
+            <div className={styles.spinner}></div>
+            <h2 className={styles.loaderTitle}>🤖 Persenaut está generando tu sesión...</h2>
+            <p className={styles.loaderMessage}>
+              Estoy preparando los mejores retos para ti. ¡Esto solo tomará unos segundos!
+            </p>
+          </div>
+        </div>
+      )}
       {currentView === "config" && (
         <SessionConfig user={user} onStart={startSession} />
       )}
